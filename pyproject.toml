@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "railpulse-gemma-cloudrun"
+version = "1.0.0"
+description = "RailPulse AI: Live Rail Tracking & Smart Dispatch Agent with Open-Weights Gemma, Google ADK, Function Calling, Deterministic Guardrails, Streamlit & Cloud Run (DevFest Baku 2026)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "google-adk>=1.0.0",
+    "litellm>=1.63.0",
+    "pydantic>=2.10.0",
+    "streamlit>=1.42.0",
+    "pandas>=2.2.0",
+    "httpx>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["railpulse_agent*"]
