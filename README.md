@@ -70,3 +70,17 @@ chmod +x deploy/deploy_cloud_run.sh
 [![Amazon Author](https://img.shields.io/badge/Amazon_Book-Cloud_Computing_Voyage-FF9900?style=for-the-badge&logo=amazon)](https://www.amazon.com/dp/B0D146249R)
 
 <!-- AUTHOR_SIGNATURE_END -->
+
+---
+
+## Star, Fork & Sponsor This Project
+
+[![Star on GitHub](https://img.shields.io/github/stars/RobinaMirbahar/railpulse-gemma-cloudrun?style=for-the-badge&logo=github&label=Star)](https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun)
+[![Fork on GitHub](https://img.shields.io/github/forks/RobinaMirbahar/railpulse-gemma-cloudrun?style=for-the-badge&logo=github&label=Fork)](https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun/fork)
+[![Sponsor RobinaMirbahar](https://img.shields.io/badge/Sponsor-%40RobinaMirbahar-ea4aaa?style=for-the-badge&logo=githubsponsors)](https://github.com/sponsors/RobinaMirbahar)
+
+If this project is helpful to your work:
+* **Star this Repository:** [**Star `RobinaMirbahar/railpulse-gemma-cloudrun` on GitHub**](https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun) to bookmark it and help others discover it.
+* **Fork & Customize:** [**Fork `RobinaMirbahar/railpulse-gemma-cloudrun`**](https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun/fork) to build and experiment with your own workflows.
+* **Sponsor on GitHub:** [**Sponsor `@RobinaMirbahar` on GitHub Sponsors (`github.com/sponsors/RobinaMirbahar`)**](https://github.com/sponsors/RobinaMirbahar) to support open-source AI, Google Cloud, and Gemini engineering projects!
+
