@@ -233,7 +233,7 @@ python -m pytest tests/test_railpulse.py -v
 
 <br>
 
-> 📸 **[Console Screenshot: All Safety Tests Passing (Green)]**
+![Step 3: All 4 Safety Guardrail Tests Passing](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_pytest_all_passed.png)
 
 <br>
 
