@@ -99,9 +99,19 @@ Step 1: Cloud Shell Setup ──> Step 2: Gemma Tools ──> Step 3: Safety Gua
 
 [![Open in Google Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
 
-1. Click the blue **Open in Google Cloud Shell** button above, or open [Google Cloud Console](https://console.cloud.google.com/) and click **Activate Cloud Shell** (`>_`).
+1. Click the blue **Open in Google Cloud Shell** button above.
+2. When the **Open in Cloud Shell** confirmation dialog appears:
+   - Check the box **☑️ Trust repo**
+   - Click **Confirm**
+   - Google Cloud Shell will automatically provision your Linux terminal and clone `railpulse-gemma-cloudrun` into your workspace.
 
-![Step 1: Activate Cloud Shell](assets/screenshots/01_activate_cloud_shell.png)
+<br>
+
+> 📸 **[Console Screenshot: Open in Cloud Shell Confirmation Dialog]**
+
+![Step 1: Open in Cloud Shell Confirmation](assets/screenshots/01_activate_cloud_shell.png)
+
+<br>
 
 2. Authenticate and configure your Google Cloud project:
 ```bash
