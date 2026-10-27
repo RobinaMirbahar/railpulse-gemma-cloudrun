@@ -118,8 +118,10 @@ html, body, [class*="css"] {
 .node-active {
     background: #f59e0b;
     color: #ffffff;
-    transform: scale(1.22);
-    border: 2px solid #0284c7;
+    transform: scale(1.25);
+    border: 2.5px solid #0284c7;
+    animation: livePulse 1.5s infinite;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
 }
 
 .node-next {
@@ -161,6 +163,12 @@ html, body, [class*="css"] {
     color: #881337;
     font-size: 13.5px;
     margin-bottom: 16px;
+}
+
+@keyframes livePulse {
+    0% { transform: scale(1.15); box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
+    50% { transform: scale(1.32); box-shadow: 0 0 16px rgba(245, 158, 11, 0.85); }
+    100% { transform: scale(1.15); box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
 }
 </style>""",
     unsafe_allow_html=True,
