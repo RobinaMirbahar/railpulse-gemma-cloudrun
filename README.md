@@ -75,35 +75,36 @@ flowchart TD
 
 ---
 
-## ⏱️ 45-Minute Hands-On Workshop Lab Guide (Google Cloud Shell)
+## ⏱️ 45-Minute Hands-On Workshop Lab Guide (Step-by-Step for Students)
 
-Everything in this workshop runs entirely inside **Google Cloud Shell**—requiring **zero local software installation**. Bring your laptop, open a browser, and follow along step by step.
+Every step is designed with four clear answers:
+1. **📌 What is this step?**
+2. **❓ Why do we use this?**
+3. **🔗 What is the link with the other steps?**
+4. **💻 What commands to run & what you see on screen.**
 
 ```
-00:00 ─── [Module 1: Cloud Shell Setup] ─── 05:00
-05:00 ─── [Module 2: Gemma Tools & Function Calling] ─── 15:00
-15:00 ─── [Module 3: Deterministic Interlocks & Schemas] ─── 25:00
-25:00 ─── [Module 4: Live Streamlit Rail Tracker] ─── 35:00
-35:00 ─── [Module 5: Serverless Cloud Run Deployment] ─── 45:00
+Step 1: Cloud Shell Setup ──> Step 2: Gemma Tools ──> Step 3: Safety Guardrails ──> Step 4: Web Dashboard ──> Step 5: Live Cloud Run
+ (Free Browser Machine)       (Live Train Sensors)      (Zero-Collision Rules)      (Interactive UI Map)       (Scale-to-$0 Public URL)
 ```
 
 ---
 
-### Module 1: Cloud Shell Setup (00:00 - 05:00) — Step 1: Open Google Cloud Shell
+### 📍 Step 1: Google Cloud Shell Environment Setup (00:00 – 05:00)
+
+- **📌 What is this step?** Launching a browser-based Linux developer environment provided by Google Cloud and downloading the RailPulse AI code.
+- **❓ Why do we use this?** Students have different laptops (Windows, macOS, Linux, Chromebooks) with different software versions. Google Cloud Shell provides a 100% free, identical Linux machine in your browser with `gcloud`, Python 3.11, and Docker pre-installed—so nobody has to troubleshoot local setup errors.
+- **🔗 What is the link?** This creates the clean workspace where we will inspect Gemma's tools (Step 2), enforce safety rules (Step 3), test the web UI (Step 4), and build the container (Step 5).
+
+#### 💻 Actions:
 
 [![Open in Google Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
 
-> **👉 Step 1 Action:** Click the blue **Open in Google Cloud Shell** button above to launch Google Cloud Shell and automatically clone this repository in a single click.
-
-Alternatively, follow the manual console steps below:
-
-1. Open your browser and navigate to the [Google Cloud Console](https://console.cloud.google.com/).
-2. In the top navigation bar, click the **Activate Cloud Shell** icon (`>_`).
+1. Click the blue **Open in Google Cloud Shell** button above, or open [Google Cloud Console](https://console.cloud.google.com/) and click **Activate Cloud Shell** (`>_`).
 
 ![Step 1: Activate Cloud Shell](assets/screenshots/01_activate_cloud_shell.png)
 
-3. Verify your active Google Cloud project and authenticated account:
-
+2. Authenticate and configure your Google Cloud project:
 ```bash
 gcloud auth list
 gcloud config set project $(gcloud config get-value project)
@@ -111,8 +112,7 @@ gcloud config set project $(gcloud config get-value project)
 
 ![Step 2: Verify gcloud authentication](assets/screenshots/02_gcloud_auth_list.png)
 
-4. Clone the RailPulse AI repository and enter the directory:
-
+3. Clone and enter the repository:
 ```bash
 git clone https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git
 cd railpulse-gemma-cloudrun
@@ -120,8 +120,7 @@ cd railpulse-gemma-cloudrun
 
 ![Step 3: Clone RailPulse AI repository](assets/screenshots/03_git_clone_railpulse.png)
 
-5. Create and activate a Python 3.11 virtual environment, then install dependencies:
-
+4. Create and activate a virtual environment and install dependencies:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -130,16 +129,18 @@ pip install -r requirements.txt
 
 ---
 
-### Module 2: Function Calling & Telemetry Tools (05:00 - 15:00)
+### 📍 Step 2: Equipping Gemma with Live Railway Telemetry Tools (05:00 – 15:00)
 
-In this module, we inspect how the agent queries live train status and track conditions using Python function calling in `railpulse_agent/tools.py`:
+- **📌 What is this step?** Giving Google's open-weights Gemma model access to live Python functions that read train speeds, GPS coordinates, block signals, and weather.
+- **❓ Why do we use this?** An AI language model on its own only knows text; it has zero real-time awareness of where trains are. Just like [Patri (patri.hataf.dev)](https://patri.hataf.dev/) connects to live train GPS to display arrivals, our Gemma agent uses **Function Calling** to inspect live sensors before generating any dispatch decision.
+- **🔗 What is the link?** Takes the environment prepared in **Step 1** and gives Gemma the live data it needs so that **Step 3** can evaluate whether those conditions are physically safe.
 
-- `get_live_train_telemetry(train_id)`: Fetches live GPS coordinates, speed (`km/h`), delay (`minutes`), and current block location for corridors such as the *Baku–Ganja High-Speed Express* (`ADY-EXP-101`) or *Baku–Sumgayit Absheron Commuter* (`ADY-SUB-304`).
-- `check_corridor_signals_and_wind(corridor_id)`: Queries track block status (`FREE`, `OCCUPIED`, `MAINTENANCE`) and live Caspian coastal crosswind velocity (`km/h`).
-- `calculate_schedule_recovery(train_id, target_speed_kmh, use_passing_siding)`: Runs deterministic timetable math to compute headway recovery and arrival adjustments.
+#### 💻 How It Works (`railpulse_agent/tools.py`):
+- `get_live_train_telemetry(train_id)`: Queries live train speed (`km/h`), delay (`minutes`), and track block (e.g. *Baku–Ganja Express* `ADY-EXP-101`).
+- `check_corridor_signals_and_wind(corridor_id)`: Checks whether downstream track blocks are `FREE` or `OCCUPIED` and checks Caspian coastal crosswinds.
+- `calculate_schedule_recovery(train_id, target_speed_kmh, use_passing_siding)`: Calculates timetable adjustments and headway recovery.
 
-Test the full agent workflow via the CLI runner:
-
+Run the terminal demonstration to see Gemma calling these tools:
 ```bash
 python scripts/run_demo.py
 ```
@@ -148,84 +149,76 @@ python scripts/run_demo.py
 
 ---
 
-### Module 3: Deterministic Interlocks & Structured Outputs (15:00 - 25:00)
+### 📍 Step 3: Enforcing Deterministic Safety Guardrails & Schemas (15:00 – 25:00)
 
-> [!IMPORTANT]
-> **Safety Rule for AI in Critical Infrastructure:** Large language models must **never** be given unilateral authority to route physical vehicles or override safety interlocks.
+- **📌 What is this step?** Wrapping Gemma's output in non-negotiable software interlocks (`guardrails.py`) and a strict JSON data schema (`schemas.py`).
+- **❓ Why do we use this?** In mission-critical railway operations, an AI hallucination could cause a collision or derailment. A language model must **never** have the final say on physical safety. If a track is blocked, a software guardrail must *physically force* a diversion regardless of what the LLM generated.
+- **🔗 What is the link?** Protects the telemetry gathered in **Step 2** from hallucinations and outputs a strictly verified `RailDispatchAdvisory` JSON object that **Step 4** can safely render on a visual map.
 
-In `railpulse_agent/guardrails.py`, RailPulse AI implements a two-tier safety interlock that runs before any advisory is approved:
+#### 🛡️ The Two Non-Negotiable Safety Rules:
+1. **Block Collision Interlock:** If the main line block is `OCCUPIED`, the agent strictly overrides any forward clearance and diverts the train into a verified `FREE` passing loop siding (`BLK-BILAJARI-SIDING-S1`).
+2. **Caspian Wind Speed Cap:** If crosswinds off the Caspian Sea exceed `65 km/h`, the speed advisory is capped to `<= 80 km/h` to prevent aerodynamic instability.
 
-1. **Track Block Interlock:** If the downstream block is `OCCUPIED`, the agent strictly forbids proceeding along the main line and automatically diverts the train into a verified `FREE` siding loop (`BLK-BILAJARI-SIDING-S1`).
-2. **Caspian High-Wind Speed Cap:** If crosswinds off the Absheron peninsula exceed `65 km/h`, the advisory clamps train speed to `<= 80 km/h` regardless of LLM output.
-3. **Pydantic v2 Schema Validation (`railpulse_agent/schemas.py`):** Ensures every response conforms strictly to the `RailDispatchAdvisory` JSON structure:
-
-```json
-{
-  "train_id": "ADY-EXP-101",
-  "status": "REROUTED_TO_SIDING",
-  "assigned_block": "BLK-BILAJARI-SIDING-S1",
-  "max_speed_kmh": 80,
-  "headway_recovery_min": 6.5,
-  "rationale": "Primary block BLK-GANJA-MAIN-02 is OCCUPIED and Caspian crosswind is 72 km/h. Siding diversion enforced."
-}
-```
-
-Run the automated test suite to verify the guardrails:
-
+Run the automated test suite to verify the guardrails block hallucinations:
 ```bash
 pytest tests/test_railpulse.py -v
 ```
 
 ---
 
-### Module 4: Launching the Interactive Streamlit Dashboard (25:00 - 35:00)
+### 📍 Step 4: Launching the Interactive Web Rail Tracker & Simulator (25:00 – 35:00)
 
-Launch the interactive dashboard to visualize live train positions, departure boards, and the interactive **Caspian Wind & Block Occupancy Simulator**:
+- **📌 What is this step?** Launching an interactive Streamlit web dashboard in Cloud Shell that displays train positions on a map, live departure boards, and a 1-click **Caspian Wind & Block Occupancy Simulator**.
+- **❓ Why do we use this?** Train dispatchers and station masters cannot operate by reading raw command-line JSON. They need an interactive visual interface to see where trains are, test scenarios, and review the AI agent's recommendations in human-friendly format.
+- **🔗 What is the link?** Connects the verified backend agent from **Steps 2 & 3** to a user-friendly frontend that students can click and explore before deploying to production in **Step 5**.
 
+#### 💻 Actions:
+
+Start the Streamlit application on port 8080:
 ```bash
 streamlit run app.py --server.port=8080 --server.address=0.0.0.0
 ```
 
-1. In the upper-right corner of Google Cloud Shell, click **Web Preview** (`eye icon`).
+1. In the upper-right corner of Google Cloud Shell, click the **Web Preview** icon.
 2. Select **Change port > 8080 > Preview and Run**.
 
 ![Step 5: Interactive Streamlit Rail Tracker](assets/screenshots/05_streamlit_railpulse_dashboard.png)
 
-In the dashboard, try:
-- Toggling **Caspian Wind Speed** to `> 65 km/h` to see the high-wind safety clamp engage.
-- Changing **Track Block 02** from `FREE` to `OCCUPIED` to see the autonomous siding diversion trigger in real time.
+#### 🧪 Try This in the Dashboard:
+- **Test High Winds:** Slide the Caspian Wind speed slider to `75 km/h`. Watch the guardrail automatically engage the `80 km/h` speed restriction.
+- **Test Track Blockage:** Toggle Block 02 to `OCCUPIED`. Watch the agent immediately route the Baku–Ganja Express into the Bilajari passing siding.
 
 ---
 
-### Module 5: Deploying to Google Cloud Run (35:00 - 45:00) — Step 5: Serverless Deployment
+### 📍 Step 5: Deploying to Google Cloud Run with Scale-to-Zero (35:00 – 45:00)
+
+- **📌 What is this step?** Packaging the entire application into a Docker container and deploying it as a production serverless web service on Google Cloud Run.
+- **❓ Why do we use this?** Inside Cloud Shell, the app only runs while your browser tab is open. Cloud Run gives you a permanent, secure `https://...run.app` URL accessible from anywhere in the world. With `--min-instances 0`, Cloud Run automatically scales to zero instances when idle—meaning **students pay $0** after the workshop ends.
+- **🔗 What is the link?** Takes everything built in **Steps 1 through 4** (Gemma + Google ADK + Safety Guardrails + Streamlit UI) and turns it into a live public product you can show on your portfolio or resume.
+
+#### 💻 Actions:
 
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run/?git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
 
-> **👉 Step 5 Action:** Click the **Run on Google Cloud** button above to deploy your containerized agent directly to Google Cloud Run, or execute the deployment script in your terminal below:
-
+1. Click the **Run on Google Cloud** button above, or run the automated script in your Cloud Shell terminal:
 ```bash
 chmod +x deploy/deploy_cloud_run.sh
 ./deploy/deploy_cloud_run.sh
 ```
 
-Or deploy directly with `gcloud`:
-
+Or deploy directly via `gcloud`:
 ```bash
 gcloud run deploy railpulse-gemma   --source .   --region europe-west1   --allow-unauthenticated   --memory 2Gi   --cpu 2   --min-instances 0   --max-instances 5
 ```
 
 ![Step 6: Google Cloud Run Deployment Success](assets/screenshots/06_cloud_run_deploy_success.png)
 
-When deployment completes, Cloud Run outputs your live service URL:
+2. Open the printed **Service URL** in your browser:
 ```text
-Service [railpulse-gemma] revision [railpulse-gemma-00001-xyz] has been deployed and is serving 100 percent of traffic.
-Service URL: https://railpulse-gemma-xxxxxxxxxx-ew.a.run.app
+https://railpulse-gemma-xxxxxxxxxx-ew.a.run.app
 ```
+Congratulations! You have built, verified, and deployed an open-source AI agent powered by Gemma on Google Cloud! 🎉
 
-> [!TIP]
-> **Scale-to-Zero ($0 Idle Cost):** Because `--min-instances 0` is set, Cloud Run automatically scales container instances down to zero when no HTTP requests are arriving, meaning your workshop demo incurs $0 in idle compute costs.
-
----
 
 ## 📁 Repository Structure
 
