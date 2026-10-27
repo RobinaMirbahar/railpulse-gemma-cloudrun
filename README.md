@@ -444,6 +444,54 @@ gcloud run services list \
 
 ---
 
+## 📱 Bonus: How to Run & Test Gemma 100% Offline (Mobile & Laptop)
+
+One of the biggest advantages of building with **Google's open-weights Gemma models** is that they can run **100% offline with zero internet connection**—ideal for edge devices on moving trains, remote railway stations, or air-gapped environments.
+
+### Option A: Run Gemma 100% Offline on Mobile (Official **Google AI Edge Gallery** App)
+
+Google provides the official, open-source **Google AI Edge Gallery** app to download and run quantized Gemma models directly on your phone's NPU/GPU with zero cloud dependency:
+
+1. **Download the Official App:**
+   - **Android (Google Play / Direct APK):** Search **"Google AI Edge Gallery"** on Google Play or download the official `.apk` from [github.com/google-ai-edge/gallery/releases](https://github.com/google-ai-edge/gallery/releases).
+   - **iOS (iPhone App Store):** Search **"Google AI Edge Gallery"** on the Apple App Store.
+   - **Official GitHub Repository:** [github.com/google-ai-edge/gallery](https://github.com/google-ai-edge/gallery)
+2. **Download the Gemma Model Weights Once:**
+   - Open the app, choose **AI Chat** or **Prompt Lab**, and download **Gemma 3 (1B / 4B)** or **Gemma 3n** to your phone storage.
+3. **Test Offline (Airplane Mode):**
+   - Switch your phone to **Airplane Mode** (Wi-Fi and mobile data off).
+   - Paste a RailPulse AI dispatch prompt to test on-device reasoning offline:
+     ```text
+     You are the Azerbaijan Railways (ADY) Safety Dispatch Agent.
+     Train ADY-104 (Baku to Sumgayit) is at Bilajari Junction.
+     Requested speed: 145 km/h.
+     Live Caspian crosswind: 78 km/h (Safety threshold: 65 km/h -> max 80 km/h).
+     Primary Block BLK-SUMGAYIT-A1 is FREE.
+     Issue the safe approved speed, track block, and passenger announcement in English and Azerbaijani.
+     ```
+
+### Option B: Run the Full RailPulse AI Dashboard 100% Offline on Your Laptop (via Ollama)
+
+To run the complete Streamlit dashboard and Google ADK agent offline on your laptop:
+
+1. **Install [Ollama](https://ollama.com/download)** (available for macOS, Linux, and Windows).
+2. **Pull the Gemma Open-Weights Model (while online once):**
+   ```bash
+   ollama pull gemma3:4b
+   # Or for lightweight laptops (under 4GB RAM):
+   ollama pull gemma3:1b
+   ```
+3. **Disconnect from the Internet & Launch RailPulse AI:**
+   ```bash
+   source .venv/bin/activate
+   export GEMMA_MODEL_NAME="ollama_chat/gemma3:4b"
+   export OLLAMA_API_BASE="http://localhost:11434"
+   streamlit run app.py
+   ```
+   Open `http://localhost:8501` — the agent, deterministic safety interlocks, and chat assistant all operate locally with zero internet required!
+
+---
+
 ## 📁 Repository Structure
 
 ```text
