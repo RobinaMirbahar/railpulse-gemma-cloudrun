@@ -1,6 +1,7 @@
-"""Production Streamlit Dashboard for RailPulse AI.
-Pixel-faithful architecture inspired by the iconic layout and design of Patri (patri.hataf.dev).
-Powered by Open-Weights Gemma, Google ADK Function Calling, Deterministic Railway Interlocks, and Google Cloud Run.
+"""RailPulse AI — Autonomous Rail Telemetry & Smart Dispatch Agent for Azerbaijan Railways (ADY).
+
+Built with Open-Weights Gemma, Google ADK Function Calling, Deterministic Railway Interlocks, and Google Cloud Run.
+Trilingual: English • Azerbaijani (Azərbaycan dili) • Russian (Русский язык).
 """
 
 import json
@@ -11,40 +12,34 @@ from railpulse_agent.agent import run_railpulse_dispatch
 from railpulse_agent.tools import CORRIDOR_SIGNALS, LIVE_TRAINS
 
 st.set_page_config(
-    page_title="RailPulse · Live Azerbaijan Railways (ADY)",
+    page_title="RailPulse AI · ADY Azerbaijan Railways",
     page_icon="🚆",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ---------------------------------------------------------
-# Exact Patri (patri.hataf.dev) Design System Tokens & CSS
+# Custom Modern Transit Design System (Caspian Teal & Sky Palette)
 # ---------------------------------------------------------
 st.markdown(
     """<style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap');
 
 :root {
-    --ground: #eef2ee;
+    --ground: #f6f8fb;
     --surface: #ffffff;
-    --ink: #0b1f17;
-    --ink-muted: #56665d;
-    --line: #d5ddd7;
-    --line-soft: #e3e9e5;
-    --sabz-700: #01411c;
-    --sabz-800: #022c14;
-    --sabz-900: #0b1f17;
-    --sabz-100: #e3ede6;
-    --zard-500: #f2c230;
-    --zard-100: #fdf3d2;
-    --red-alert: #d93829;
-    --red-bg: #fdf0ee;
-    --blue-bg: #e8f0fe;
-    --blue-text: #1a73e8;
+    --ink: #0f172a;
+    --ink-muted: #64748b;
+    --line: #e2e8f0;
+    --caspian-blue: #0284c7;
+    --baku-teal: #0d9488;
+    --baku-gold: #f59e0b;
+    --emerald-green: #10b981;
+    --alert-rose: #f43f5e;
 }
 
 html, body, [class*="css"] {
-    font-family: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--ink);
 }
 
@@ -52,249 +47,172 @@ html, body, [class*="css"] {
     background-color: var(--ground);
 }
 
-/* Header Brand Bar matching Patri */
-.patri-header {
+/* Unique RailPulse Header */
+.rp-header {
+    background: linear-gradient(135deg, #0284c7 0%, #0d9488 50%, #059669 100%);
+    padding: 22px 28px;
+    border-radius: 20px;
+    color: white;
+    margin-bottom: 22px;
+    box-shadow: 0 10px 28px rgba(2, 132, 199, 0.2);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 20px;
-    background: var(--surface);
-    border-bottom: 2px solid var(--sabz-700);
-    border-radius: 12px 12px 0 0;
-    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-.brand-wrap {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.brand-logo-text {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 32px;
+.rp-header h1 {
+    color: #ffffff;
+    font-size: 26px;
     font-weight: 800;
-    letter-spacing: 1.5px;
-    color: var(--sabz-700);
-    line-height: 1;
-}
-
-.brand-script {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--sabz-700);
-    border-left: 2px solid var(--line);
-    padding-left: 10px;
-}
-
-.header-right {
+    letter-spacing: -0.3px;
+    margin: 0;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
 }
 
-.live-badge-pill {
+.rp-header p {
+    color: #e0f2fe;
+    font-size: 13.5px;
+    font-weight: 500;
+    margin: 4px 0 0 0;
+}
+
+.live-pill {
+    background: #fef08a;
+    color: #854d0e;
+    font-weight: 800;
+    font-size: 11.5px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    letter-spacing: 0.6px;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--sabz-700);
-    letter-spacing: 0.5px;
 }
 
 .live-dot {
     width: 8px;
     height: 8px;
-    background: #22c55e;
+    background: #eab308;
     border-radius: 50%;
-    animation: livePulse 1.6s infinite;
+    animation: livePulse 1.5s infinite;
 }
 
 @keyframes livePulse {
     0% { transform: scale(0.95); opacity: 1; }
-    50% { transform: scale(1.4); opacity: 0.5; }
+    50% { transform: scale(1.35); opacity: 0.6; }
     100% { transform: scale(0.95); opacity: 1; }
 }
 
-.lang-switch {
-    display: inline-flex;
-    border: 1.5px solid var(--sabz-700);
-    border-radius: 6px;
-    overflow: hidden;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.lang-opt {
-    padding: 4px 10px;
-    background: var(--surface);
-    color: var(--sabz-700);
-}
-
-.lang-active {
-    background: var(--sabz-700);
-    color: white;
-}
-
-/* Section Header */
-.list-section-header {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: var(--ink);
-    text-transform: uppercase;
-    margin: 16px 0 10px 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Train Card Row matching Patri exactly */
-.train-card-row {
+/* Clean Cards */
+.rp-card {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+    margin-bottom: 18px;
+}
+
+/* Fleet Mini-Cards */
+.fleet-card {
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    margin-bottom: 10px;
+    transition: all 0.15s ease;
 }
 
-.train-card-active {
-    border: 2px solid var(--sabz-700);
-    background: #ffffff;
-    box-shadow: 0 4px 14px rgba(1, 65, 28, 0.12);
+.fleet-card-active {
+    border-color: #0284c7;
+    background: #f0f9ff;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12);
 }
 
-.train-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.train-number-badge {
-    background: var(--sabz-900);
-    color: var(--zard-500);
-    border-radius: 6px;
-    padding: 6px 8px;
-    min-width: 44px;
+.fleet-badge {
+    background: #0f172a;
+    color: #facc15;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 8px;
+    min-width: 42px;
     text-align: center;
-    line-height: 1.1;
 }
 
-.badge-num {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 19px;
-    font-weight: 800;
-}
-
-.badge-type {
-    font-size: 9px;
+.status-badge {
+    font-size: 11.5px;
     font-weight: 700;
-    color: #ffffff;
-    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 999px;
     text-transform: uppercase;
 }
 
-.train-meta {
-    display: flex;
-    flex-direction: column;
+.status-late {
+    background: #ffe4e6;
+    color: #e11d48;
 }
 
-.train-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1.2;
+.status-ontime {
+    background: #e0f2fe;
+    color: #0284c7;
 }
 
-.train-subroute {
-    font-size: 13px;
-    color: var(--ink-muted);
-    font-weight: 500;
-    margin-top: 2px;
+.status-recovered {
+    background: #dcfce7;
+    color: #15803d;
 }
 
-.delay-pill {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    padding: 6px 12px;
-    border-radius: 6px;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.delay-pill-red {
-    background: var(--red-bg);
-    color: var(--red-alert);
-}
-
-.delay-pill-blue {
-    background: var(--blue-bg);
-    color: var(--blue-text);
-}
-
-.delay-pill-green {
-    background: var(--sabz-100);
-    color: var(--sabz-700);
-}
-
-/* Timeline component */
-.timeline-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 16px 18px 20px 18px;
-    margin-bottom: 16px;
-}
-
-.timeline-container {
+/* Timeline */
+.timeline-box {
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: relative;
-    padding: 24px 10px 10px 10px;
+    padding: 24px 14px 12px 14px;
 }
 
-.timeline-track {
+.timeline-line {
     position: absolute;
     top: 36px;
-    left: 35px;
-    right: 35px;
+    left: 40px;
+    right: 40px;
     height: 5px;
-    background: #dbe3dd;
+    background: #e2e8f0;
     border-radius: 999px;
     z-index: 1;
 }
 
-.timeline-track-fill {
+.timeline-fill {
     position: absolute;
     top: 36px;
-    left: 35px;
+    left: 40px;
     height: 5px;
-    background: var(--sabz-700);
+    background: linear-gradient(90deg, #0284c7, #10b981);
     border-radius: 999px;
     z-index: 2;
 }
 
-.station-node {
+.station-item {
     position: relative;
     z-index: 3;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-width: 80px;
+    min-width: 85px;
 }
 
-.node-dot {
+.station-circle {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -303,86 +221,91 @@ html, body, [class*="css"] {
     justify-content: center;
     font-size: 12px;
     font-weight: 800;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
-.node-passed {
-    background: var(--sabz-700);
+.circle-passed {
+    background: #10b981;
     color: white;
 }
 
-.node-current {
-    background: var(--zard-500);
-    color: var(--sabz-900);
+.circle-current {
+    background: #facc15;
+    color: #713f12;
     transform: scale(1.22);
-    border: 2px solid var(--sabz-700);
+    border: 2px solid #0d9488;
     animation: livePulse 1.8s infinite;
 }
 
-.node-upcoming {
-    background: #ffffff;
-    color: #66736b;
-    border: 2px solid var(--line);
+.circle-upcoming {
+    background: white;
+    color: #94a3b8;
+    border: 2px solid #cbd5e1;
 }
 
-.node-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--ink);
-}
-
-.node-time {
-    font-size: 11px;
-    color: var(--ink-muted);
-    font-weight: 600;
-}
-
-/* Dispatch announcement card */
-.announcement-card {
-    background: var(--zard-100);
-    border-left: 5px solid var(--zard-500);
-    border-radius: 10px;
-    padding: 14px 18px;
-    color: var(--sabz-900);
-    font-size: 14px;
+/* Announcements & Audits */
+.announcement-box {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1px solid #fde68a;
+    border-left: 5px solid #f59e0b;
+    padding: 16px 20px;
+    border-radius: 14px;
+    color: #78350f;
+    font-size: 14.5px;
     line-height: 1.5;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
 
-.audit-card {
-    background: var(--sabz-100);
-    border-left: 5px solid var(--sabz-700);
-    border-radius: 10px;
+.audit-box-pass {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-left: 5px solid #22c55e;
     padding: 14px 18px;
-    color: var(--sabz-900);
-    font-size: 13px;
-    margin-bottom: 14px;
+    border-radius: 14px;
+    color: #166534;
+    font-size: 13.5px;
+    margin-bottom: 16px;
 }
 
-.audit-card-warn {
-    background: var(--red-bg);
-    border-left: 5px solid var(--red-alert);
-    border-radius: 10px;
+.audit-box-warn {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-left: 5px solid #f43f5e;
     padding: 14px 18px;
-    color: #991b1b;
-    font-size: 13px;
-    margin-bottom: 14px;
+    border-radius: 14px;
+    color: #9f1239;
+    font-size: 13.5px;
+    margin-bottom: 16px;
 }
 </style>""",
     unsafe_allow_html=True,
 )
 
 # ---------------------------------------------------------
-# Sidebar: Live Corridor Simulator Controls
+# Sidebar: Trilingual Selector & Live Corridor Simulator
 # ---------------------------------------------------------
 with st.sidebar:
+    st.markdown("### 🌐 **Language / Dil / Язык**")
+    lang = st.radio(
+        "Choose Display Language",
+        options=["EN", "AZ", "RU"],
+        format_func=lambda x: {"EN": "🇬🇧 English", "AZ": "🇦🇿 Azərbaycan", "RU": "🇷🇺 Русский"}[x],
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+
+    st.markdown("---")
     st.markdown("### 🎛️ **Live Corridor Simulator**")
-    st.caption("Inject live environmental and track occupancy conditions:")
+    st.caption(
+        "Simulate live weather conditions and track occupancy in real-time:"
+        if lang == "EN"
+        else ("Hava şəraiti və xətt məşğulluğunu real vaxtda simulyasiya edin:" if lang == "AZ" else "Симуляция погодных условий и занятости путей в реальном времени:")
+    )
 
     selected_train = st.selectbox(
-        "Select Active ADY Train",
+        "Select Active ADY Train" if lang == "EN" else ("Aktiv ADY Qatarını Seçin" if lang == "AZ" else "Выберите поезд АЖД"),
         options=["ADY-104", "ADY-702", "ADY-410"],
         format_func=lambda x: f"{x} — {LIVE_TRAINS[x]['route_name']}",
     )
@@ -391,7 +314,7 @@ with st.sidebar:
     current_corridor = CORRIDOR_SIGNALS[corridor_id]
 
     st.markdown("---")
-    st.markdown("#### ⚡ **Operating Scenario Presets**")
+    st.markdown("#### ⚡ **Quick Scenario Presets**" if lang == "EN" else ("#### ⚡ **Ssenari Seçimləri**" if lang == "AZ" else "#### ⚡ **Быстрые сценарии**"))
     col_p1, col_p2 = st.columns(2)
     with col_p1:
         if st.button("🌪️ High Wind (78 km/h)", use_container_width=True):
@@ -399,17 +322,17 @@ with st.sidebar:
             st.session_state["block_select"] = "FREE"
             st.session_state["speed_slider"] = 145
     with col_p2:
-        if st.button("🚧 Track Blockage", use_container_width=True):
+        if st.button("🚧 Track Blocked", use_container_width=True):
             st.session_state["block_select"] = "OCCUPIED"
             st.session_state["speed_slider"] = 110
 
-    if st.button("☀️ Clear Corridor Nominal", use_container_width=True):
+    if st.button("☀️ Clear Sky Normal", use_container_width=True):
         st.session_state["wind_slider"] = 28
         st.session_state["block_select"] = "FREE"
         st.session_state["speed_slider"] = 120
 
     st.markdown("---")
-    st.markdown("#### 🎚️ **Manual Corridor Controls**")
+    st.markdown("#### 🎚️ **Manual Parameter Adjustment**" if lang == "EN" else ("#### 🎚️ **Əl ilə İdarəetmə**" if lang == "AZ" else "#### 🎚️ **Ручные настройки**"))
 
     default_wind = st.session_state.get("wind_slider", int(current_corridor["wind_speed_kmh"]))
     wind_speed = st.slider(
@@ -418,7 +341,6 @@ with st.sidebar:
         max_value=110,
         value=default_wind,
         step=2,
-        help="Deterministic Guardrail clamps train speed to <= 80 km/h when wind > 65 km/h.",
     )
 
     default_block = st.session_state.get("block_select", current_corridor["primary_block_status"])
@@ -426,7 +348,6 @@ with st.sidebar:
         f"🚦 Primary Block ({current_corridor['primary_block_id']}) Status",
         options=["FREE", "OCCUPIED", "MAINTENANCE"],
         index=["FREE", "OCCUPIED", "MAINTENANCE"].index(default_block),
-        help="Deterministic Guardrail prevents entering an OCCUPIED block and reroutes train to passing siding.",
     )
 
     default_speed = st.session_state.get("speed_slider", 145)
@@ -449,108 +370,173 @@ advisory = run_railpulse_dispatch(
 )
 
 # ---------------------------------------------------------
-# Top Bar: Patri-Authentic Brand Header
+# Trilingual Translation Dictionary
 # ---------------------------------------------------------
-topbar_html = """<div class="patri-header">
-<div class="brand-wrap">
-<div class="brand-logo-text">RAILPULSE</div>
-<div class="brand-script">DƏMİRYOLU · ADY</div>
-</div>
-<div class="header-right">
-<div class="live-badge-pill">
-<span class="live-dot"></span>
-LIVE DISPATCH
-</div>
-<div class="lang-switch">
-<span class="lang-opt lang-active">EN</span>
-<span class="lang-opt">AZ</span>
-</div>
-</div>
-</div>"""
-st.markdown(topbar_html, unsafe_allow_html=True)
+I18N = {
+    "EN": {
+        "title": "RailPulse AI — Live Rail Tracking & Smart Dispatch Agent",
+        "subtitle": "Azerbaijan Railways (ADY) High-Speed Corridor • Open-Weights Gemma • Google ADK • Cloud Run",
+        "live_badge": "ADY REAL-TIME DISPATCH",
+        "running_now": "ACTIVE ADY FLEET CORRIDORS",
+        "speed_clamped": f"↓ Clamped ({advisory.approved_speed_kmh - requested_speed} km/h)",
+        "speed_clear": "✓ Normal Speed",
+        "siding_alert": "⚠️ Passing Loop Siding",
+        "main_line": "✓ Main Line",
+        "timeline_title": f"ROUTE & STATION PROGRESSION · {LIVE_TRAINS[selected_train]['route_name']}",
+        "announcement_hdr": "📢 Passenger Station Board Announcement (ADY Audio Synthesizer)",
+        "announcement_body": advisory.passenger_announcement,
+        "audit_hdr": "🛡️ Deterministic Railway Interlock Audit",
+        "map_hdr": "🗺️ Live Azerbaijan Railways (ADY) Network Map",
+    },
+    "AZ": {
+        "title": "RailPulse AI — Dəmiryolu İzləmə və Ağıllı Dispetçer Agenti",
+        "subtitle": "Azərbaycan Dəmir Yolları (ADY) • Açıq Gemma Modeli • Google ADK • Cloud Run",
+        "live_badge": "ADY CANLI DİSPETÇER",
+        "running_now": "AKTİV ADY QATAR MARŞRUTLARI",
+        "speed_clamped": f"↓ Məhdudlaşdırıldı ({advisory.approved_speed_kmh - requested_speed} km/s)",
+        "speed_clear": "✓ Təhlükəsiz Sürət",
+        "siding_alert": "⚠️ Ehtiyat Yan Xətt",
+        "main_line": "✓ Əsas Yol",
+        "timeline_title": f"MARŞRUT VƏ STANSİYA HƏRƏKƏTİ · {LIVE_TRAINS[selected_train]['route_name']}",
+        "announcement_hdr": "📢 Stansiya Sərnişin Məlumat Lövhəsi (ADY Səsli Bildiriş)",
+        "announcement_body": f"Diqqət, sərnişinlərin nəzərinə! {LIVE_TRAINS[selected_train]['route_name']} qatarı ({advisory.train_id}) {advisory.assigned_block_id} blokuna təyin edildi. Sürət həddi: {advisory.approved_speed_kmh} km/saat. Yenilənmiş çatma vaxtı: {advisory.updated_eta}.",
+        "audit_hdr": "🛡️ Deterministik Dəmiryolu Təhlükəsizlik Auditi",
+        "map_hdr": "🗺️ Azərbaycan Dəmir Yolları (ADY) Canlı Xəritəsi",
+    },
+    "RU": {
+        "title": "RailPulse AI — Мониторинг Путей и Умный Диспетчер АЖД",
+        "subtitle": "Азербайджанские Железные Дороги (ADY) • Open-Weights Gemma • Google ADK • Cloud Run",
+        "live_badge": "АЖД ОНЛАЙН ДИСПЕТЧЕР",
+        "running_now": "АКТИВНЫЕ МАРШРУТЫ ПОЕЗДОВ АЖД",
+        "speed_clamped": f"↓ Ограничено ({advisory.approved_speed_kmh - requested_speed} км/ч)",
+        "speed_clear": "✓ В пределах нормы",
+        "siding_alert": "⚠️ Боковой путь разъезда",
+        "main_line": "✓ Главный путь",
+        "timeline_title": f"МАРШРУТ И ПРОХОЖДЕНИЕ СТАНЦИЙ · {LIVE_TRAINS[selected_train]['route_name']}",
+        "announcement_hdr": "📢 Вокзальное Табло и Оповещение Пассажиров (Аудиосинтезатор)",
+        "announcement_body": f"Внимание пассажиров! Поезд {LIVE_TRAINS[selected_train]['route_name']} ({advisory.train_id}) направлен на блок {advisory.assigned_block_id}. Утвержденная скорость: {advisory.approved_speed_kmh} км/ч. Новое время прибытия: {advisory.updated_eta}.",
+        "audit_hdr": "🛡️ Аудит Детерминированных Блокировок Безопасности",
+        "map_hdr": "🗺️ Интерактивная Карта Сети Азербайджанских Железных Дорог",
+    },
+}
+
+t = I18N[lang]
 
 # ---------------------------------------------------------
-# Two-Column Layout: Left Train Cards (Running Now) & Right Map/Details
+# Custom Modern Header Banner
+# ---------------------------------------------------------
+header_html = f"""<div class="rp-header">
+<div>
+<h1>
+<svg width="32" height="22" viewBox="0 0 40 22" fill="none">
+<rect x="2" y="4" width="28" height="12" rx="3" fill="#ffffff"/>
+<rect x="30" y="7" width="7" height="9" rx="2" fill="#ffffff"/>
+<circle cx="8" cy="18" r="3" fill="#fef08a"/>
+<circle cx="18" cy="18" r="3" fill="#fef08a"/>
+<circle cx="28" cy="18" r="3" fill="#fef08a"/>
+<circle cx="34" cy="18" r="2" fill="#fef08a"/>
+<rect x="6" y="7" width="5" height="4" rx="1" fill="#0284c7"/>
+<rect x="14" y="7" width="5" height="4" rx="1" fill="#0284c7"/>
+<rect x="22" y="7" width="5" height="4" rx="1" fill="#0284c7"/>
+<line x1="2" y1="12" x2="30" y2="12" stroke="#fef08a" stroke-width="2"/>
+</svg>
+{t['title']}
+</h1>
+<p>{t['subtitle']}</p>
+</div>
+<div style="display: flex; gap: 10px; align-items: center;">
+<span class="live-pill">
+<span class="live-dot"></span>
+{t['live_badge']}
+</span>
+</div>
+</div>"""
+st.markdown(header_html, unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# Two-Column Layout: Left Fleet & AI Dispatch, Right Route Timeline & Map
 # ---------------------------------------------------------
 col_left, col_right = st.columns([1.05, 1.35])
 
 with col_left:
-    st.markdown('<div class="list-section-header">RUNNING NOW · 3 ADY FLEET TRAINS</div>', unsafe_allow_html=True)
+    st.markdown(f"#### 🚄 **{t['running_now']}**")
 
-    # 1. ADY-104 Card
-    card_104_active = "train-card-active" if selected_train == "ADY-104" else ""
-    advisory_speed_104 = f"{advisory.approved_speed_kmh} KM/H" if selected_train == "ADY-104" else "95 KM/H"
-    card_104 = f"""<div class="train-card-row {card_104_active}">
-<div class="train-left">
-<div class="train-number-badge">
-<div class="badge-num">104</div>
-<div class="badge-type">ABS</div>
-</div>
-<div class="train-meta">
-<div class="train-title">Absheron Commuter</div>
-<div class="train-subroute">Bilajari Jn → Sumgayit Pass.</div>
+    # ADY-104 Card
+    c104_active = "fleet-card-active" if selected_train == "ADY-104" else ""
+    st.markdown(
+        f"""<div class="fleet-card {c104_active}">
+<div style="display: flex; align-items: center; gap: 12px;">
+<div class="fleet-badge">104</div>
+<div>
+<div style="font-weight: 700; font-size: 15px;">Baku-Sumgayit Absheron</div>
+<div style="font-size: 12px; color: #64748b;">Bilajari Jn → Sumgayit Pass.</div>
 </div>
 </div>
-<div class="delay-pill delay-pill-red">12 MIN LATE</div>
-</div>"""
-    st.markdown(card_104, unsafe_allow_html=True)
+<span class="status-badge status-late">12m delay</span>
+</div>""",
+        unsafe_allow_html=True,
+    )
 
-    # 2. ADY-702 Card
-    card_702_active = "train-card-active" if selected_train == "ADY-702" else ""
-    card_702 = f"""<div class="train-card-row {card_702_active}">
-<div class="train-left">
-<div class="train-number-badge">
-<div class="badge-num">702</div>
-<div class="badge-type">EXP</div>
-</div>
-<div class="train-meta">
-<div class="train-title">Baku-Ganja High-Speed</div>
-<div class="train-subroute">Yevlakh Jn → Ganja Central</div>
+    # ADY-702 Card
+    c702_active = "fleet-card-active" if selected_train == "ADY-702" else ""
+    st.markdown(
+        f"""<div class="fleet-card {c702_active}">
+<div style="display: flex; align-items: center; gap: 12px;">
+<div class="fleet-badge">702</div>
+<div>
+<div style="font-weight: 700; font-size: 15px;">Baku-Ganja High-Speed</div>
+<div style="font-size: 12px; color: #64748b;">Yevlakh Jn → Ganja Central</div>
 </div>
 </div>
-<div class="delay-pill delay-pill-red">18 MIN LATE</div>
-</div>"""
-    st.markdown(card_702, unsafe_allow_html=True)
+<span class="status-badge status-late">18m delay</span>
+</div>""",
+        unsafe_allow_html=True,
+    )
 
-    # 3. ADY-410 Card
-    card_410_active = "train-card-active" if selected_train == "ADY-410" else ""
-    card_410 = f"""<div class="train-card-row {card_410_active}">
-<div class="train-left">
-<div class="train-number-badge">
-<div class="badge-num">410</div>
-<div class="badge-type">SLK</div>
-</div>
-<div class="train-meta">
-<div class="train-title">Silk Road Express</div>
-<div class="train-subroute">Shamkir → Agstafa Border Hub</div>
+    # ADY-410 Card
+    c410_active = "fleet-card-active" if selected_train == "ADY-410" else ""
+    st.markdown(
+        f"""<div class="fleet-card {c410_active}">
+<div style="display: flex; align-items: center; gap: 12px;">
+<div class="fleet-badge">410</div>
+<div>
+<div style="font-weight: 700; font-size: 15px;">Silk Road Express (BTK)</div>
+<div style="font-size: 12px; color: #64748b;">Shamkir → Agstafa Border Hub</div>
 </div>
 </div>
-<div class="delay-pill delay-pill-blue">ON TIME</div>
-</div>"""
-    st.markdown(card_410, unsafe_allow_html=True)
+<span class="status-badge status-ontime">On Time</span>
+</div>""",
+        unsafe_allow_html=True,
+    )
 
-    st.markdown('<div class="list-section-header">🤖 GEMMA AI DISPATCH & GUARDRAIL CO-PILOT</div>', unsafe_allow_html=True)
+    st.markdown("---")
 
+    # Announcement Box
+    st.markdown(
+        f"""<div class="announcement-box">
+<div style="font-weight: 800; font-size: 11.5px; text-transform: uppercase; color: #b45309; margin-bottom: 5px;">
+{t['announcement_hdr']}
+</div>
+{t['announcement_body']}
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+    # Guardrail Audit Box
     is_clamped = advisory.approved_speed_kmh != requested_speed
     is_siding = "SIDING" in advisory.assigned_block_id
-
-    announcement_html = f"""<div class="announcement-card">
-<div style="font-weight: 800; font-size: 11px; text-transform: uppercase; color: #854d0e; margin-bottom: 4px;">
-📢 Passenger Station Board Announcement (ADY Audio Synthesizer)
-</div>
-{advisory.passenger_announcement}
-</div>"""
-    st.markdown(announcement_html, unsafe_allow_html=True)
-
-    audit_class = "audit-card-warn" if (is_clamped or is_siding) else "audit-card"
+    audit_class = "audit-box-warn" if (is_clamped or is_siding) else "audit-box-pass"
     audit_icon = "⚠️" if (is_clamped or is_siding) else "🛡️"
-    audit_html = f"""<div class="{audit_class}">
-<div style="font-weight: 800; font-size: 11px; text-transform: uppercase; margin-bottom: 4px;">
-{audit_icon} Deterministic Railway Interlock Audit
+
+    st.markdown(
+        f"""<div class="{audit_class}">
+<div style="font-weight: 800; font-size: 11.5px; text-transform: uppercase; margin-bottom: 4px;">
+{audit_icon} {t['audit_hdr']}
 </div>
 <code>{advisory.guardrail_intervention_summary}</code>
-</div>"""
-    st.markdown(audit_html, unsafe_allow_html=True)
+</div>""",
+        unsafe_allow_html=True,
+    )
 
     with st.expander("🤖 Ordered Google ADK Function Trajectory"):
         for idx, tool_name in enumerate(advisory.tools_invoked, start=1):
@@ -560,46 +546,47 @@ with col_left:
         st.code(json.dumps(advisory.model_dump(), indent=2), language="json")
 
 with col_right:
-    st.markdown(f'<div class="list-section-header">STATION TIMELINE · {LIVE_TRAINS[selected_train]["route_name"]}</div>', unsafe_allow_html=True)
+    st.markdown(f"#### 🚉 **{t['timeline_title']}**")
 
+    # Multilingual Station Names
     JOURNEY_STOPS = {
         "ADY-104": [
-            {"name": "Baku Central", "time": "12:20", "status": "passed"},
-            {"name": "Keshla Hub", "time": "12:35", "status": "passed"},
-            {"name": "Bilajari Jn", "time": "12:50", "status": "current"},
-            {"name": "Khirdalan", "time": "13:05", "status": "upcoming"},
-            {"name": "Sumgayit Pass.", "time": advisory.updated_eta, "status": "upcoming"},
+            {"name": "Baku Central" if lang != "RU" else "Баку-Пасс.", "time": "12:20", "status": "passed"},
+            {"name": "Keshla Hub" if lang != "RU" else "Кешля", "time": "12:35", "status": "passed"},
+            {"name": "Bilajari Jn" if lang != "RU" else "Баладжары", "time": "12:50", "status": "current"},
+            {"name": "Khirdalan" if lang != "RU" else "Хырдалан", "time": "13:05", "status": "upcoming"},
+            {"name": "Sumgayit Pass." if lang != "RU" else "Сумгаит", "time": advisory.updated_eta, "status": "upcoming"},
         ],
         "ADY-702": [
-            {"name": "Baku Central", "time": "08:00", "status": "passed"},
-            {"name": "Bilajari", "time": "08:35", "status": "passed"},
-            {"name": "Kurdamir", "time": "10:45", "status": "passed"},
-            {"name": "Yevlakh", "time": "12:15", "status": "current"},
-            {"name": "Ganja Central", "time": advisory.updated_eta, "status": "upcoming"},
+            {"name": "Baku Central" if lang != "RU" else "Баку-Пасс.", "time": "08:00", "status": "passed"},
+            {"name": "Bilajari" if lang != "RU" else "Баладжары", "time": "08:35", "status": "passed"},
+            {"name": "Kurdamir" if lang != "RU" else "Кюрдамир", "time": "10:45", "status": "passed"},
+            {"name": "Yevlakh" if lang != "RU" else "Евлах", "time": "12:15", "status": "current"},
+            {"name": "Ganja Central" if lang != "RU" else "Гянджа", "time": advisory.updated_eta, "status": "upcoming"},
         ],
         "ADY-410": [
-            {"name": "Baku Central", "time": "06:00", "status": "passed"},
-            {"name": "Ganja Central", "time": "11:15", "status": "passed"},
-            {"name": "Shamkir", "time": "13:00", "status": "current"},
-            {"name": "Agstafa Border", "time": "14:45", "status": "upcoming"},
-            {"name": "Tbilisi Central", "time": advisory.updated_eta, "status": "upcoming"},
+            {"name": "Baku Central" if lang != "RU" else "Баку-Пасс.", "time": "06:00", "status": "passed"},
+            {"name": "Ganja Central" if lang != "RU" else "Гянджа", "time": "11:15", "status": "passed"},
+            {"name": "Shamkir" if lang != "RU" else "Шамкир", "time": "13:00", "status": "current"},
+            {"name": "Agstafa Border" if lang != "RU" else "Агстафа", "time": "14:45", "status": "upcoming"},
+            {"name": "Tbilisi Central" if lang != "RU" else "Тбилиси", "time": advisory.updated_eta, "status": "upcoming"},
         ],
     }
 
     stops = JOURNEY_STOPS[selected_train]
     nodes_html = []
     for idx, s in enumerate(stops, start=1):
-        dot_class = f"node-{s['status']}"
+        dot_class = f"circle-{s['status']}"
         icon = "✓" if s["status"] == "passed" else ("🚆" if s["status"] == "current" else str(idx))
-        node_str = f'<div class="station-node"><div class="node-dot {dot_class}">{icon}</div><div class="node-name">{s["name"]}</div><div class="node-time">{s["time"]}</div></div>'
+        node_str = f'<div class="station-item"><div class="station-circle {dot_class}">{icon}</div><div style="font-size: 13px; font-weight: 700;">{s["name"]}</div><div style="font-size: 11px; color: #64748b;">{s["time"]}</div></div>'
         nodes_html.append(node_str)
 
     progress_pct = 50 if selected_train == "ADY-104" else (70 if selected_train == "ADY-702" else 45)
 
-    timeline_full_html = f'<div class="timeline-card"><div class="timeline-container"><div class="timeline-track"></div><div class="timeline-track-fill" style="width: {progress_pct}%;"></div>' + ''.join(nodes_html) + '</div></div>'
+    timeline_full_html = f'<div class="rp-card" style="padding: 12px 16px;"><div class="timeline-box"><div class="timeline-line"></div><div class="timeline-fill" style="width: {progress_pct}%;"></div>' + ''.join(nodes_html) + '</div></div>'
     st.markdown(timeline_full_html, unsafe_allow_html=True)
 
-    st.markdown('<div class="list-section-header">LIVE AZERBAIJAN RAILWAYS (ADY) NETWORK MAP</div>', unsafe_allow_html=True)
+    st.markdown(f"#### 🗺️ **{t['map_hdr']}**")
 
     map_rows = []
     for t_id, t_info in LIVE_TRAINS.items():
