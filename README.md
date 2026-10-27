@@ -247,9 +247,9 @@ python -m pytest tests/test_railpulse.py -v
 
 #### 💻 Actions:
 
-Start the Streamlit application on port 8080:
+Start the Streamlit application on port 8080 (with CORS & XSRF disabled for Cloud Shell proxy routing):
 ```bash
-streamlit run app.py --server.port=8080 --server.address=0.0.0.0
+streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enableCORS=false --server.enableXsrfProtection=false
 ```
 
 <br>
@@ -271,6 +271,29 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0
 
 <br>
 
+<br>
+
+> 💡 **Troubleshooting Tip: `Rejecting WebSocket connection with disallowed Origin or Host header`**  
+> If you see repeated warning logs like:  
+> `Rejecting WebSocket connection with disallowed Origin or Host header: origin https://8080-cs-...cloudshell.dev, host localhost:8080`  
+> this happens because Google Cloud Shell serves Web Preview through a secure proxy (`cloudshell.dev`), whereas Streamlit defaults to strictly expecting `localhost:8080`.
+
+<br>
+
+![Step 4 Troubleshooting: Streamlit WebSocket CORS Disallowed Origin](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_websocket_cors_fix.png)
+
+<br>
+
+> **How to Solve:**  
+> 1. Press `Ctrl + C` in your Cloud Shell terminal to stop the process.  
+> 2. Restart with the CORS flags explicitly disabled:  
+>    ```bash
+>    streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enableCORS=false --server.enableXsrfProtection=false
+>    ```  
+>    *(I have also added `.streamlit/config.toml` in the repository so a simple `git pull` configures this automatically!)*  
+> 3. Refresh your **Web Preview** browser tab.
+
+<br>
 #### 🧪 Try This in the Dashboard:
 - **Test High Winds:** Slide the Caspian Wind speed slider to `75 km/h`. Watch the guardrail automatically engage the `80 km/h` speed restriction.
 - **Test Track Blockage:** Toggle Block 02 to `OCCUPIED`. Watch the agent immediately route the Baku–Ganja Express into the Bilajari passing siding.
