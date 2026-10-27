@@ -144,7 +144,14 @@ Run the terminal demonstration to see Gemma calling these tools:
 python scripts/run_demo.py
 ```
 
+<br>
+
+> 📸 **[Your Console Screenshot Here]**  
+> *Capture your Google Cloud Shell terminal output showing Gemma executing the function calling tools and printing the telemetry values.*
+
 ![Step 4: Run CLI Demo in Cloud Shell Terminal](assets/screenshots/04_run_demo_terminal.png)
+
+<br>
 
 ---
 
@@ -162,6 +169,13 @@ Run the automated test suite to verify the guardrails block hallucinations:
 ```bash
 pytest tests/test_railpulse.py -v
 ```
+
+<br>
+
+> 📸 **[Your Console Screenshot Here]**  
+> *Capture your terminal showing all unit tests passing (green) for `test_corridor_signals_and_wind`, `test_block_occupancy_guardrail`, and `test_high_wind_clamp`.*
+
+<br>
 
 ---
 
@@ -181,7 +195,14 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0
 1. In the upper-right corner of Google Cloud Shell, click the **Web Preview** icon.
 2. Select **Change port > 8080 > Preview and Run**.
 
+<br>
+
+> 📸 **[Your Live Demo Screenshot Here]**  
+> *Capture the live Streamlit interactive dashboard showing the Azerbaijan Railways map, the active train coordinates, and the live Baku departure board.*
+
 ![Step 5: Interactive Streamlit Rail Tracker](assets/screenshots/05_streamlit_railpulse_dashboard.png)
+
+<br>
 
 #### 🧪 Try This in the Dashboard:
 - **Test High Winds:** Slide the Caspian Wind speed slider to `75 km/h`. Watch the guardrail automatically engage the `80 km/h` speed restriction.
@@ -210,7 +231,14 @@ Or deploy directly via `gcloud`:
 gcloud run deploy railpulse-gemma   --source .   --region europe-west1   --allow-unauthenticated   --memory 2Gi   --cpu 2   --min-instances 0   --max-instances 5
 ```
 
+<br>
+
+> 📸 **[Your Console Screenshot Here]**  
+> *Capture your Google Cloud Shell terminal showing the Cloud Run deployment success, 100% traffic serving, and the active `https://...run.app` service URL.*
+
 ![Step 6: Google Cloud Run Deployment Success](assets/screenshots/06_cloud_run_deploy_success.png)
+
+<br>
 
 2. Open the printed **Service URL** in your browser:
 ```text
