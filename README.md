@@ -446,13 +446,15 @@ If you launched the workspace via the **"Open in Google Cloud Shell"** button, G
 
 #### 💻 Cleanup Commands:
 
-1. **Delete the Cloud Run service:**
+1. **Delete ONLY the Cloud Run service (keeps your GCP project and GitHub repository 100% intact):**
 ```bash
+# Replace cloud-champion-innovator with your Project ID if different:
 gcloud run services delete railpulse-gemma \
-  --project=$(gcloud config get-value project) \
+  --project=cloud-champion-innovator \
   --region=europe-west1 \
   --quiet
 ```
+*(Expected output: `Deleting [railpulse-gemma]...done. Deleted service [railpulse-gemma].`)*
 
 2. **Delete the Cloud Run source container repository in Artifact Registry:**
 ```bash
