@@ -1,5 +1,6 @@
 """Live Rail Time, Departure & Schedule Chat Engine for RailPulse AI.
-Supports Natural Conversational Greetings and Trilingual Q&A (English, Azerbaijani, Russian).
+Supports Natural Conversational Greetings, Local Transit Knowledge (Airport, Hotels, Baku Central),
+and Trilingual Q&A (English, Azerbaijani, Russian).
 """
 
 from typing import Any, Dict
@@ -22,6 +23,7 @@ def answer_rail_chat_query(query: str, lang: str = "EN") -> str:
                 "👋 **Salam! RailPulse AI-a xoş gəlmisiniz.**\n\n"
                 "Mən Azərbaycan Dəmir Yolları (ADY) üzrə Gemma rəqəmsal dispetçer köməkçisiyəm. Sizə necə kömək edə bilərəm?\n"
                 "* 🕒 **Çıxış və çatma vaxtları** (məs. *Sumqayıta növbəti qatar nə vaxtdır?*)\n"
+                "* ✈️ **Hava limanından şəhərə / otellərə transfer**\n"
                 "* ⚡ **Qatarların hərəkət vəziyyəti** (məs. *Bakı-Gəncə qatarı gecikir?*)\n"
                 "* 🌬️ **Xəzər küləyi və təhlükəsizlik hədləri**\n\n"
                 "Sualınızı yazın və ya yuxarıdakı hazır düymələrdən birini seçin!"
@@ -31,6 +33,7 @@ def answer_rail_chat_query(query: str, lang: str = "EN") -> str:
                 "👋 **Здравствуйте! Добро пожаловать в RailPulse AI.**\n\n"
                 "Я цифровой диспетчер Gemma по сети Азербайджанских Железных Дорог (АЖД). Чем я могу помочь?\n"
                 "* 🕒 **Расписание и время отправления** (напр. *Когда следующий поезд в Сумгаит?*)\n"
+                "* ✈️ **Как добраться из аэропорта в центр и отели**\n"
                 "* ⚡ **Статус рейсов и задержки** (напр. *Опаздывает ли рейс в Гянджу?*)\n"
                 "* 🌬️ **Погода на Каспийском побережье и скорость**\n\n"
                 "Задайте любой вопрос или нажмите быструю кнопку выше!"
@@ -40,6 +43,7 @@ def answer_rail_chat_query(query: str, lang: str = "EN") -> str:
                 "👋 **Hello! Welcome to RailPulse AI.**\n\n"
                 "I am Gemma, your autonomous rail operations copilot for Azerbaijan Railways (ADY). How can I help you today?\n"
                 "* 🕒 **Live departures & arrivals** (e.g. *When is the next train to Sumgayit?*)\n"
+                "* ✈️ **Airport to city center / hotel transit routes**\n"
                 "* ⚡ **Train status & schedule recovery** (e.g. *Is Baku-Ganja on time?*)\n"
                 "* 🌬️ **Caspian crosswinds & safety limits** (e.g. *Check weather restrictions*)\n\n"
                 "Feel free to ask a question or tap one of the suggestion buttons above!"
@@ -55,8 +59,72 @@ def answer_rail_chat_query(query: str, lang: str = "EN") -> str:
         else:
             return "You are very welcome! Have a safe and comfortable journey with Azerbaijan Railways! 🚆"
 
-    # 3. Sumgayit / Absheron Commuter
-    if any(k in q for k in ["sumgayit", "sumqayıt", "sumqayit", "сумгаит", "104", "absheron", "abşeron", "absheron", "абшерон"]):
+    # 3. Airport to Hotel / City Center / Radisson / 28 May Transit Query
+    airport_keywords = ["airport", "aeroport", "hava liman", "havaliman", "аэропорт", "gyd", "heydar aliyev"]
+    hotel_transit_keywords = ["radisson", "hotel", "otel", "отель", "marriott", "hilton", "azadliq", "azadlıq", "28 may", "downtown", "center", "centre", "mərkəz", "merkez", "центр"]
+
+    has_airport = any(k in q for k in airport_keywords)
+    has_hotel_or_dest = any(k in q for k in hotel_transit_keywords)
+
+    if has_airport or ("radisson" in q) or ("airport to" in q) or ("to airport" in q):
+        if lang == "AZ":
+            return (
+                "✈️ **Heydər Əliyev Beynəlxalq Hava Limanı (GYD) ➔ Radisson Hotel Bakı / Şəhər Mərkəzi:**\n\n"
+                "* **Birbaşa Dəmir Yolu Vəziyyəti:** Hazırda hava limanının bilavasitə daxilində sərnişin qatarı stansiyası yoxdur *(ADY Hava Limanı sürətli dəmir yolu xətti layihəsi inkişaf mərhələsindədir)*.\n\n"
+                "💡 **Ən Rahat və Sürətli Marşrut:**\n"
+                "1. **BakuBus Aero Ekspres (H1 avtobusu):** Terminal 1 və 2-nin çıxışından 24/7 hər 30 dəqiqədən bir hərəkət edir. Təxminən 30 dəqiqəyə **Bakı Dəmir Yolu Vağzalına (28 May)** çatır.\n"
+                "2. **Radisson Otelinə Keçid:** **Radisson Hotel Bakı** (Azadlıq Meydanı / Neftçilər prospekti) Bakı Mərkəzi Dəmir Yolu Vağzalından cəmi **7 dəqiqəlik piyada (təx. 700 metr)** və ya 2 dəqiqəlik taksi məsafəsindədir!\n"
+                "3. **Birbaşa Taksi:** Hava limanından rəsmi taksi və ya Bolt / Uber ilə Heydər Əliyev prospekti ilə Radisson otelinə çatmaq ~20–25 dəqiqə çəkir.\n\n"
+                "🚆 *Qeyd: Əgər Sumqayıt, Gəncə və ya Tiflis istiqamətinə getmək istəyirsinizsə, bütün ADY qatarları (**ADY-104**, **ADY-702**, **ADY-410**) məhz Bakı Mərkəzi Vağzalından yola düşür!*"
+            )
+        elif lang == "RU":
+            return (
+                "✈️ **Международный Аэропорт Гейдар Алиев (GYD) ➔ Отель Radisson Baku / Центр города:**\n\n"
+                "* **Прямой поезд:** На данный момент непосредственно внутри терминала аэропорта железнодорожной станции нет *(проект аэроэкспресса АЖД находится в разработке)*.\n\n"
+                "💡 **Самый удобный и проверенный маршрут:**\n"
+                "1. **Экспресс-автобус BakuBus Aero Express (H1):** Отправляется от выходов Терминалов 1 и 2 круглосуточно каждые 30 минут и за ~30 минут прибывает на **Бакинский Центральный Железнодорожный Вокзал (ст. метро 28 Мая)**.\n"
+                "2. **До отеля Radisson:** **Отель Radisson Baku** (пл. Свободы / проспект Нефтяников) находится всего в **7 минутах ходьбы (около 700 м)** от Бакинского вокзала вниз по улице Пушкина к бульвару!\n"
+                "3. **Прямое такси:** Официальное такси аэропорта или через приложения Bolt / Uber довезет до Radisson по проспекту Гейдара Алиева за 20–25 минут.\n\n"
+                "🚆 *Если вы продолжаете путь по железной дороге, все поезда АЖД (**ADY-104** в Сумгаит, **ADY-702** в Гянджу, **ADY-410** в Тбилиси) отправляются с Бакинского Центрального Вокзала!*"
+            )
+        else:
+            return (
+                "✈️ **Heydar Aliyev International Airport (GYD) ➔ Radisson Hotel Baku / City Center:**\n\n"
+                "* **Direct Train Status:** Currently, there is **no direct heavy-rail train station directly inside the airport terminal yet** *(the official ADY Airport Rail Link project is in development)*.\n\n"
+                "💡 **Recommended Fast & Seamless Route:**\n"
+                "1. **BakuBus Aero Express (Line H1):** Board the direct express shuttle right outside Terminal 1/2. It operates 24/7 every 30 minutes, reaching **Baku Central Railway Station (28 May)** in approximately 30 minutes.\n"
+                "2. **To Radisson Hotel Baku:** **Radisson Hotel Baku** (located on Azadliq Square / Neftchilar Avenue overlooking Baku Boulevard) is just a **7-minute walk (approx. 700 meters)** down Pushkin Street or a 2-minute ride from Baku Central Railway Station!\n"
+                "3. **Direct Airport Taxi:** An official airport taxi (or Bolt / Uber Azerbaijan) takes ~20–25 minutes directly to Radisson Hotel Baku via Heydar Aliyev Highway.\n\n"
+                "🚆 *If you are connecting onwards across Azerbaijan, all ADY trains (**ADY-104** to Sumgayit, **ADY-702** to Ganja, and **ADY-410** to Tbilisi) depart directly from **Baku Central Railway Station**!*"
+            )
+
+    # 4. Tickets / BakuCard / Fares
+    ticket_keywords = ["ticket", "bilet", "buy", "fare", "cost", "price", "qiymət", "qiymet", "neçəyə", "neceye", "купить", "билет", "цена", "стоимость", "bakucard"]
+    if any(k in q for k in ticket_keywords):
+        if lang == "AZ":
+            return (
+                "💳 **ADY Biletlər və Ödəniş Qaydaları:**\n\n"
+                "* **Onlayn Bilet:** Rəsmi [ady.az](https://ady.az) saytından və ya **ADY Mobile** tətbiqindən ala bilərsiniz.\n"
+                "* **Abşeron Şəhərətrafı Qatarları:** Turniketlərdə birbaşa **BakıKart** və ya təmassız bank kartları (Visa / Mastercard / Apple Pay) keçərlidir.\n"
+                "* **Bakı ➔ Gəncə / Tiflis Qatarları:** Biletləri qabaqcadan şəxsiyyət vəsiqəsi ilə sayt və ya vağzal kassalarından əldə etmək tövsiyə olunur."
+            )
+        elif lang == "RU":
+            return (
+                "💳 **Билеты и оплата проезда АЖД:**\n\n"
+                "* **Онлайн:** На официальном сайте [ady.az](https://ady.az) или в приложении **ADY Mobile**.\n"
+                "* **Пригородные поезда (Баку-Сумгаит):** Оплата на турникетах картой **BakıKart** или бесконтактной банковской картой (Visa / Mastercard / Apple Pay).\n"
+                "* **Поезда в Гянджу и Тбилиси:** Билеты приобретаются заранее по удостоверению личности онлайн или в кассах вокзала."
+            )
+        else:
+            return (
+                "💳 **ADY Tickets & Payment Guide:**\n\n"
+                "* **Online Purchase:** Book via the official portal [ady.az](https://ady.az) or the **ADY Mobile** app.\n"
+                "* **Absheron Commuter Lines (Baku ⇄ Sumgayit):** Tap directly at the turnstiles using **BakuCard** or contactless bank cards (Visa / Mastercard / Apple Pay).\n"
+                "* **High-Speed Express (Baku ⇄ Ganja / Tbilisi):** Advance reserved seating tickets are available online or at Baku Central Station ticket counters."
+            )
+
+    # 5. Sumgayit / Absheron Commuter
+    if any(k in q for k in ["sumgayit", "sumqayıt", "sumqayit", "сумгаит", "104", "absheron", "abşeron", "абшерон"]):
         t = LIVE_TRAINS["ADY-104"]
         c = CORRIDOR_SIGNALS["ABSHERON-RING"]
         wind = c["wind_speed_kmh"]
@@ -71,86 +139,86 @@ def answer_rail_chat_query(query: str, lang: str = "EN") -> str:
             )
         elif lang == "RU":
             return (
-                f"🚆 **ADY-104 Абшеронский пригородный экспресс (Баку ➔ Сумгаит)**\n\n"
+                f"🚆 **ADY-104 Абшеронский экспресс (Баку ➔ Сумгаит)**\n\n"
                 f"* **Текущая станция:** {t['current_station']}\n"
                 f"* **Следующая остановка:** {t['next_station']}\n"
-                f"* **Прибытие в Сумгаит (ETA):** `{t['scheduled_eta']}` (задержка {t['delay_minutes']} мин)\n"
-                f"* **Скорость:** {t['current_speed_kmh']} км/ч\n"
-                f"* **Ветер на Абшероне:** {wind} км/ч (активировано ограничение скорости)"
+                f"* **Прибытие в Сумгаит (ETA):** `{t['scheduled_eta']}` (Задержка {t['delay_minutes']} мин)\n"
+                f"* **Скорость поезда:** {t['current_speed_kmh']} км/ч\n"
+                f"* **Ветер на побережье:** {wind} км/ч (Действует безопасный лимит скорости)"
             )
         else:
             return (
-                f"🚆 **ADY-104 Baku-Sumgayit Absheron Commuter**\n\n"
+                f"🚆 **ADY-104 Absheron Commuter (Baku ➔ Sumgayit)**\n\n"
                 f"* **Current Location:** {t['current_station']}\n"
                 f"* **Next Station:** {t['next_station']}\n"
-                f"* **Scheduled Arrival (ETA):** `{t['scheduled_eta']}` ({t['delay_minutes']} min delay)\n"
+                f"* **Sumgayit Arrival (ETA):** `{t['scheduled_eta']}` ({t['delay_minutes']} min delay)\n"
                 f"* **Approved Speed:** {t['current_speed_kmh']} km/h\n"
-                f"* **Caspian Crosswind:** {wind} km/h (safety speed cap applied)"
+                f"* **Weather Safety:** Crosswind {wind} km/h (Safe corridor speed limits applied)"
             )
 
-    # 4. Ganja / High-Speed Express
-    if any(k in q for k in ["ganja", "gəncə", "gence", "гяндж", "702", "high-speed", "sürət", "suret", "скоростн"]):
+    # 6. Ganja High-Speed Express
+    if any(k in q for k in ["ganja", "gəncə", "gence", "гянджа", "702"]):
         t = LIVE_TRAINS["ADY-702"]
         if lang == "AZ":
             return (
-                f"⚡ **ADY-702 Bakı ➔ Gəncə Sürətli Sərnişin Qatarı**\n\n"
-                f"* **Bakıdan Çıxış:** 08:00 (Bakı Mərkəzi Vağzalı)\n"
-                f"* **Cari Stansiya:** {t['current_station']}\n"
-                f"* **Növbəti Qovşaq:** {t['next_station']}\n"
-                f"* **Gəncəyə Planlaşdırılan Çatma:** `{t['scheduled_eta']}`\n"
-                f"* **Hərəkət Vəziyyəti:** {t['delay_minutes']} dəqiqə gecikmə ilə hərəkət edir"
+                f"⚡ **ADY-702 Bakı ➔ Gəncə Sürət Qatarı**\n\n"
+                f"* **Cari Mövqe:** {t['current_station']}\n"
+                f"* **Növbəti Dayanacaq:** {t['next_station']}\n"
+                f"* **Gəncəyə Çatma Vaxtı (ETA):** `{t['scheduled_eta']}` ({t['delay_minutes']} dəqiqə gecikmə)\n"
+                f"* **Sürət Həddi:** {t['current_speed_kmh']} km/saat\n"
+                f"* **Status:** Əsas xətt açıqdır, hərəkət bərpa olunur."
             )
         elif lang == "RU":
             return (
-                f"⚡ **ADY-702 Скоростной экспресс Баку ➔ Гянджа**\n\n"
-                f"* **Отправление из Баку:** 08:00 (Баку-Пассажирский)\n"
-                f"* **Текущее положение:** {t['current_station']}\n"
-                f"* **Следующий узел:** {t['next_station']}\n"
-                f"* **Прибытие в Гянджу:** `{t['scheduled_eta']}`\n"
-                f"* **Статус рейса:** В пути с задержкой {t['delay_minutes']} мин"
+                f"⚡ **ADY-702 Скоростной поезд Баку ➔ Гянджа**\n\n"
+                f"* **Текущая станция:** {t['current_station']}\n"
+                f"* **Следующая остановка:** {t['next_station']}\n"
+                f"* **Прибытие в Гянджу (ETA):** `{t['scheduled_eta']}` (Задержка {t['delay_minutes']} мин)\n"
+                f"* **Скорость:** {t['current_speed_kmh']} км/ч\n"
+                f"* **Статус:** Главный путь свободен, график нагоняется."
             )
         else:
             return (
-                f"⚡ **ADY-702 Baku-Ganja High-Speed Express**\n\n"
-                f"* **Departure Time:** 08:00 (Baku Central Station)\n"
-                f"* **Current Position:** {t['current_station']}\n"
-                f"* **Next Junction:** {t['next_station']}\n"
-                f"* **Estimated Arrival in Ganja:** `{t['scheduled_eta']}`\n"
-                f"* **Operating Status:** Running with {t['delay_minutes']} min delay (schedule recovery in progress)"
+                f"⚡ **ADY-702 Baku ➔ Ganja High-Speed Express**\n\n"
+                f"* **Current Location:** {t['current_station']}\n"
+                f"* **Next Station:** {t['next_station']}\n"
+                f"* **Ganja Arrival (ETA):** `{t['scheduled_eta']}` ({t['delay_minutes']} min delay)\n"
+                f"* **Approved Speed:** {t['current_speed_kmh']} km/h\n"
+                f"* **Status:** Primary track clear, delay recovery active."
             )
 
-    # 5. Tbilisi / Silk Road Express
-    if any(k in q for k in ["tbilisi", "тбилиси", "410", "silk road", "ipək", "ipek", "шелковый", "agstafa", "ağstafa"]):
+    # 7. Silk Road Express (Tbilisi)
+    if any(k in q for k in ["tbilisi", "tiflis", "тбилиси", "410", "silk road", "ipək yolu", "ipek yolu", "шелковый"]):
         t = LIVE_TRAINS["ADY-410"]
         if lang == "AZ":
             return (
-                f"🌍 **ADY-410 İpək Yolu Beynəlxalq Ekspresi (Bakı ➔ Tbilisi)**\n\n"
-                f"* **Bakıdan Çıxış Vaxtı:** 06:00\n"
+                f"🌍 **ADY-410 İpək Yolu Ekspresi (Bakı ➔ Tbilisi)**\n\n"
                 f"* **Cari Mövqe:** {t['current_station']}\n"
-                f"* **Növbəti Sərhəd Qovşağı:** {t['next_station']}\n"
-                f"* **Tbilisi Mərkəzi Vağzalına Çatma:** `{t['scheduled_eta']}`\n"
-                f"* **Vəziyyət:** Qrafik üzrə tam vaxtında (0 dəqiqə gecikmə)"
+                f"* **Növbəti Dayanacaq:** {t['next_station']}\n"
+                f"* **Tbilisi Mərkəzi Çatma Vaxtı (ETA):** `{t['scheduled_eta']}`\n"
+                f"* **Sürət Həddi:** {t['current_speed_kmh']} km/saat\n"
+                f"* **Status:** Dəqiq qrafik üzrə (0 dəqiqə gecikmə, sərhəd dəhlizi açıqdır)"
             )
         elif lang == "RU":
             return (
-                f"🌍 **ADY-410 Международный экспресс Шёлковый Путь (Баку ➔ Тбилиси)**\n\n"
-                f"* **Отправление из Баку:** 06:00\n"
+                f"🌍 **ADY-410 Экспресс Шёлковый Путь (Баку ➔ Тбилиси)**\n\n"
                 f"* **Текущая станция:** {t['current_station']}\n"
-                f"* **Следующая пограничная станция:** {t['next_station']}\n"
-                f"* **Прибытие в Тбилиси:** `{t['scheduled_eta']}`\n"
-                f"* **Статус:** Строго по расписанию (без задержек)"
+                f"* **Следующая остановка:** {t['next_station']}\n"
+                f"* **Прибытие в Тбилиси (ETA):** `{t['scheduled_eta']}`\n"
+                f"* **Скорость:** {t['current_speed_kmh']} км/ч\n"
+                f"* **Статус:** Строго по расписанию (0 мин задержки, коридор свободен)"
             )
         else:
             return (
-                f"🌍 **ADY-410 Silk Road International Express (Baku ➔ Tbilisi)**\n\n"
-                f"* **Departure from Baku:** 06:00\n"
-                f"* **Current Station:** {t['current_station']}\n"
-                f"* **Next Hub:** {t['next_station']}\n"
-                f"* **Scheduled Arrival in Tbilisi:** `{t['scheduled_eta']}`\n"
+                f"🌍 **ADY-410 Silk Road Express (Baku ➔ Tbilisi)**\n\n"
+                f"* **Current Location:** {t['current_station']}\n"
+                f"* **Next Station:** {t['next_station']}\n"
+                f"* **Tbilisi Central Arrival (ETA):** `{t['scheduled_eta']}`\n"
+                f"* **Approved Speed:** {t['current_speed_kmh']} km/h\n"
                 f"* **Status:** On-Time (0 min delay, nominal clearance)"
             )
 
-    # 6. Wind / Weather / Safety check
+    # 8. Wind / Weather / Safety check
     if any(k in q for k in ["wind", "weather", "külək", "kulek", "hava", "ветер", "погода", "speed", "sürət", "suret", "скорост"]):
         if lang == "AZ":
             return (
@@ -174,7 +242,7 @@ def answer_rail_chat_query(query: str, lang: str = "EN") -> str:
                 "- **BTK Silk Road Corridor:** Wind 22 km/h. Clear normal speed (110 km/h)."
             )
 
-    # 7. General departure timetable
+    # 9. General departure timetable (fallback)
     if lang == "AZ":
         lines = [
             "📋 **Azərbaycan Dəmir Yolları (ADY) Real Vaxt Cədvəli və Çıxış Vaxtları:**\n",
