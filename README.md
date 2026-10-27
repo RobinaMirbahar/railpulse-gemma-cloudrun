@@ -195,6 +195,12 @@ python scripts/run_demo.py
 
 <br>
 
+> 📸 **[Console Screenshot: Structured JSON Output & All 3 ADY Corridors Verified]**
+
+![Step 2.2: Validated JSON Dispatch Advisory](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/04_run_demo_json_output.png)
+
+<br>
+
 ---
 
 ### 📍 Step 3: Enforcing Deterministic Safety Guardrails & Schemas (15:00 – 25:00)
