@@ -18,7 +18,7 @@ st.set_page_config(
     page_title="RailPulse AI • Live Dispatcher",
     page_icon="🚆",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ---------------------------------------------------------
@@ -34,15 +34,43 @@ if "chat_history" not in st.session_state:
     st.session_state["chat_history"] = [
         {
             "role": "assistant",
-            "content": "👋 **Hello! I am Gemma Rail Assistant.** Ask me about real-time train departures, live schedules, delays, or Caspian weather conditions!",
+            "content": "👋 **Hello! I am Gemma Rail Assistant.** Ask me about real-time train departures, airport-to-city transit, live schedules, delays, or Caspian weather conditions!",
         }
     ]
 
 lang = st.session_state["lang"]
 selected_train = st.session_state["active_train"]
 
+# Exact GPS Telemetry Metadata for Each ADY Train
+TRAIN_GPS_INFO = {
+    "ADY-104": {
+        "lat": 40.4286,
+        "lon": 49.8058,
+        "coords_label": "40.4286° N, 49.8058° E",
+        "current_station": "Bilajari Junction",
+        "next_station": "Khirdalan (5.4 km ahead)",
+        "corridor_label": "Baku ⇄ Sumgayit Absheron Circular",
+    },
+    "ADY-702": {
+        "lat": 40.6172,
+        "lon": 47.1501,
+        "coords_label": "40.6172° N, 47.1501° E",
+        "current_station": "Yevlakh Junction",
+        "next_station": "Ganja Central (67 km ahead)",
+        "corridor_label": "Baku ⇄ Ganja High-Speed Express",
+    },
+    "ADY-410": {
+        "lat": 40.8297,
+        "lon": 46.0178,
+        "coords_label": "40.8297° N, 46.0178° E",
+        "current_station": "Shamkir Station",
+        "next_station": "Agstafa Border (52 km ahead)",
+        "corridor_label": "Baku ⇄ Tbilisi Silk Road International",
+    },
+}
+
 # ---------------------------------------------------------
-# Custom Styling: Baku Caspian Dark Navy & High-Contrast Safety
+# Custom Styling: Mobile-Responsive & High-Contrast Light Mode
 # ---------------------------------------------------------
 st.markdown(
     """<style>
@@ -59,15 +87,41 @@ st.markdown(
     --baku-amber: #f59e0b;
     --emerald-safe: #10b981;
     --rose-alert: #f43f5e;
+    color-scheme: light;
 }
 
-html, body, [class*="css"] {
+html, body, [class*="css"], .stApp, .stMarkdown, h1, h2, h3, h4, h5, h6, p, span, div {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: var(--ink);
 }
 
 .stApp {
-    background-color: var(--ground);
+    background-color: var(--ground) !important;
+    color: var(--ink) !important;
+}
+
+h1, h2, h3, h4, h5, h6, .stMarkdown h5 {
+    color: #0f172a !important;
+}
+
+.section-hdr {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a !important;
+    margin: 10px 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.timeline-wrapper {
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .timeline-box {
@@ -75,14 +129,15 @@ html, body, [class*="css"] {
     align-items: center;
     justify-content: space-between;
     position: relative;
-    padding: 24px 30px 14px 30px;
+    padding: 20px 16px 10px 16px;
+    min-width: 420px;
 }
 
 .timeline-line {
     position: absolute;
-    top: 38px;
-    left: 60px;
-    right: 60px;
+    top: 34px;
+    left: 48px;
+    right: 48px;
     height: 6px;
     background: #e2e8f0;
     border-radius: 999px;
@@ -91,8 +146,8 @@ html, body, [class*="css"] {
 
 .timeline-fill {
     position: absolute;
-    top: 38px;
-    left: 60px;
+    top: 34px;
+    left: 48px;
     height: 6px;
     background: linear-gradient(90deg, #2563eb, #06b6d4, #10b981);
     border-radius: 999px;
@@ -106,17 +161,17 @@ html, body, [class*="css"] {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-width: 100px;
+    min-width: 78px;
 }
 
 .node-circle {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     margin-bottom: 6px;
     border: 2.5px solid white;
@@ -125,27 +180,20 @@ html, body, [class*="css"] {
 
 .node-done {
     background: #10b981;
-    color: white;
+    color: white !important;
 }
 
 .node-active {
     background: #f59e0b;
-    color: #ffffff;
-    transform: scale(1.25);
+    color: #ffffff !important;
+    transform: scale(1.18);
     border: 2.5px solid #0284c7;
-    animation: livePulse 1.5s infinite;
-    box-shadow: 0 0 14px rgba(245, 158, 11, 0.7);
-}
-
-@keyframes livePulse {
-    0% { transform: scale(1.15); box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
-    50% { transform: scale(1.35); box-shadow: 0 0 18px rgba(245, 158, 11, 0.9); }
-    100% { transform: scale(1.15); box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.65);
 }
 
 .node-next {
     background: white;
-    color: #94a3b8;
+    color: #64748b !important;
     border: 2px solid #cbd5e1;
 }
 
@@ -154,7 +202,28 @@ html, body, [class*="css"] {
     border: 1.5px solid #e2e8f0;
     border-radius: 12px;
     padding: 12px 16px;
+    margin-bottom: 10px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.gps-banner {
+    background: #0f172a;
+    color: #f8fafc !important;
+    border: 1.5px solid #1e293b;
+    border-left: 5px solid #38bdf8;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12.5px;
+}
+
+.gps-banner span, .gps-banner b, .gps-banner code {
+    color: #f8fafc !important;
 }
 
 .announcement-card {
@@ -162,8 +231,9 @@ html, body, [class*="css"] {
     border: 1px solid #bfdbfe;
     border-left: 6px solid #2563eb;
     border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    color: #0f172a !important;
 }
 
 .audit-card-warn {
@@ -171,8 +241,9 @@ html, body, [class*="css"] {
     border: 1px solid #fef3c7;
     border-left: 6px solid #f59e0b;
     border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    color: #0f172a !important;
 }
 
 .audit-card-safe {
@@ -180,17 +251,51 @@ html, body, [class*="css"] {
     border: 1px solid #d1fae5;
     border-left: 6px solid #10b981;
     border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    color: #0f172a !important;
 }
 
 .telemetry-table-container {
     background: white;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 14px 16px;
-    margin-top: 14px;
+    padding: 10px 12px;
+    margin-top: 8px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile Responsive Refinements */
+@media (max-width: 768px) {
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    .kpi-card {
+        padding: 10px 12px;
+        margin-bottom: 8px;
+    }
+    .timeline-wrapper {
+        padding: 10px 10px;
+    }
+    .timeline-box {
+        min-width: 340px;
+        padding: 14px 6px 6px 6px;
+    }
+    .station-node {
+        min-width: 62px;
+    }
+    .gps-banner {
+        font-size: 11.5px;
+        padding: 8px 10px;
+    }
+    .telemetry-table-container table {
+        font-size: 11.5px !important;
+        min-width: 480px;
+    }
 }
 </style>""",
     unsafe_allow_html=True,
@@ -278,12 +383,12 @@ advisory = run_railpulse_dispatch(
 )
 
 # ---------------------------------------------------------
-# Trilingual Localization Dictionary
+# Trilingual Localization Dictionary (Clean, No Duplicate Emojis)
 # ---------------------------------------------------------
 I18N = {
     "EN": {
         "tagline": "Azerbaijan Railways (ADY) High-Speed Corridor • Open-Weights Gemma • Google ADK • Cloud Run",
-        "running_now": "ADY FLEET CORRIDORS (Click to Select Active Train)",
+        "running_now": "🚄 ADY FLEET CORRIDORS (Tap to Select Active Train)",
         "kpi_active_train": "Active Train & Route",
         "kpi_approved_speed": "Approved Safe Speed",
         "kpi_track_block": "Assigned Track Block",
@@ -292,18 +397,18 @@ I18N = {
         "speed_clear": "✓ Normal Approved Speed",
         "siding_alert": "⚠️ Passing Loop Siding",
         "main_line": "✓ Clear Primary Line",
-        "timeline_title": f"STATION PROGRESSION · {LIVE_TRAINS[selected_train]['route_name']}",
+        "timeline_title": f"🚉 STATION PROGRESSION · {LIVE_TRAINS[selected_train]['route_name']}",
         "announcement_hdr": "📢 Passenger Station Board Announcement (ADY Audio Synthesizer)",
         "announcement_body": advisory.passenger_announcement,
-        "audit_hdr": "🛡️ Deterministic Railway Interlock Audit",
-        "map_hdr": "🗺️ Live Azerbaijan Railways (ADY) High-Speed Network",
+        "audit_hdr": "Deterministic Railway Interlock Audit",
+        "map_hdr": "🗺️ Live Azerbaijan Railways (ADY) High-Speed Network & Exact GPS",
         "chat_title": "💬 Gemma Rail Assistant (Live Departure & Schedule Q&A)",
-        "chat_placeholder": "Ask about departure times, train availability, or weather...",
+        "chat_placeholder": "Ask about airport transit, departure times, schedules, or weather...",
         "telemetry_hdr": "📊 Live ADY Fleet Telemetry & Block Clearance",
     },
     "AZ": {
         "tagline": "Azərbaycan Dəmir Yolları (ADY) • Açıq Gemma Modeli • Google ADK • Cloud Run",
-        "running_now": "ADY QATAR MARŞRUTLARI (Aktiv qatarı seçmək üçün klikləyin)",
+        "running_now": "🚄 ADY QATAR MARŞRUTLARI (Aktiv qatarı seçmək üçün toxunun)",
         "kpi_active_train": "Aktiv Qatar və Marşrut",
         "kpi_approved_speed": "Təsdiqlənmiş Təhlükəsiz Sürət",
         "kpi_track_block": "Təyin Olunmuş Yol Bloku",
@@ -312,18 +417,18 @@ I18N = {
         "speed_clear": "✓ Təhlükəsiz Sürət Rejimi",
         "siding_alert": "⚠️ Ehtiyat Yan Xətt",
         "main_line": "✓ Əsas Xətt Açıqdır",
-        "timeline_title": f"MARŞRUT VƏ STANSİYA HƏRƏKƏTİ · {LIVE_TRAINS[selected_train]['route_name']}",
+        "timeline_title": f"🚉 MARŞRUT VƏ STANSİYA HƏRƏKƏTİ · {LIVE_TRAINS[selected_train]['route_name']}",
         "announcement_hdr": "📢 Stansiya Sərnişin Məlumat Lövhəsi (ADY Səsli Bildiriş)",
         "announcement_body": f"Diqqət, sərnişinlərin nəzərinə! {LIVE_TRAINS[selected_train]['route_name']} qatarı ({advisory.train_id}) {advisory.assigned_block_id} blokuna təyin edildi. Təhlükəsiz sürət həddi: {advisory.approved_speed_kmh} km/saat. Yenilənmiş çatma vaxtı: {advisory.updated_eta}.",
-        "audit_hdr": "🛡️ Deterministik Dəmiryolu Təhlükəsizlik Auditi",
-        "map_hdr": "🗺️ Azərbaycan Dəmir Yolları (ADY) Canlı Sürətli Qatar Xəritəsi",
+        "audit_hdr": "Deterministik Dəmiryolu Təhlükəsizlik Auditi",
+        "map_hdr": "🗺️ Azərbaycan Dəmir Yolları (ADY) Canlı Xəritə və GPS Mövqeyi",
         "chat_title": "💬 Gemma Dəmiryolu Köməkçisi (Real Vaxt Çıxış və Cədvəl)",
-        "chat_placeholder": "Çıxış vaxtları, qatar cədvəli və ya hava haqqında soruşun...",
+        "chat_placeholder": "Hava limanı nəqliyyatı, çıxış vaxtları və ya hava haqqında soruşun...",
         "telemetry_hdr": "📊 ADY Qatar Parkının Canlı Telemetriyası və Yol Təhlükəsizliyi",
     },
     "RU": {
         "tagline": "Азербайджанские Железные Дороги (ADY) • Open-Weights Gemma • Google ADK • Cloud Run",
-        "running_now": "АКТИВНЫЕ МАРШРУТЫ ПОЕЗДОВ АЖД (Нажмите для выбора поезда)",
+        "running_now": "🚄 АКТИВНЫЕ МАРШРУТЫ ПОЕЗДОВ АЖД (Нажмите для выбора поезда)",
         "kpi_active_train": "Активный поезд и маршрут",
         "kpi_approved_speed": "Безопасная скорость",
         "kpi_track_block": "Назначенный блок пути",
@@ -332,13 +437,13 @@ I18N = {
         "speed_clear": "✓ В пределах нормы",
         "siding_alert": "⚠️ Боковой разъезд",
         "main_line": "✓ Главный путь свободен",
-        "timeline_title": f"МАРШРУТ И ПРОХОЖДЕНИЕ СТАНЦИЙ · {LIVE_TRAINS[selected_train]['route_name']}",
+        "timeline_title": f"🚉 МАРШРУТ И ПРОХОЖДЕНИЕ СТАНЦИЙ · {LIVE_TRAINS[selected_train]['route_name']}",
         "announcement_hdr": "📢 Вокзальное Табло и Оповещение Пассажиров (Аудиосинтезатор)",
         "announcement_body": f"Внимание пассажиров! Поезд {LIVE_TRAINS[selected_train]['route_name']} ({advisory.train_id}) направлен на блок {advisory.assigned_block_id}. Безопасная скорость: {advisory.approved_speed_kmh} км/ч. Новое время прибытия: {advisory.updated_eta}.",
-        "audit_hdr": "🛡️ Аудит Детерминированных Блокировок Безопасности",
-        "map_hdr": "🗺️ Карта Скоростной Железнодорожной Сети Азербайджана",
+        "audit_hdr": "Аудит Детерминированных Блокировок Безопасности",
+        "map_hdr": "🗺️ Карта Железнодорожной Сети Азербайджана и Точные GPS Координаты",
         "chat_title": "💬 Gemma Rail Assistant (Расписание и Отправления Онлайн)",
-        "chat_placeholder": "Спросите о времени отправления, расписании или погоде...",
+        "chat_placeholder": "Спросите о трансфере из аэропорта, расписании или погоде...",
         "telemetry_hdr": "📊 Телеметрия Парка Поездов АЖД и Статус Путей",
     },
 }
@@ -351,18 +456,18 @@ t = I18N[lang]
 col_head_left, col_head_right = st.columns([2.6, 1.4])
 with col_head_left:
     st.markdown(
-        """<div style="display: flex; align-items: center; gap: 10px; margin-top: 2px;">
-<span style="font-size: 28px;">🚄</span>
-<span style="font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">RailPulse AI</span>
-<span style="background: #e0f2fe; color: #0369a1; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.5px;">ADY AZERBAIJAN</span>
-<span style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 6px;">● LIVE DISPATCH</span>
+        """<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px;">
+<span style="font-size: 26px;">🚄</span>
+<span style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">RailPulse AI</span>
+<span style="background: #e0f2fe; color: #0369a1; font-weight: 800; font-size: 11px; padding: 4px 9px; border-radius: 6px; letter-spacing: 0.5px;">ADY AZERBAIJAN</span>
+<span style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 11px; padding: 4px 9px; border-radius: 6px;">● LIVE DISPATCH</span>
 </div>""",
         unsafe_allow_html=True,
     )
-    st.caption(t["tagline"])
+    st.markdown(f"<div style='font-size: 12.5px; color: #475569; margin-bottom: 6px;'>{t['tagline']}</div>", unsafe_allow_html=True)
 
 with col_head_right:
-    st.markdown("<div style='text-align: right; font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 4px;'>CLICK TO SWITCH LANGUAGE / DİL / ЯЗЫК:</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;'>LANGUAGE / DİL / ЯЗЫК:</div>", unsafe_allow_html=True)
     lang_c1, lang_c2, lang_c3 = st.columns(3)
     with lang_c1:
         btn_en_type = "primary" if lang == "EN" else "secondary"
@@ -381,9 +486,9 @@ with col_head_right:
             st.rerun()
 
 # ---------------------------------------------------------
-# Full-Width Section 1: Fleet Corridor Selector (Never Truncated!)
+# Full-Width Section 1: Fleet Corridor Selector
 # ---------------------------------------------------------
-st.markdown(f"##### 🚄 **{t['running_now']}**")
+st.markdown(f'<div class="section-hdr">{t["running_now"]}</div>', unsafe_allow_html=True)
 c_train1, c_train2, c_train3 = st.columns(3)
 with c_train1:
     s104 = "primary" if selected_train == "ADY-104" else "secondary"
@@ -414,8 +519,8 @@ with k1:
     st.markdown(
         f"""<div class="kpi-card">
 <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">{t['kpi_active_train']}</div>
-<div style="font-size: 17px; font-weight: 800; color: #0f172a; margin: 4px 0;">{LIVE_TRAINS[selected_train]['route_name']}</div>
-<div style="font-size: 12px; color: #0284c7; font-weight: 600;">{LIVE_TRAINS[selected_train]['current_station']} → {LIVE_TRAINS[selected_train]['next_station']}</div>
+<div style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 4px 0;">{LIVE_TRAINS[selected_train]['route_name']}</div>
+<div style="font-size: 12px; color: #0284c7; font-weight: 700;">📍 {TRAIN_GPS_INFO[selected_train]['current_station']} ({TRAIN_GPS_INFO[selected_train]['coords_label']})</div>
 </div>""",
         unsafe_allow_html=True,
     )
@@ -427,7 +532,7 @@ with k2:
     st.markdown(
         f"""<div class="kpi-card">
 <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">{t['kpi_approved_speed']}</div>
-<div style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 2px 0;">{advisory.approved_speed_kmh} <span style="font-size: 13px; font-weight: 600; color: #64748b;">km/h</span></div>
+<div style="font-size: 21px; font-weight: 800; color: #0f172a; margin: 2px 0;">{advisory.approved_speed_kmh} <span style="font-size: 13px; font-weight: 600; color: #64748b;">km/h</span></div>
 <div style="font-size: 12px; color: {speed_color}; font-weight: 700;">{speed_sub}</div>
 </div>""",
         unsafe_allow_html=True,
@@ -450,7 +555,7 @@ with k4:
     st.markdown(
         f"""<div class="kpi-card">
 <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">{t['kpi_station_eta']}</div>
-<div style="font-size: 22px; font-weight: 800; color: #0284c7; margin: 2px 0;">{advisory.updated_eta}</div>
+<div style="font-size: 21px; font-weight: 800; color: #0284c7; margin: 2px 0;">{advisory.updated_eta}</div>
 <div style="font-size: 12px; color: #10b981; font-weight: 700;">✓ {advisory.delay_minutes_remaining} min delay remaining</div>
 </div>""",
         unsafe_allow_html=True,
@@ -459,7 +564,7 @@ with k4:
 # ---------------------------------------------------------
 # Full-Width Section 3: Prominent Station Progression Timeline
 # ---------------------------------------------------------
-st.markdown(f"##### 🚉 **{t['timeline_title']}**")
+st.markdown(f'<div class="section-hdr">{t["timeline_title"]}</div>', unsafe_allow_html=True)
 
 JOURNEY_STOPS = {
     "ADY-104": [
@@ -490,12 +595,12 @@ nodes_html = []
 for idx, s in enumerate(stops, start=1):
     dot_class = "node-done" if s["status"] == "passed" else ("node-active" if s["status"] == "current" else "node-next")
     icon = "✓" if s["status"] == "passed" else ("🚆" if s["status"] == "current" else str(idx))
-    node_str = f'<div class="station-node"><div class="node-circle {dot_class}">{icon}</div><div style="font-size: 13px; font-weight: 700;">{s["name"]}</div><div style="font-size: 11px; color: #64748b;">{s["time"]}</div></div>'
+    node_str = f'<div class="station-node"><div class="node-circle {dot_class}">{icon}</div><div style="font-size: 12px; font-weight: 700; color: #0f172a;">{s["name"]}</div><div style="font-size: 11px; color: #64748b;">{s["time"]}</div></div>'
     nodes_html.append(node_str)
 
 progress_pct = 50 if selected_train == "ADY-104" else (70 if selected_train == "ADY-702" else 45)
 
-timeline_full_html = f'<div style="background: white; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 14px 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);"><div class="timeline-box"><div class="timeline-line"></div><div class="timeline-fill" style="width: {progress_pct}%;"></div>' + ''.join(nodes_html) + '</div></div>'
+timeline_full_html = f'<div class="timeline-wrapper"><div class="timeline-box"><div class="timeline-line"></div><div class="timeline-fill" style="width: {progress_pct}%;"></div>' + ''.join(nodes_html) + '</div></div>'
 st.markdown(timeline_full_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
@@ -510,7 +615,7 @@ with col_left:
 <div style="font-weight: 800; font-size: 11.5px; text-transform: uppercase; color: #1e40af; margin-bottom: 5px;">
 {t['announcement_hdr']}
 </div>
-<div style="font-size: 13.5px; line-height: 1.5;">{t['announcement_body']}</div>
+<div style="font-size: 13.5px; line-height: 1.5; color: #0f172a;">{t['announcement_body']}</div>
 </div>""",
         unsafe_allow_html=True,
     )
@@ -520,49 +625,44 @@ with col_left:
     audit_icon = "⚠️" if (is_clamped or is_siding) else "🛡️"
     st.markdown(
         f"""<div class="{audit_class}">
-<div style="font-weight: 800; font-size: 11.5px; text-transform: uppercase; margin-bottom: 4px;">
+<div style="font-weight: 800; font-size: 11.5px; text-transform: uppercase; margin-bottom: 4px; color: #0f172a;">
 {audit_icon} {t['audit_hdr']}
 </div>
-<div style="font-size: 12.5px; font-family: monospace;">{advisory.guardrail_intervention_summary}</div>
+<div style="font-size: 12.5px; font-family: monospace; color: #0f172a;">{advisory.guardrail_intervention_summary}</div>
 </div>""",
         unsafe_allow_html=True,
     )
 
-    # 3. Interactive Gemma Rail Assistant Chat Assistant
-    st.markdown(f"##### {t['chat_title']}")
-    
-    # Quick prompt pills
+    # 3. Interactive Gemma Rail Assistant Chat
+    st.markdown(f'<div class="section-hdr">{t["chat_title"]}</div>', unsafe_allow_html=True)
+
     q_col1, q_col2, q_col3 = st.columns(3)
     user_prompt = None
     with q_col1:
         if st.button("🕒 Sumgayit Next?", use_container_width=True, key="chat_quick_sumgayit"):
             user_prompt = "When is the next train to Sumgayit?"
     with q_col2:
-        if st.button("⚡ Ganja Schedule?", use_container_width=True, key="chat_quick_ganja"):
-            user_prompt = "What is the schedule for Baku-Ganja?"
+        if st.button("✈️ Airport to Hotel?", use_container_width=True, key="chat_quick_airport"):
+            user_prompt = "Is there any train from Heydar Aliyev Airport to Radisson Hotel Baku?"
     with q_col3:
         if st.button("📋 All Departures", use_container_width=True, key="chat_quick_all"):
             user_prompt = "Show all available train departures"
 
-    # Chat input field
     text_input = st.chat_input(t["chat_placeholder"])
     if text_input:
         user_prompt = text_input
 
-    # Process query if submitted
     if user_prompt:
         st.session_state["chat_history"].append({"role": "user", "content": user_prompt})
         response = answer_rail_chat_query(user_prompt, lang=lang, selected_train=selected_train, advisory=advisory)
         st.session_state["chat_history"].append({"role": "assistant", "content": response})
 
-    # Scrollable chat messages container
-    chat_container = st.container(height=300)
+    chat_container = st.container(height=290)
     with chat_container:
         for msg in st.session_state["chat_history"]:
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
 
-    # 4. Technical Explainability Expanders
     with st.expander("🤖 Ordered Google ADK Function Trajectory"):
         for idx, tool_name in enumerate(advisory.tools_invoked, start=1):
             st.markdown(f"**Step {idx}:** `{tool_name}()`")
@@ -571,120 +671,200 @@ with col_left:
         st.code(json.dumps(advisory.model_dump(), indent=2), language="json")
 
 with col_right:
-    # 1. Custom Interactive Azerbaijan Rail Network Map (Highlighted Azerbaijan + Running Trains)
-    st.markdown(f"##### 🗺️ **{t['map_hdr']}**")
+    # 1. Section Header (Single Emoji, Explicit Dark Contrast)
+    st.markdown(f'<div class="section-hdr">{t["map_hdr"]}</div>', unsafe_allow_html=True)
 
-    # High-Definition Interactive Leaflet Map: Free OpenStreetMap basemap (NO API KEY required), 
-    # Azerbaijan country border highlight, authentic ADY tracks, and real-time running trains.
+    # 2. Dedicated Exact GPS Location Banner Above Map
+    active_gps = TRAIN_GPS_INFO[selected_train]
+    st.markdown(
+        f"""<div class="gps-banner">
+<div>🎯 <b>Exact Location ({selected_train}):</b> {active_gps['current_station']} &nbsp;|&nbsp; 🧭 <code>{active_gps['coords_label']}</code></div>
+<div>⏭️ <b>Next:</b> {active_gps['next_station']}</div>
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+    # 3. Interactive Leaflet Map:
+    # - Zero fast back-and-forth movement! Trains are pinned accurately at their real-time GPS coordinates.
+    # - Elevated pointer callout badge positioned ABOVE the pin so station dots never cover text.
+    # - Built-in "🎯 Zoom to Active Train" and "🇦🇿 Full Azerbaijan Map" buttons for instant mobile navigation.
     leaflet_map_html = f"""<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
+    * {{ box-sizing: border-box; }}
     body {{ margin: 0; padding: 0; background: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
-    #railmap {{ width: 100%; height: 385px; border-radius: 12px; border: 1.5px solid #cbd5e1; }}
-    
-    .station-node-icon {{
+    #map-wrapper {{ position: relative; width: 100%; height: 395px; border-radius: 12px; overflow: hidden; border: 1.5px solid #cbd5e1; }}
+    #railmap {{ width: 100%; height: 100%; }}
+
+    .station-dot {{
       background: #ffffff;
-      border: 2px solid #0284c7;
+      border: 2.5px solid #0284c7;
       border-radius: 50%;
-      width: 9px;
-      height: 9px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }}
-    .station-active-icon {{
-      background: #f59e0b;
-      border: 2.5px solid #ffffff;
-      border-radius: 50%;
-      width: 14px;
-      height: 14px;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.95);
-      animation: stPulse 1.4s infinite;
-    }}
-    @keyframes stPulse {{
-      0%, 100% {{ transform: scale(1.0); }}
-      50% {{ transform: scale(1.35); }}
+      width: 10px;
+      height: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
     }}
 
-    .train-tag {{
-      background: #0f172a;
-      color: #38bdf8;
+    /* Crisp GPS Pin & Elevated Callout so Pin NEVER Overlaps Badge Text */
+    .train-pin-wrapper {{
+      position: relative;
+      width: 22px;
+      height: 22px;
+    }}
+    .train-gps-dot {{
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #334155;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      z-index: 5;
+    }}
+    .train-gps-dot-active {{
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f59e0b;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.95);
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      z-index: 10;
+    }}
+    .radar-pulse {{
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.45);
+      top: -6px;
+      left: -6px;
+      z-index: 2;
+      animation: pulseRing 2s infinite;
+    }}
+    @keyframes pulseRing {{
+      0% {{ transform: scale(0.55); opacity: 0.95; }}
+      100% {{ transform: scale(1.9); opacity: 0; }}
+    }}
+
+    /* Elevated Callout Badge Positioned Cleanly Above GPS Pin */
+    .train-callout {{
+      position: absolute;
+      bottom: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      color: #f8fafc;
       border: 1.5px solid #38bdf8;
-      border-radius: 16px;
+      border-radius: 8px;
       padding: 3px 8px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.4);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      pointer-events: auto;
+      z-index: 20;
     }}
-    .train-tag-active {{
+    .train-callout-active {{
       background: #2563eb;
       color: #ffffff;
       border: 2px solid #ffffff;
-      box-shadow: 0 0 16px rgba(37, 99, 235, 0.85);
+      padding: 4px 10px;
+      font-size: 11px;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.65);
+      z-index: 30;
     }}
-    .ping-circle {{
+    .train-callout::after {{
+      content: "";
       position: absolute;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(37, 99, 235, 0.45);
-      top: -8px;
-      left: -8px;
-      z-index: -1;
-      animation: radarRing 1.8s infinite;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #2563eb transparent transparent transparent;
     }}
-    @keyframes radarRing {{
-      0% {{ transform: scale(0.6); opacity: 0.9; }}
-      100% {{ transform: scale(2.2); opacity: 0; }}
+
+    .map-controls {{
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 1000;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: space-between;
+      pointer-events: none;
+    }}
+    .map-btn {{
+      pointer-events: auto;
+      background: #0f172a;
+      color: #ffffff;
+      border: 1.5px solid #38bdf8;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    }}
+    .map-btn:hover {{
+      background: #2563eb;
+      border-color: #ffffff;
     }}
     .overlay-badge {{
       position: absolute;
       top: 10px;
-      right: 12px;
+      right: 10px;
       z-index: 1000;
       background: rgba(15, 23, 42, 0.90);
       color: #38bdf8;
-      backdrop-filter: blur(6px);
-      padding: 5px 12px;
-      border-radius: 8px;
-      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 7px;
+      font-size: 10.5px;
       font-weight: 800;
-      letter-spacing: 0.5px;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      border: 1px solid rgba(56, 189, 248, 0.45);
     }}
   </style>
 </head>
 <body>
-  <div id="railmap"></div>
-  <div class="overlay-badge">🇦🇿 AZERBAIJAN RAILWAYS (ADY) LIVE</div>
+  <div id="map-wrapper">
+    <div id="railmap"></div>
+    <div class="overlay-badge">🇦🇿 ADY LIVE GPS TRACKER</div>
+    <div class="map-controls">
+      <button class="map-btn" onclick="focusActiveTrain()">🎯 Pin Exact Location ({selected_train})</button>
+      <button class="map-btn" onclick="resetAzerbaijanBounds()">🇦🇿 Full Azerbaijan View</button>
+    </div>
+  </div>
 
   <script>
     var map = L.map('railmap', {{
       zoomControl: true,
       attributionControl: false,
       minZoom: 6,
-      maxZoom: 14
+      maxZoom: 15
     }});
 
-    // 100% Free OpenStreetMap Standard Tiles (Zero API Key, Never Watermarked)
     L.tileLayer('https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
       maxZoom: 19
     }}).addTo(map);
 
-    // Frame the entire country of Azerbaijan in view
-    map.fitBounds([
-      [38.4, 44.8],  // SW Azerbaijan
-      [41.9, 50.6]   // NE Absheron Peninsula
-    ], {{ padding: [12, 12] }});
+    var azBounds = [
+      [38.4, 44.8],
+      [41.9, 50.6]
+    ];
+    map.fitBounds(azBounds, {{ padding: [16, 16] }});
 
-    // Highlight Azerbaijan Country Border Polygon (Republic of Azerbaijan)
     var azerbaijanBorder = [
       [38.40, 44.78], [38.75, 45.45], [38.92, 46.02], [38.85, 48.05],
       [38.42, 48.88], [39.15, 49.32], [39.75, 49.38], [40.25, 49.85],
@@ -694,163 +874,185 @@ with col_right:
       [38.40, 44.78]
     ];
 
-    // Luminous Azerbaijan Highlight Polygon
     L.polygon(azerbaijanBorder, {{
       color: '#0284c7',
-      weight: 3,
-      opacity: 0.95,
+      weight: 2.5,
+      opacity: 0.9,
       fillColor: '#0284c7',
-      fillOpacity: 0.08,
+      fillOpacity: 0.06,
       dashArray: '5, 5'
     }}).addTo(map);
 
-    // Azerbaijan Railways (ADY) High-Speed Corridors
     var absheronTrack = [
-      [40.3798, 49.8488], // Baku Central
-      [40.3953, 49.8912], // Keshla
-      [40.4286, 49.8058], // Bilajari
-      [40.4503, 49.7547], // Khirdalan
-      [40.5897, 49.6686]  // Sumgayit
+      [40.3798, 49.8488],
+      [40.3953, 49.8912],
+      [40.4286, 49.8058],
+      [40.4503, 49.7547],
+      [40.5897, 49.6686]
     ];
 
     var bakuGanjaTrack = [
-      [40.3798, 49.8488], // Baku Central
-      [40.4286, 49.8058], // Bilajari
-      [40.0167, 49.4000], // Alyat
-      [40.0389, 48.9328], // Hajigabul
-      [40.3436, 48.1608], // Kurdamir
-      [40.5194, 47.6542], // Ujar
-      [40.6172, 47.1501], // Yevlakh
-      [40.6272, 46.7778], // Goran
-      [40.6828, 46.3606]  // Ganja
+      [40.3798, 49.8488],
+      [40.4286, 49.8058],
+      [40.0167, 49.4000],
+      [40.0389, 48.9328],
+      [40.3436, 48.1608],
+      [40.5194, 47.6542],
+      [40.6172, 47.1501],
+      [40.6272, 46.7778],
+      [40.6828, 46.3606]
     ];
 
     var silkRoadTrack = [
-      [40.6828, 46.3606], // Ganja
-      [40.8297, 46.0178], // Shamkir
-      [40.9922, 45.6289], // Tovuz
-      [41.1189, 45.4539], // Agstafa
-      [41.2056, 45.1861], // Boyuk Kasik (Border)
-      [41.5495, 45.0006], // Rustavi
-      [41.7225, 44.7986]  // Tbilisi Central
+      [40.6828, 46.3606],
+      [40.8297, 46.0178],
+      [40.9922, 45.6289],
+      [41.1189, 45.4539],
+      [41.2056, 45.1861],
+      [41.5495, 45.0006],
+      [41.7225, 44.7986]
     ];
 
-    var is104Active = "{selected_train}" === "ADY-104";
-    var is702Active = "{selected_train}" === "ADY-702";
-    var is410Active = "{selected_train}" === "ADY-410";
+    var activeTrainId = "{selected_train}";
+    var is104Active = activeTrainId === "ADY-104";
+    var is702Active = activeTrainId === "ADY-702";
+    var is410Active = activeTrainId === "ADY-410";
 
-    // Absheron Line
     L.polyline(absheronTrack, {{
       color: is104Active ? '#2563eb' : '#64748b',
       weight: is104Active ? 5 : 3,
       opacity: is104Active ? 1.0 : 0.65
-    }}).addTo(map).bindTooltip("ADY Absheron Circular Commuter (Baku ⇄ Sumgayit)");
+    }}).addTo(map);
 
-    // Baku-Ganja Line
     L.polyline(bakuGanjaTrack, {{
       color: is702Active ? '#2563eb' : '#64748b',
       weight: is702Active ? 5 : 3,
       opacity: is702Active ? 1.0 : 0.65
-    }}).addTo(map).bindTooltip("ADY High-Speed Express (Baku ⇄ Ganja)");
+    }}).addTo(map);
 
-    // Silk Road Line
     L.polyline(silkRoadTrack, {{
       color: is410Active ? '#2563eb' : '#64748b',
       weight: is410Active ? 5 : 3,
       opacity: is410Active ? 1.0 : 0.65
-    }}).addTo(map).bindTooltip("ADY Silk Road International (Baku ⇄ Tbilisi)");
+    }}).addTo(map);
 
-    // Station Markers
     var stations = [
-      {{ name: "Baku Central", lat: 40.3798, lon: 49.8488, isLive: false }},
-      {{ name: "Keshla Hub", lat: 40.3953, lon: 49.8912, isLive: false }},
-      {{ name: "Bilajari Jn", lat: 40.4286, lon: 49.8058, isLive: is104Active }},
-      {{ name: "Khirdalan", lat: 40.4503, lon: 49.7547, isLive: false }},
-      {{ name: "Sumgayit Pass.", lat: 40.5897, lon: 49.6686, isLive: false }},
-      {{ name: "Kurdamir", lat: 40.3436, lon: 48.1608, isLive: false }},
-      {{ name: "Yevlakh", lat: 40.6172, lon: 47.1501, isLive: is702Active }},
-      {{ name: "Ganja Central", lat: 40.6828, lon: 46.3606, isLive: false }},
-      {{ name: "Shamkir", lat: 40.8297, lon: 46.0178, isLive: is410Active }},
-      {{ name: "Agstafa Border", lat: 41.1189, lon: 45.4539, isLive: false }}
+      {{ name: "Baku Central (28 May)", lat: 40.3798, lon: 49.8488 }},
+      {{ name: "Keshla Hub", lat: 40.3953, lon: 49.8912 }},
+      {{ name: "Bilajari Junction", lat: 40.4286, lon: 49.8058 }},
+      {{ name: "Khirdalan", lat: 40.4503, lon: 49.7547 }},
+      {{ name: "Sumgayit Passenger", lat: 40.5897, lon: 49.6686 }},
+      {{ name: "Kurdamir", lat: 40.3436, lon: 48.1608 }},
+      {{ name: "Yevlakh Junction", lat: 40.6172, lon: 47.1501 }},
+      {{ name: "Ganja Central", lat: 40.6828, lon: 46.3606 }},
+      {{ name: "Shamkir Station", lat: 40.8297, lon: 46.0178 }},
+      {{ name: "Agstafa Border", lat: 41.1189, lon: 45.4539 }}
     ];
 
     stations.forEach(function(st) {{
-      var iconHtml = st.isLive ? '<div class="station-active-icon"></div>' : '<div class="station-node-icon"></div>';
-      var stIcon = L.divIcon({{ className: '', html: iconHtml, iconSize: [14, 14], iconAnchor: [7, 7] }});
+      var stIcon = L.divIcon({{
+        className: '',
+        html: '<div class="station-dot"></div>',
+        iconSize: [10, 10],
+        iconAnchor: [5, 5]
+      }});
       L.marker([st.lat, st.lon], {{ icon: stIcon }})
         .addTo(map)
-        .bindTooltip("<b>" + st.name + "</b>" + (st.isLive ? " (● Current Live Station)" : ""), {{ direction: 'top' }});
+        .bindPopup("<b>🚉 " + st.name + "</b><br><small>GPS: " + st.lat.toFixed(4) + "° N, " + st.lon.toFixed(4) + "° E</small>");
     }});
 
-    // Running Trains with Smooth Real-Time Glide Animation
-    var speedVal104 = (is104Active) ? "{advisory.approved_speed_kmh} km/h" : "80 km/h";
-    var speedVal702 = (is702Active) ? "{advisory.approved_speed_kmh} km/h" : "145 km/h";
-    var speedVal410 = (is410Active) ? "{advisory.approved_speed_kmh} km/h" : "110 km/h";
+    var trainData = {{
+      "ADY-104": {{
+        lat: 40.4286,
+        lon: 49.8058,
+        station: "Bilajari Junction",
+        next: "Khirdalan",
+        speed: is104Active ? "{advisory.approved_speed_kmh} km/h" : "80 km/h",
+        block: is104Active ? "{advisory.assigned_block_id}" : "BLK-SUMGAYIT-A1",
+        icon: "🚆"
+      }},
+      "ADY-702": {{
+        lat: 40.6172,
+        lon: 47.1501,
+        station: "Yevlakh Junction",
+        next: "Ganja Central",
+        speed: is702Active ? "{advisory.approved_speed_kmh} km/h" : "145 km/h",
+        block: is702Active ? "{advisory.assigned_block_id}" : "BLK-GANJA-EXPR",
+        icon: "⚡"
+      }},
+      "ADY-410": {{
+        lat: 40.8297,
+        lon: 46.0178,
+        station: "Shamkir Station",
+        next: "Agstafa Border",
+        speed: is410Active ? "{advisory.approved_speed_kmh} km/h" : "110 km/h",
+        block: is410Active ? "{advisory.assigned_block_id}" : "BLK-SILKROAD-04",
+        icon: "🌍"
+      }}
+    }};
 
-    // ADY-104 Marker
-    var marker104Html = '<div class="train-tag ' + (is104Active ? 'train-tag-active' : '') + '">' +
-      (is104Active ? '<div class="ping-circle"></div>' : '') +
-      '🚆 ADY-104 <span>' + speedVal104 + '</span></div>';
-    var icon104 = L.divIcon({{ className: '', html: marker104Html, iconSize: [120, 24], iconAnchor: [60, 12] }});
-    var marker104 = L.marker([40.4286, 49.8058], {{ icon: icon104 }}).addTo(map);
+    var trainMarkers = {{}};
+    Object.keys(trainData).forEach(function(tid) {{
+      var td = trainData[tid];
+      var isActive = (tid === activeTrainId);
+      var calloutHtml = isActive
+        ? '<div class="train-callout train-callout-active">' + td.icon + ' ' + tid + ' • ' + td.speed + ' 📍 ' + td.station + '</div>'
+        : '<div class="train-callout">' + td.icon + ' ' + tid + '</div>';
 
-    // ADY-702 Marker
-    var marker702Html = '<div class="train-tag ' + (is702Active ? 'train-tag-active' : '') + '">' +
-      (is702Active ? '<div class="ping-circle"></div>' : '') +
-      '⚡ ADY-702 <span>' + speedVal702 + '</span></div>';
-    var icon702 = L.divIcon({{ className: '', html: marker702Html, iconSize: [120, 24], iconAnchor: [60, 12] }});
-    var marker702 = L.marker([40.6172, 47.1501], {{ icon: icon702 }}).addTo(map);
+      var pinHtml = '<div class="train-pin-wrapper">' +
+        (isActive ? '<div class="radar-pulse"></div>' : '') +
+        '<div class="' + (isActive ? 'train-gps-dot-active' : 'train-gps-dot') + '"></div>' +
+        calloutHtml +
+        '</div>';
 
-    // ADY-410 Marker
-    var marker410Html = '<div class="train-tag ' + (is410Active ? 'train-tag-active' : '') + '">' +
-      (is410Active ? '<div class="ping-circle"></div>' : '') +
-      '🌍 ADY-410 <span>' + speedVal410 + '</span></div>';
-    var icon410 = L.divIcon({{ className: '', html: marker410Html, iconSize: [120, 24], iconAnchor: [60, 12] }});
-    var marker410 = L.marker([40.8297, 46.0178], {{ icon: icon410 }}).addTo(map);
+      var divIcon = L.divIcon({{
+        className: '',
+        html: pinHtml,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      }});
 
-    // Smooth real-time running simulation along active railway segments
-    var progress = 0;
-    var direction = 1;
+      var popupContent = '<div style="font-size:12px;line-height:1.45;">' +
+        '<b>' + td.icon + ' ' + tid + ' Exact Telemetry</b><br>' +
+        '📍 <b>Current Station:</b> ' + td.station + '<br>' +
+        '⏭️ <b>Next Stop:</b> ' + td.next + '<br>' +
+        '🧭 <b>Exact GPS:</b> <code>' + td.lat.toFixed(4) + '° N, ' + td.lon.toFixed(4) + '° E</code><br>' +
+        '⚡ <b>Approved Speed:</b> ' + td.speed + '<br>' +
+        '🚦 <b>Track Block:</b> <code>' + td.block + '</code>' +
+        '</div>';
 
-    function animateTrainsRunning() {{
-      progress += 0.0035 * direction;
-      if (progress >= 1.0) {{ progress = 1.0; direction = -1; }}
-      else if (progress <= 0.0) {{ progress = 0.0; direction = 1; }}
+      var m = L.marker([td.lat, td.lon], {{ icon: divIcon, zIndexOffset: isActive ? 1000 : 100 }})
+        .addTo(map)
+        .bindPopup(popupContent);
 
-      // ADY-104 running between Bilajari [40.4286, 49.8058] and Khirdalan [40.4503, 49.7547]
-      var lat104 = 40.4286 + (40.4503 - 40.4286) * progress;
-      var lon104 = 49.8058 + (49.7547 - 49.8058) * progress;
-      marker104.setLatLng([lat104, lon104]);
+      trainMarkers[tid] = m;
+    }});
 
-      // ADY-702 running between Yevlakh [40.6172, 47.1501] and Ganja [40.6828, 46.3606]
-      var lat702 = 40.6172 + (40.6828 - 40.6172) * progress;
-      var lon702 = 47.1501 + (46.3606 - 47.1501) * progress;
-      marker702.setLatLng([lat702, lon702]);
-
-      // ADY-410 running between Shamkir [40.8297, 46.0178] and Tovuz [40.9922, 45.6289]
-      var lat410 = 40.8297 + (40.9922 - 40.8297) * progress;
-      var lon410 = 46.0178 + (45.6289 - 46.0178) * progress;
-      marker410.setLatLng([lat410, lon410]);
-
-      requestAnimationFrame(animateTrainsRunning);
+    function focusActiveTrain() {{
+      var td = trainData[activeTrainId];
+      map.flyTo([td.lat, td.lon], 11, {{ duration: 0.8 }});
+      trainMarkers[activeTrainId].openPopup();
     }}
 
-    requestAnimationFrame(animateTrainsRunning);
+    function resetAzerbaijanBounds() {{
+      map.closePopup();
+      map.flyToBounds(azBounds, {{ padding: [16, 16], duration: 0.8 }});
+    }}
   </script>
 </body>
 </html>"""
 
-    components.html(leaflet_map_html, height=410)
+    components.html(leaflet_map_html, height=405)
 
-    # 2. Live Fleet Telemetry & Block Status Table (Directly below map to balance height)
-    st.markdown(f"##### 📊 **{t['telemetry_hdr']}**")
+    # 4. Live Fleet Telemetry & Block Status Table (Responsive Horizontal Scroll on Mobile)
+    st.markdown(f'<div class="section-hdr">{t["telemetry_hdr"]}</div>', unsafe_allow_html=True)
 
     telemetry_html = f"""<div class="telemetry-table-container">
-<table style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
+<table style="width: 100%; border-collapse: collapse; font-size: 12.5px; color: #0f172a;">
 <thead>
 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569;">
 <th style="padding: 8px 10px;">Train</th>
-<th style="padding: 8px 10px;">Route Corridor</th>
+<th style="padding: 8px 10px;">Exact Station & GPS</th>
 <th style="padding: 8px 10px;">Speed</th>
 <th style="padding: 8px 10px;">Active Block</th>
 <th style="padding: 8px 10px;">Status</th>
@@ -860,7 +1062,7 @@ with col_right:
 <tbody>
 <tr style="border-bottom: 1px solid #f1f5f9; background: {'#eff6ff' if selected_train == 'ADY-104' else 'white'};">
 <td style="padding: 9px 10px; font-weight: 700;">🚆 ADY-104</td>
-<td style="padding: 9px 10px;">Baku ➔ Sumgayit</td>
+<td style="padding: 9px 10px;"><b>Bilajari Jn</b><br><span style="font-size:11px;color:#64748b;">40.4286°N, 49.8058°E</span></td>
 <td style="padding: 9px 10px; font-weight: 700;">{advisory.approved_speed_kmh if selected_train == 'ADY-104' else '80'} km/h</td>
 <td style="padding: 9px 10px;"><code>{advisory.assigned_block_id if selected_train == 'ADY-104' else 'BLK-SUMGAYIT-A1'}</code></td>
 <td style="padding: 9px 10px;"><span style="background: #fef3c7; color: #b45309; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 11px;">⚠️ High Wind Clamped</span></td>
@@ -868,7 +1070,7 @@ with col_right:
 </tr>
 <tr style="border-bottom: 1px solid #f1f5f9; background: {'#eff6ff' if selected_train == 'ADY-702' else 'white'};">
 <td style="padding: 9px 10px; font-weight: 700;">⚡ ADY-702</td>
-<td style="padding: 9px 10px;">Baku ➔ Ganja Express</td>
+<td style="padding: 9px 10px;"><b>Yevlakh Jn</b><br><span style="font-size:11px;color:#64748b;">40.6172°N, 47.1501°E</span></td>
 <td style="padding: 9px 10px; font-weight: 700;">{advisory.approved_speed_kmh if selected_train == 'ADY-702' else '145'} km/h</td>
 <td style="padding: 9px 10px;"><code>{advisory.assigned_block_id if selected_train == 'ADY-702' else 'BLK-GANJA-EXPR'}</code></td>
 <td style="padding: 9px 10px;"><span style="background: #ecfdf5; color: #047857; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 11px;">✓ On Schedule</span></td>
@@ -876,7 +1078,7 @@ with col_right:
 </tr>
 <tr style="background: {'#eff6ff' if selected_train == 'ADY-410' else 'white'};">
 <td style="padding: 9px 10px; font-weight: 700;">🌍 ADY-410</td>
-<td style="padding: 9px 10px;">Baku ➔ Tbilisi Silk Road</td>
+<td style="padding: 9px 10px;"><b>Shamkir Stn</b><br><span style="font-size:11px;color:#64748b;">40.8297°N, 46.0178°E</span></td>
 <td style="padding: 9px 10px; font-weight: 700;">{advisory.approved_speed_kmh if selected_train == 'ADY-410' else '110'} km/h</td>
 <td style="padding: 9px 10px;"><code>{advisory.assigned_block_id if selected_train == 'ADY-410' else 'BLK-SILKROAD-04'}</code></td>
 <td style="padding: 9px 10px;"><span style="background: #ecfdf5; color: #047857; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 11px;">✓ Border Route Clear</span></td>
