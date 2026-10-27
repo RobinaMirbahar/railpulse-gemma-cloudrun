@@ -34,7 +34,7 @@ if "chat_history" not in st.session_state:
     st.session_state["chat_history"] = [
         {
             "role": "assistant",
-            "content": "👋 **Hello! I am Gemma Rail Copilot.** Ask me about real-time train departures, live schedules, delays, or Caspian weather conditions!",
+            "content": "👋 **Hello! I am Gemma Rail Assistant.** Ask me about real-time train departures, live schedules, delays, or Caspian weather conditions!",
         }
     ]
 
@@ -297,7 +297,7 @@ I18N = {
         "announcement_body": advisory.passenger_announcement,
         "audit_hdr": "🛡️ Deterministic Railway Interlock Audit",
         "map_hdr": "🗺️ Live Azerbaijan Railways (ADY) High-Speed Network",
-        "chat_title": "💬 Gemma Rail Copilot (Live Departure & Schedule Q&A)",
+        "chat_title": "💬 Gemma Rail Assistant (Live Departure & Schedule Q&A)",
         "chat_placeholder": "Ask about departure times, train availability, or weather...",
         "telemetry_hdr": "📊 Live ADY Fleet Telemetry & Block Clearance",
     },
@@ -337,7 +337,7 @@ I18N = {
         "announcement_body": f"Внимание пассажиров! Поезд {LIVE_TRAINS[selected_train]['route_name']} ({advisory.train_id}) направлен на блок {advisory.assigned_block_id}. Безопасная скорость: {advisory.approved_speed_kmh} км/ч. Новое время прибытия: {advisory.updated_eta}.",
         "audit_hdr": "🛡️ Аудит Детерминированных Блокировок Безопасности",
         "map_hdr": "🗺️ Карта Скоростной Железнодорожной Сети Азербайджана",
-        "chat_title": "💬 Gemma Rail Copilot (Расписание и Отправления Онлайн)",
+        "chat_title": "💬 Gemma Rail Assistant (Расписание и Отправления Онлайн)",
         "chat_placeholder": "Спросите о времени отправления, расписании или погоде...",
         "telemetry_hdr": "📊 Телеметрия Парка Поездов АЖД и Статус Путей",
     },
@@ -499,7 +499,7 @@ timeline_full_html = f'<div style="background: white; border: 1.5px solid #e2e8f
 st.markdown(timeline_full_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Two-Column Balanced Grid: Left Safety & Copilot | Right Network Map & Telemetry
+# Two-Column Balanced Grid: Left Safety & Assistant | Right Network Map & Telemetry
 # ---------------------------------------------------------
 col_left, col_right = st.columns([1.0, 1.0], gap="medium")
 
@@ -528,7 +528,7 @@ with col_left:
         unsafe_allow_html=True,
     )
 
-    # 3. Interactive Gemma Rail Copilot Chat Assistant
+    # 3. Interactive Gemma Rail Assistant Chat Assistant
     st.markdown(f"##### {t['chat_title']}")
     
     # Quick prompt pills
