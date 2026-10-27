@@ -8,16 +8,6 @@
 
 ---
 
-### ⚡ 1-Click Google Cloud Shell & Cloud Run Quick Launch
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
-[![Google Cloud](https://img.shields.io/badge/Google_Cloud-Open_in_Cloud_Shell-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
-[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run/?git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
-
-👉 **[Click Here to Launch Workshop in Google Cloud Shell](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)**
-
----
-
 ## 🎯 Why We Use This Documentation (Purpose & Real-World Value)
 
 Most generative AI tutorials showcase toy chatbots, creative writing prompts, or basic customer service bots. **RailPulse AI addresses a fundamentally different and much higher-stakes engineering challenge: how to build AI agents for safety-critical physical infrastructure.**
@@ -99,15 +89,13 @@ Everything in this workshop runs entirely inside **Google Cloud Shell**—requir
 
 ---
 
-### Module 1: Cloud Shell Setup (00:00 - 05:00)
+### Module 1: Cloud Shell Setup (00:00 - 05:00) — Step 1: Open Google Cloud Shell
 
-> [!TIP]
-> **🚀 Fast Track (1-Click Launch):** You can skip manual cloning by clicking the official Google Cloud button below:
-> 
-> [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)  
-> 👉 **[Click Here to Open and Auto-Clone in Google Cloud Shell](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)**
+[![Open in Google Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
 
-**Manual Setup Steps:**
+> **👉 Step 1 Action:** Click the blue **Open in Google Cloud Shell** button above to launch Google Cloud Shell and automatically clone this repository in a single click.
+
+Alternatively, follow the manual console steps below:
 
 1. Open your browser and navigate to the [Google Cloud Console](https://console.cloud.google.com/).
 2. In the top navigation bar, click the **Activate Cloud Shell** icon (`>_`).
@@ -209,12 +197,11 @@ In the dashboard, try:
 
 ---
 
-### Module 5: Deploying to Google Cloud Run (35:00 - 45:00)
+### Module 5: Deploying to Google Cloud Run (35:00 - 45:00) — Step 5: Serverless Deployment
 
-👉 **1-Click Serverless Deployment:**  
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run/?git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
 
-Now package and deploy the entire solution to **Google Cloud Run** with a single command:
+> **👉 Step 5 Action:** Click the **Run on Google Cloud** button above to deploy your containerized agent directly to Google Cloud Run, or execute the deployment script in your terminal below:
 
 ```bash
 chmod +x deploy/deploy_cloud_run.sh
