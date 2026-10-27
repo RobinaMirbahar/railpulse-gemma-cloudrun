@@ -327,9 +327,12 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enable
 > 3. Refresh your **Web Preview** browser tab.
 
 <br>
+
 #### 🧪 Try This in the Dashboard:
-- **Test High Winds:** Slide the Caspian Wind speed slider to `75 km/h`. Watch the guardrail automatically engage the `80 km/h` speed restriction.
-- **Test Track Blockage:** Toggle Block 02 to `OCCUPIED`. Watch the agent immediately route the Baku–Ganja Express into the Bilajari passing siding.
+
+* **Test High Winds:** Slide the Caspian Wind speed slider to `78 km/h`. Watch the deterministic guardrail automatically engage the `80 km/h` safety limit.
+* **Test Track Blockage:** Toggle Primary Block status to `OCCUPIED`. Watch the agent automatically reroute the train into the safe passing siding loop.
+* **Test Trilingual Voice:** Tap **`AZ`** or **`RU`** at the top right to switch passenger station announcements into Azerbaijani or Russian in real time.
 
 ---
 
