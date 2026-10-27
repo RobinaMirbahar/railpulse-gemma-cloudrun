@@ -330,9 +330,10 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enable
 
 #### 🧪 Try This in the Dashboard:
 
+* **Ask Gemma Live Departures & Schedules:** Type in the new **Gemma Rail Copilot Chat** (e.g. *"When is the next train to Sumgayit?"*, *"Show all departures"*, *"Is Baku-Ganja on time?"*) to get instant real-time ETAs and availability.
 * **Test High Winds:** Slide the Caspian Wind speed slider to `78 km/h`. Watch the deterministic guardrail automatically engage the `80 km/h` safety limit.
 * **Test Track Blockage:** Toggle Primary Block status to `OCCUPIED`. Watch the agent automatically reroute the train into the safe passing siding loop.
-* **Test Trilingual Voice:** Tap **`AZ`** or **`RU`** at the top right to switch passenger station announcements into Azerbaijani or Russian in real time.
+* **Test Trilingual Voice & Chat:** Tap **`AZ`** or **`RU`** at the top right to switch the entire dashboard, chat answers, and station announcements into Azerbaijani or Russian in real time.
 
 ---
 
