@@ -89,6 +89,17 @@ Step 1: Cloud Shell Setup ──> Step 2: Gemma Tools ──> Step 3: Safety Gua
 
 ---
 
+### ❓ Where Does This Code Come From? (Pre-Built vs. Extracting)
+
+> [!NOTE]
+> **For Workshop Students & Beginners:**  
+> In this 45-minute workshop, **you do not need to write thousands of lines of code from scratch**.  
+> - **The Code is Already Pre-Built:** All components (Gemma agent, safety interlocks, Streamlit UI, Dockerfile) were pre-engineered and published in this repository ([`RobinaMirbahar/railpulse-gemma-cloudrun`](https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun)).
+> - **Cloud Shell Clones (Extracts) It:** When you click the 1-click launch button in Step 1, Google Cloud Shell automatically downloads (clones) this complete codebase into your session.
+> - **`pip install` Downloads Libraries:** Running `pip install -r requirements.txt` downloads the official Python runtime packages (`google-adk`, `streamlit`, `pydantic`) from PyPI directly into your virtual environment so everything runs immediately.
+
+---
+
 ### 📍 Step 1: Google Cloud Shell Environment Setup (00:00 – 05:00)
 
 - **📌 What is this step?** Launching a browser-based Linux developer environment provided by Google Cloud and downloading the RailPulse AI code.
@@ -108,7 +119,7 @@ Step 1: Cloud Shell Setup ──> Step 2: Gemma Tools ──> Step 3: Safety Gua
 
 > 📸 **[Console Screenshot: Step 1.1 — Trust Repo & Confirm]**
 
-![Step 1.1: Trust Repo and Confirm Dialog](assets/screenshots/01_activate_cloud_shell.png)
+![Step 1.1: Trust Repo and Confirm Dialog](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/01_activate_cloud_shell.png)
 
 <br>
 
@@ -119,7 +130,7 @@ Step 1: Cloud Shell Setup ──> Step 2: Gemma Tools ──> Step 3: Safety Gua
 
 > 📸 **[Console Screenshot: Step 1.2 — Authorize Cloud Shell]**
 
-![Step 1.2: Authorize Cloud Shell Dialog](assets/screenshots/02_gcloud_auth_list.png)
+![Step 1.2: Authorize Cloud Shell Dialog](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/02_gcloud_auth_list.png)
 
 <br>
 
@@ -135,7 +146,7 @@ git clone https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git
 cd railpulse-gemma-cloudrun
 ```
 
-![Step 3: Clone RailPulse AI repository](assets/screenshots/03_git_clone_railpulse.png)
+![Step 3: Clone RailPulse AI repository](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/03_git_clone_railpulse.png)
 
 4. Create and activate a Python virtual environment and install dependencies:
 ```bash
@@ -148,7 +159,7 @@ pip install -r requirements.txt
 
 > 📸 **[Console Screenshot: Virtual Environment Creation & Dependency Installation]**
 
-![Step 1.4: Virtual Environment & Pip Install](assets/screenshots/03_pip_install_venv.png)
+![Step 1.4: Virtual Environment & Pip Install](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/03_pip_install_venv.png)
 
 <br>
 
@@ -181,7 +192,7 @@ python scripts/run_demo.py
 > 📸 **[Your Console Screenshot Here]**  
 > *Capture your Google Cloud Shell terminal output showing Gemma executing the function calling tools and printing the telemetry values.*
 
-![Step 4: Run CLI Demo in Cloud Shell Terminal](assets/screenshots/04_run_demo_terminal.png)
+![Step 4: Run CLI Demo in Cloud Shell Terminal](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/04_run_demo_terminal.png)
 
 <br>
 
@@ -232,7 +243,7 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0
 > 📸 **[Your Live Demo Screenshot Here]**  
 > *Capture the live Streamlit interactive dashboard showing the Azerbaijan Railways map, the active train coordinates, and the live Baku departure board.*
 
-![Step 5: Interactive Streamlit Rail Tracker](assets/screenshots/05_streamlit_railpulse_dashboard.png)
+![Step 5: Interactive Streamlit Rail Tracker](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_railpulse_dashboard.png)
 
 <br>
 
@@ -268,7 +279,7 @@ gcloud run deploy railpulse-gemma   --source .   --region europe-west1   --allow
 > 📸 **[Your Console Screenshot Here]**  
 > *Capture your Google Cloud Shell terminal showing the Cloud Run deployment success, 100% traffic serving, and the active `https://...run.app` service URL.*
 
-![Step 6: Google Cloud Run Deployment Success](assets/screenshots/06_cloud_run_deploy_success.png)
+![Step 6: Google Cloud Run Deployment Success](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/06_cloud_run_deploy_success.png)
 
 <br>
 
