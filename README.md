@@ -8,6 +8,16 @@
 
 ---
 
+### ⚡ 1-Click Google Cloud Shell & Cloud Run Quick Launch
+
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
+[![Google Cloud](https://img.shields.io/badge/Google_Cloud-Open_in_Cloud_Shell-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run/?git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
+
+👉 **[Click Here to Launch Workshop in Google Cloud Shell](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)**
+
+---
+
 ## 🌟 Real-World Inspiration: From Patri (Live Rail Tracking) to Autonomous Dispatch
 
 **RailPulse AI** is inspired by real-world live transit systems such as **[Patri (پٹڑی)](https://patri.hataf.dev/)**—a progressive web application providing live GPS tracking, station arrival times, and delay telemetry for Pakistan Railways.
@@ -69,6 +79,14 @@ Everything in this workshop runs entirely inside **Google Cloud Shell**—requir
 ---
 
 ### Module 1: Cloud Shell Setup (00:00 - 05:00)
+
+> [!TIP]
+> **🚀 Fast Track (1-Click Launch):** You can skip manual cloning by clicking the official Google Cloud button below:
+> 
+> [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)  
+> 👉 **[Click Here to Open and Auto-Clone in Google Cloud Shell](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)**
+
+**Manual Setup Steps:**
 
 1. Open your browser and navigate to the [Google Cloud Console](https://console.cloud.google.com/).
 2. In the top navigation bar, click the **Activate Cloud Shell** icon (`>_`).
@@ -171,6 +189,9 @@ In the dashboard, try:
 ---
 
 ### Module 5: Deploying to Google Cloud Run (35:00 - 45:00)
+
+👉 **1-Click Serverless Deployment:**  
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run/?git_repo=https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git)
 
 Now package and deploy the entire solution to **Google Cloud Run** with a single command:
 
