@@ -552,11 +552,11 @@ with col_left:
     # Process query if submitted
     if user_prompt:
         st.session_state["chat_history"].append({"role": "user", "content": user_prompt})
-        response = answer_rail_chat_query(user_prompt, lang=lang)
+        response = answer_rail_chat_query(user_prompt, lang=lang, selected_train=selected_train, advisory=advisory)
         st.session_state["chat_history"].append({"role": "assistant", "content": response})
 
     # Scrollable chat messages container
-    chat_container = st.container(height=260)
+    chat_container = st.container(height=300)
     with chat_container:
         for msg in st.session_state["chat_history"]:
             with st.chat_message(msg["role"]):
