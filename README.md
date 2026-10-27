@@ -264,7 +264,7 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enable
 <br>
 
 > 🔄 **How to Pull Code Updates During the Workshop:**  
-> Whenever new features, prompt templates, or UI fixes are pushed to the GitHub repository, attendees do not need to re-clone the repository or recreate their virtual environment! Simply update the running Cloud Shell workspace with these two quick steps:  
+> Whenever new features, prompt templates, or UI fixes are pushed to the GitHub repository, attendees do not need to re-clone the repository or recreate their virtual environment! Simply update the running Cloud Shell workspace with these quick steps:  
 >  
 > 1. In your Cloud Shell terminal, press **`Ctrl + C`** to stop the current Streamlit process.  
 > 2. Fetch the latest code from GitHub:  
@@ -279,7 +279,23 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enable
 
 <br>
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_git_pull_cloudshell_update.png" width="48%" alt="Live Git Pull in Cloud Shell" />
+  &nbsp;
+  <img src="https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_restart_command.png" width="48%" alt="Streamlit Server Restart Command" />
+</p>
+
+<br>
+
 ![Step 4: Interactive Trilingual RailPulse AI Dashboard](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_trilingual_dashboard.png)
+
+<br>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_kpi_corridor_view.png" width="48%" alt="Updated Balanced KPI Strip and Corridors" />
+  &nbsp;
+  <img src="https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_azerbaijan_running_map.png" width="48%" alt="Highlighted Azerbaijan Map with Live Running Trains" />
+</p>
 
 <br>
 
@@ -330,7 +346,7 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enable
 
 #### 🧪 Try This in the Dashboard:
 
-* **Ask Gemma Live Departures & Schedules:** Type in the new **Gemma Rail Copilot Chat** (e.g. *"When is the next train to Sumgayit?"*, *"Show all departures"*, *"Is Baku-Ganja on time?"*) to get instant real-time ETAs and availability.
+* **Ask Gemma Live Departures & Schedules:** Type in the new **Gemma Rail Assistant Chat** (e.g. *"When is the next train to Sumgayit?"*, *"Show all departures"*, *"Is Baku-Ganja on time?"*) to get instant real-time ETAs and availability.
 * **Test High Winds:** Slide the Caspian Wind speed slider to `78 km/h`. Watch the deterministic guardrail automatically engage the `80 km/h` safety limit.
 * **Test Track Blockage:** Toggle Primary Block status to `OCCUPIED`. Watch the agent automatically reroute the train into the safe passing siding loop.
 * **Test Trilingual Voice & Chat:** Tap **`AZ`** or **`RU`** at the top right to switch the entire dashboard, chat answers, and station announcements into Azerbaijani or Russian in real time.
