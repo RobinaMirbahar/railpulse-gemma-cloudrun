@@ -18,28 +18,29 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# Enterprise Railway Operations Design System
+# Cute, Fresh & Vibrant Transit Theme (Caspian Teal & Pastel Palette)
 # ---------------------------------------------------------
 st.markdown(
     """<style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700&display=swap');
 
 :root {
-    --ground: #f4f7f4;
+    --ground: #f8fafc;
     --surface: #ffffff;
-    --ink: #0b1f17;
-    --ink-muted: #56665d;
-    --line: #dbe3dd;
-    --rail-primary: #01411c;
-    --rail-light: #e6efe8;
-    --gold-accent: #f2c230;
-    --gold-light: #fef7db;
-    --alert-red: #d93829;
-    --alert-red-light: #fbeae8;
+    --ink: #0f172a;
+    --ink-muted: #64748b;
+    --line: #e2e8f0;
+    --brand-teal: #0d9488;
+    --brand-blue: #0284c7;
+    --brand-mint: #10b981;
+    --cute-peach: #ffedd5;
+    --cute-yellow: #fef08a;
+    --cute-pink: #ffe4e6;
+    --cute-lavender: #ede9fe;
 }
 
 html, body, [class*="css"] {
-    font-family: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--ink);
 }
 
@@ -47,134 +48,147 @@ html, body, [class*="css"] {
     background-color: var(--ground);
 }
 
+/* Cute & Vibrant Hero Banner with Caspian Gradient */
 .rail-hero {
-    background: linear-gradient(135deg, #01411c 0%, #063118 60%, #022010 100%);
-    padding: 24px 28px;
-    border-radius: 18px;
+    background: linear-gradient(135deg, #0284c7 0%, #0d9488 48%, #10b981 100%);
+    padding: 26px 32px;
+    border-radius: 24px;
     color: white;
     margin-bottom: 24px;
-    box-shadow: 0 8px 24px rgba(1, 65, 28, 0.16);
+    box-shadow: 0 12px 30px rgba(13, 148, 136, 0.22);
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .rail-hero h1 {
     color: #ffffff;
-    font-size: 26px;
+    font-size: 27px;
     font-weight: 800;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.4px;
     margin: 0;
     display: flex;
     align-items: center;
     gap: 12px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .rail-hero p {
-    color: #cde0d4;
+    color: #e0f2fe;
     font-size: 14px;
+    font-weight: 500;
     margin: 6px 0 0 0;
 }
 
 .live-status-pill {
-    background: #f2c230;
-    color: #0b1f17;
-    font-weight: 700;
+    background: #fef08a;
+    color: #854d0e;
+    font-weight: 800;
     font-size: 12px;
-    padding: 6px 14px;
+    padding: 7px 16px;
     border-radius: 999px;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 12px rgba(242, 194, 48, 0.35);
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(254, 240, 138, 0.45);
 }
 
 .pulse-dot {
-    width: 8px;
-    height: 8px;
-    background: #01411c;
+    width: 9px;
+    height: 9px;
+    background: #eab308;
     border-radius: 50%;
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
     0% { transform: scale(0.95); opacity: 1; }
-    50% { transform: scale(1.35); opacity: 0.5; }
+    50% { transform: scale(1.4); opacity: 0.6; }
     100% { transform: scale(0.95); opacity: 1; }
 }
 
+/* Cute Rounded Cards */
 .rail-card {
     background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
     margin-bottom: 20px;
 }
 
+/* Cute Metric Pill Boxes */
 .metric-pill-box {
     background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 18px;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    transition: transform 0.15s ease;
+}
+.metric-pill-box:hover {
+    transform: translateY(-2px);
 }
 
 .metric-title {
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.7px;
     color: var(--ink-muted);
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 4px;
 }
 
 .metric-value {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 800;
-    color: var(--rail-primary);
+    color: #0f172a;
     line-height: 1.1;
 }
 
 .metric-tag {
     display: inline-block;
     font-size: 12px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 6px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
     margin-top: 6px;
 }
 
+/* Cute Station Timeline */
 .timeline-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: relative;
-    padding: 24px 12px 12px 12px;
-    margin: 10px 0 20px 0;
+    padding: 26px 16px 14px 16px;
+    margin: 8px 0 18px 0;
 }
 
 .timeline-track {
     position: absolute;
-    top: 36px;
-    left: 40px;
-    right: 40px;
-    height: 4px;
-    background: #dbe3dd;
+    top: 38px;
+    left: 45px;
+    right: 45px;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 999px;
     z-index: 1;
 }
 
 .timeline-track-fill {
     position: absolute;
-    top: 36px;
-    left: 40px;
-    height: 4px;
-    background: #01411c;
+    top: 38px;
+    left: 45px;
+    height: 6px;
+    background: linear-gradient(90deg, #0284c7 0%, #10b981 100%);
+    border-radius: 999px;
     z-index: 2;
 }
 
@@ -185,81 +199,86 @@ html, body, [class*="css"] {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-width: 90px;
+    min-width: 95px;
 }
 
 .node-dot {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
+    font-size: 13px;
+    font-weight: 800;
     margin-bottom: 8px;
-    border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border: 3px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 }
 
 .node-passed {
-    background: #01411c;
+    background: #10b981;
     color: white;
 }
 
 .node-current {
-    background: #f2c230;
-    color: #0b1f17;
-    transform: scale(1.2);
-    border: 2px solid #01411c;
+    background: #facc15;
+    color: #713f12;
+    transform: scale(1.22);
+    border: 3px solid #0d9488;
     animation: pulse 1.8s infinite;
 }
 
 .node-upcoming {
     background: #ffffff;
-    color: #66736b;
-    border: 2px solid #d5ddd7;
+    color: #94a3b8;
+    border: 3px solid #cbd5e1;
 }
 
 .node-name {
     font-size: 13px;
     font-weight: 700;
-    color: var(--ink);
+    color: #1e293b;
 }
 
 .node-time {
     font-size: 11px;
-    color: var(--ink-muted);
-    font-weight: 500;
+    color: #64748b;
+    font-weight: 600;
 }
 
+/* Cute Passenger Announcement Card */
 .announcement-box {
-    background: #fdf3d2;
-    border-left: 5px solid #f2c230;
-    padding: 16px 20px;
-    border-radius: 12px;
-    color: #0b1f17;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1px solid #fde68a;
+    border-left: 6px solid #f59e0b;
+    padding: 18px 22px;
+    border-radius: 16px;
+    color: #78350f;
     font-size: 15px;
     line-height: 1.5;
     margin-bottom: 18px;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
 }
 
+/* Cute Interlock Badges */
 .interlock-badge-pass {
-    background: #e3ede6;
-    color: #01411c;
-    border-left: 5px solid #01411c;
-    padding: 14px 18px;
-    border-radius: 12px;
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    border-left: 6px solid #22c55e;
+    padding: 16px 20px;
+    border-radius: 16px;
     font-weight: 600;
     margin-bottom: 18px;
 }
-
 .interlock-badge-warn {
-    background: #fbeae8;
-    color: #b71c1c;
-    border-left: 5px solid #d93829;
-    padding: 14px 18px;
-    border-radius: 12px;
+    background: #fff1f2;
+    color: #9f1239;
+    border: 1px solid #fecdd3;
+    border-left: 6px solid #f43f5e;
+    padding: 16px 20px;
+    border-radius: 16px;
     font-weight: 600;
     margin-bottom: 18px;
 }
@@ -293,16 +312,16 @@ with st.sidebar:
     st.markdown("#### ⚡ **Operating Scenario Presets**")
     col_p1, col_p2 = st.columns(2)
     with col_p1:
-        if st.button("🌪️ High Caspian Wind", use_container_width=True):
+        if st.button("🌪️ High Wind (78 km/h)", use_container_width=True):
             st.session_state["wind_slider"] = 78
             st.session_state["block_select"] = "FREE"
             st.session_state["speed_slider"] = 145
     with col_p2:
-        if st.button("🚧 Track Blockage", use_container_width=True):
+        if st.button("🚧 Track Blocked", use_container_width=True):
             st.session_state["block_select"] = "OCCUPIED"
             st.session_state["speed_slider"] = 110
 
-    if st.button("☀️ Clear Corridor Nominal", use_container_width=True):
+    if st.button("☀️ Clear Sky Normal", use_container_width=True):
         st.session_state["wind_slider"] = 28
         st.session_state["block_select"] = "FREE"
         st.session_state["speed_slider"] = 120
@@ -348,7 +367,7 @@ advisory = run_railpulse_dispatch(
 )
 
 # ---------------------------------------------------------
-# Primary Dispatch Hero Banner
+# Cute Caspian Hero Banner
 # ---------------------------------------------------------
 hero_html = f"""<div class="rail-hero">
 <div>
@@ -356,14 +375,14 @@ hero_html = f"""<div class="rail-hero">
 <svg class="train-badge-icon" width="34" height="22" viewBox="0 0 40 22" fill="none">
 <rect x="2" y="4" width="28" height="12" rx="3" fill="#ffffff"/>
 <rect x="30" y="7" width="7" height="9" rx="2" fill="#ffffff"/>
-<circle cx="8" cy="18" r="3" fill="#f2c230"/>
-<circle cx="18" cy="18" r="3" fill="#f2c230"/>
-<circle cx="28" cy="18" r="3" fill="#f2c230"/>
-<circle cx="34" cy="18" r="2" fill="#f2c230"/>
-<rect x="6" y="7" width="5" height="4" rx="1" fill="#01411c"/>
-<rect x="14" y="7" width="5" height="4" rx="1" fill="#01411c"/>
-<rect x="22" y="7" width="5" height="4" rx="1" fill="#01411c"/>
-<line x1="2" y1="12" x2="30" y2="12" stroke="#f2c230" stroke-width="2"/>
+<circle cx="8" cy="18" r="3" fill="#fef08a"/>
+<circle cx="18" cy="18" r="3" fill="#fef08a"/>
+<circle cx="28" cy="18" r="3" fill="#fef08a"/>
+<circle cx="34" cy="18" r="2" fill="#fef08a"/>
+<rect x="6" y="7" width="5" height="4" rx="1" fill="#0d9488"/>
+<rect x="14" y="7" width="5" height="4" rx="1" fill="#0d9488"/>
+<rect x="22" y="7" width="5" height="4" rx="1" fill="#0d9488"/>
+<line x1="2" y1="12" x2="30" y2="12" stroke="#fef08a" stroke-width="2"/>
 </svg>
 RailPulse AI — Live Rail Tracking & Smart Dispatch Agent
 </h1>
@@ -379,7 +398,7 @@ ADY REAL-TIME DISPATCH
 st.markdown(hero_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Top Operational Metric Cards
+# Top Operational Metric Cards (Cute Pastel Badges)
 # ---------------------------------------------------------
 col1, col2, col3, col4 = st.columns(4)
 
@@ -387,8 +406,8 @@ with col1:
     train_route_short = LIVE_TRAINS[selected_train]['route_name'].split(' ')[1]
     card1_html = f"""<div class="metric-pill-box">
 <div class="metric-title">Active Train</div>
-<div class="metric-value">{advisory.train_id}</div>
-<span class="metric-tag" style="background: var(--rail-light); color: var(--rail-primary);">
+<div class="metric-value" style="color: #0284c7;">{advisory.train_id}</div>
+<span class="metric-tag" style="background: #e0f2fe; color: #0369a1;">
 🚆 {train_route_short}
 </span>
 </div>"""
@@ -396,13 +415,14 @@ with col1:
 
 with col2:
     is_clamped = advisory.approved_speed_kmh != requested_speed
-    speed_tag_bg = "var(--alert-red-light)" if is_clamped else "var(--rail-light)"
-    speed_tag_col = "var(--alert-red)" if is_clamped else "var(--rail-primary)"
-    speed_tag_text = f"↓ Clamped ({advisory.approved_speed_kmh - requested_speed} km/h)" if is_clamped else "✓ Clear"
+    speed_tag_bg = "#ffe4e6" if is_clamped else "#dcfce7"
+    speed_tag_col = "#e11d48" if is_clamped else "#15803d"
+    speed_val_col = "#e11d48" if is_clamped else "#10b981"
+    speed_tag_text = f"↓ Clamped ({advisory.approved_speed_kmh - requested_speed} km/h)" if is_clamped else "✓ Clear Speed"
 
     card2_html = f"""<div class="metric-pill-box">
 <div class="metric-title">Guardrail-Approved Speed</div>
-<div class="metric-value">{advisory.approved_speed_kmh} <span style="font-size: 16px;">km/h</span></div>
+<div class="metric-value" style="color: {speed_val_col};">{advisory.approved_speed_kmh} <span style="font-size: 16px;">km/h</span></div>
 <span class="metric-tag" style="background: {speed_tag_bg}; color: {speed_tag_col};">
 {speed_tag_text}
 </span>
@@ -411,13 +431,13 @@ with col2:
 
 with col3:
     is_siding = "SIDING" in advisory.assigned_block_id
-    block_tag_bg = "var(--gold-light)" if is_siding else "var(--rail-light)"
-    block_tag_col = "#996500" if is_siding else "var(--rail-primary)"
+    block_tag_bg = "#fef9c3" if is_siding else "#e0f2fe"
+    block_tag_col = "#a16207" if is_siding else "#0284c7"
     block_tag_text = "⚠️ Siding Loop" if is_siding else "✓ Main Line"
 
     card3_html = f"""<div class="metric-pill-box">
 <div class="metric-title">Assigned Track Block</div>
-<div class="metric-value" style="font-size: 20px; padding-top: 4px;">{advisory.assigned_block_id}</div>
+<div class="metric-value" style="font-size: 21px; padding-top: 3px; color: #0d9488;">{advisory.assigned_block_id}</div>
 <span class="metric-tag" style="background: {block_tag_bg}; color: {block_tag_col};">
 {block_tag_text} • Wind {wind_speed} km/h
 </span>
@@ -428,15 +448,15 @@ with col4:
     recovered_min = LIVE_TRAINS[selected_train]["delay_minutes"] - advisory.delay_minutes_remaining
     card4_html = f"""<div class="metric-pill-box">
 <div class="metric-title">Updated Station ETA</div>
-<div class="metric-value">{advisory.updated_eta}</div>
-<span class="metric-tag" style="background: var(--rail-light); color: var(--rail-primary);">
+<div class="metric-value" style="color: #7c3aed;">{advisory.updated_eta}</div>
+<span class="metric-tag" style="background: #f3e8ff; color: #6d28d9;">
 ⚡ -{recovered_min}m delay recovered
 </span>
 </div>"""
     st.markdown(card4_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Route Station Progression Timeline
+# Cute Route Station Progression Timeline
 # ---------------------------------------------------------
 st.markdown("### 🚉 **Corridor Route & Station Progression**")
 
@@ -474,7 +494,7 @@ for idx, s in enumerate(stops, start=1):
 
 progress_pct = 50 if selected_train == "ADY-104" else (70 if selected_train == "ADY-702" else 45)
 
-timeline_full_html = f'<div class="rail-card" style="padding-top: 10px;"><div class="timeline-container"><div class="timeline-track"></div><div class="timeline-track-fill" style="width: {progress_pct}%;"></div>' + ''.join(nodes_html) + '</div></div>'
+timeline_full_html = f'<div class="rail-card" style="padding-top: 14px;"><div class="timeline-container"><div class="timeline-track"></div><div class="timeline-track-fill" style="width: {progress_pct}%;"></div>' + ''.join(nodes_html) + '</div></div>'
 st.markdown(timeline_full_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
@@ -513,7 +533,7 @@ with col_left:
 with col_right:
     st.markdown("### 📢 **Passenger Station Board Announcement**")
     announcement_html = f"""<div class="announcement-box">
-<div style="font-weight: 700; font-size: 13px; text-transform: uppercase; color: #7a5800; margin-bottom: 6px;">
+<div style="font-weight: 800; font-size: 13px; text-transform: uppercase; color: #b45309; margin-bottom: 6px;">
 🔊 Station Master Voice Synthesizer
 </div>
 {advisory.passenger_announcement}
