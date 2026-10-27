@@ -420,10 +420,15 @@ gcloud run deploy railpulse-gemma   --source .   --region europe-west1   --allow
 
 <br>
 
-> 📸 **[Your Console Screenshot Here]**  
-> *Capture your Google Cloud Shell terminal showing the Cloud Run deployment success, 100% traffic serving, and the active `https://...run.app` service URL.*
+<p align="center">
+  <img src="https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/06_cloud_run_deploy_command.png" width="48%" alt="Cloud Run Deploy Command in Cloud Shell" />
+  &nbsp;
+  <img src="https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/06_cloud_run_building_container.png" width="48%" alt="Cloud Build Building Container for Cloud Run" />
+</p>
 
-![Step 6: Google Cloud Run Deployment Success](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/06_cloud_run_deploy_success.png)
+<br>
+
+![Step 5: Google Cloud Run Deployment Success](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/06_cloud_run_deploy_success.png)
 
 <br>
 
