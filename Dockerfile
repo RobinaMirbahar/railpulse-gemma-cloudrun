@@ -7,6 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 COPY requirements.txt pyproject.toml README.md ./
+COPY .streamlit ./.streamlit
 COPY railpulse_agent ./railpulse_agent
 COPY scripts ./scripts
 COPY app.py ./
@@ -16,4 +17,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 EXPOSE 8080
 
-CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.address=0.0.0.0", "--server.headless=true"]
+CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.address=0.0.0.0", "--server.headless=true", "--server.enableCORS=false", "--server.enableXsrfProtection=false"]
