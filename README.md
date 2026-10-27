@@ -264,10 +264,21 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enable
 
 <br>
 
-> 📸 **[Your Live Demo Screenshot Here]**  
-> *Capture the live Streamlit interactive dashboard showing the Azerbaijan Railways map, the active train coordinates, and the live Baku departure board.*
 
-![Step 5: Interactive Streamlit Rail Tracker](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_railpulse_dashboard.png)
+
+![Step 4: RailPulse AI Telemetry Metrics](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_railpulse_dashboard.png)
+
+<br>
+
+![Step 4: Live GIS Map, Station Board Announcement, and ADK Guardrail Audit](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_map_and_audit.png)
+
+<br>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_train_selector.png" width="48%" alt="ADY Train Fleet Selector" />
+  &nbsp;
+  <img src="https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_block_occupancy_selector.png" width="48%" alt="Track Block Occupancy Selector" />
+</p>
 
 <br>
 
