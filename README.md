@@ -15,7 +15,7 @@ Most generative AI tutorials showcase toy chatbots, creative writing prompts, or
 Here is why this documentation and architecture are essential:
 
 ### 1. 🛡️ Moving Beyond "Toy Demos" to Safety-Critical AI
-In passenger rail systems (like Azerbaijan Railways or [Patri](https://patri.hataf.dev/)), a single hallucinated route or ignored signal can cause catastrophe. This documentation demonstrates how to wrap open-weights models (Gemma) inside **deterministic, non-negotiable software interlocks** (`guardrails.py`) so physical safety rules always take precedence over AI suggestions.
+In passenger rail systems (like Azerbaijan Railways), a single hallucinated route or ignored signal can cause catastrophe. This documentation demonstrates how to wrap open-weights models (Gemma) inside **deterministic, non-negotiable software interlocks** (`guardrails.py`) so physical safety rules always take precedence over AI suggestions.
 
 ### 2. ⚡ 100% Reproducibility with Zero Local Setup Friction
 In conference workshops (such as DevFest Baku 2026), attendees arrive with different laptops (macOS, Windows, Linux, Chromebooks) and mismatched Python or CUDA environments. This documentation standardizes the entire 45-minute lab around **Google Cloud Shell** with **1-click launch buttons**, ensuring every developer gets an identical, ready-to-run environment without installing anything locally.
@@ -29,16 +29,15 @@ Many enterprise organizations cannot stream sensitive internal operational telem
 
 ---
 
-## 🌟 Real-World Inspiration: From Patri (Live Rail Tracking) to Autonomous Dispatch
+## 🌟 Live Interactive Rail Tracking & Smart Dispatch Demo (Baku 2026)
 
-**RailPulse AI** is inspired by real-world live transit systems such as **[Patri (پٹڑی)](https://patri.hataf.dev/)**—a progressive web application providing live GPS tracking, station arrival times, and delay telemetry for Pakistan Railways.
+**RailPulse AI** provides a complete, live interactive rail tracking experience built specifically for our hands-on session at **DevFest Baku 2026**.
 
-While passenger-facing platforms like [patri.hataf.dev](https://patri.hataf.dev/) track where trains currently are, **railway operators and dispatchers face a much harder problem:**
-- How do you react in real time when a sudden high crosswind off the Caspian Sea forces speed restrictions?
-- Which train gets priority when a primary track block is occupied?
-- How can an AI assistant provide intelligent rerouting advisories without ever violating non-negotiable physical railway interlocks?
-
-**RailPulse AI** solves this by pairing Google's open-weights **Gemma** model with **Google Agent Development Kit (ADK)**, deterministic safety guardrails, and serverless **Google Cloud Run** deployment.
+The live demo features a real-time tracking map and operational dashboard modeled after modern railway transit systems across the **Azerbaijan Railways (ADY)** network:
+- **Live GPS & Track Telemetry:** Track active passenger trains (*Baku–Ganja High-Speed Express*, *Baku–Sumgayit Absheron Commuter*, *Baku–Tbilisi Silk Road Express*) moving across real coordinates.
+- **Dynamic Station Departure Boards:** Live estimated arrival times (ETAs), delay counters, and track assignments.
+- **Interactive Weather & Track Simulator:** Attendees can toggle Caspian coastal crosswinds and block occupancies in real time.
+- **Autonomous Dispatch Agent:** When disruptions occur, our open-weights **Gemma** agent assesses options and issues collision-free, guardrail-verified rerouting advisories without ever violating physical railway safety interlocks.
 
 ---
 
@@ -132,7 +131,7 @@ pip install -r requirements.txt
 ### 📍 Step 2: Equipping Gemma with Live Railway Telemetry Tools (05:00 – 15:00)
 
 - **📌 What is this step?** Giving Google's open-weights Gemma model access to live Python functions that read train speeds, GPS coordinates, block signals, and weather.
-- **❓ Why do we use this?** An AI language model on its own only knows text; it has zero real-time awareness of where trains are. Just like [Patri (patri.hataf.dev)](https://patri.hataf.dev/) connects to live train GPS to display arrivals, our Gemma agent uses **Function Calling** to inspect live sensors before generating any dispatch decision.
+- **❓ Why do we use this?** An AI language model on its own only knows text; it has zero real-time awareness of where trains are. Just like live railway transit maps connect to GPS signals to display real-time positions, our Gemma agent uses **Function Calling** to inspect live sensors before generating any dispatch decision.
 - **🔗 What is the link?** Takes the environment prepared in **Step 1** and gives Gemma the live data it needs so that **Step 3** can evaluate whether those conditions are physically safe.
 
 #### 💻 How It Works (`railpulse_agent/tools.py`):
