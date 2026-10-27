@@ -244,8 +244,8 @@ div[data-testid="stButton"] > button { white-space: nowrap !important; padding-l
 }
 .rail-hero * { color: #ffffff; }
 @keyframes bulletGlide {
-    0%, 100% { transform: translateX(0px); filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.7)); }
-    50% { transform: translateX(6px); filter: drop-shadow(0 0 16px rgba(250, 204, 21, 0.95)); }
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.7)); }
+    50% { filter: drop-shadow(0 0 14px rgba(250, 204, 21, 0.95)); }
 }
 .bullet-svg { animation: bulletGlide 2.2s infinite ease-in-out; flex-shrink: 0; }
 .gauge-card {
@@ -865,31 +865,8 @@ with col_right:
     var marker104 = L.marker([40.4286, 49.8058], {{ icon: buildTrainIcon('ADY-104', '🚆', speedVal104, is104Active), zIndexOffset: is104Active ? 1000 : 100 }}).addTo(map);
     var marker702 = L.marker([40.6172, 47.1501], {{ icon: buildTrainIcon('ADY-702', '⚡', speedVal702, is702Active), zIndexOffset: is702Active ? 1000 : 100 }}).addTo(map);
     var marker410 = L.marker([40.8297, 46.0178], {{ icon: buildTrainIcon('ADY-410', '🌍', speedVal410, is410Active), zIndexOffset: is410Active ? 1000 : 100 }}).addTo(map);
-    var progress = 0.0;
-    var hudCoordsEl = document.getElementById('hud-coords');
     var currentActiveLat = {meta['lat']};
     var currentActiveLon = {meta['lon']};
-    function animateTrainsForward() {{
-      progress += 0.00075;
-      if (progress > 1.0) progress = 0.0;
-      var lat104 = 40.4286 + (40.5897 - 40.4286) * progress;
-      var lon104 = 49.8058 + (49.6686 - 49.8058) * progress;
-      marker104.setLatLng([lat104, lon104]);
-      var lat702 = 40.6172 + (40.6828 - 40.6172) * progress;
-      var lon702 = 47.1501 + (46.3606 - 47.1501) * progress;
-      marker702.setLatLng([lat702, lon702]);
-      var lat410 = 40.8297 + (41.1189 - 40.8297) * progress;
-      var lon410 = 46.0178 + (45.4539 - 46.0178) * progress;
-      marker410.setLatLng([lat410, lon410]);
-      if (is104Active) {{ currentActiveLat = lat104; currentActiveLon = lon104; }}
-      else if (is702Active) {{ currentActiveLat = lat702; currentActiveLon = lon702; }}
-      else {{ currentActiveLat = lat410; currentActiveLon = lon410; }}
-      if (hudCoordsEl) {{
-        hudCoordsEl.textContent = currentActiveLat.toFixed(4) + "° N, " + currentActiveLon.toFixed(4) + "° E";
-      }}
-      requestAnimationFrame(animateTrainsForward);
-    }}
-    requestAnimationFrame(animateTrainsForward);
     function focusActiveTrain() {{ map.flyTo([currentActiveLat, currentActiveLon], 11, {{ duration: 0.8 }}); }}
     function resetAzerbaijanBounds() {{ map.flyToBounds(azBounds, {{ padding: [14, 14], duration: 0.8 }}); }}
   </script>
