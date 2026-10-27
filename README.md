@@ -215,13 +215,25 @@ python scripts/run_demo.py
 
 Run the automated test suite to verify the guardrails block hallucinations:
 ```bash
-pytest tests/test_railpulse.py -v
+python -m pytest tests/test_railpulse.py -v
 ```
 
 <br>
 
-> 📸 **[Your Console Screenshot Here]**  
-> *Capture your terminal showing all unit tests passing (green) for `test_corridor_signals_and_wind`, `test_block_occupancy_guardrail`, and `test_high_wind_clamp`.*
+> 💡 **Troubleshooting Tip: `ModuleNotFoundError: No module named 'railpulse_agent'`**  
+> If students run standalone `pytest` instead of `python -m pytest`, Linux may not automatically include the current working directory in Python's module path (`sys.path`), producing this error:
+
+<br>
+
+![Step 3 Troubleshooting: ModuleNotFoundError](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_pytest_import_error_solution.png)
+
+<br>
+
+> **How to Solve:** Simply execute with `python -m pytest tests/test_railpulse.py -v` (or run `PYTHONPATH=. pytest`), which ensures the root directory is recognized by Python's module resolver.
+
+<br>
+
+> 📸 **[Console Screenshot: All Safety Tests Passing (Green)]**
 
 <br>
 
