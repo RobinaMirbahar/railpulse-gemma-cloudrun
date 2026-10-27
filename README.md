@@ -137,12 +137,26 @@ cd railpulse-gemma-cloudrun
 
 ![Step 3: Clone RailPulse AI repository](assets/screenshots/03_git_clone_railpulse.png)
 
-4. Create and activate a virtual environment and install dependencies:
+4. Create and activate a Python virtual environment and install dependencies:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+<br>
+
+> 📸 **[Console Screenshot: Virtual Environment Creation & Dependency Installation]**
+
+![Step 1.4: Virtual Environment & Pip Install](assets/screenshots/03_pip_install_venv.png)
+
+<br>
+
+> 💡 **Why do we create a Virtual Environment (`.venv`)?**
+>
+> 1. **Dependency Isolation:** Google Cloud Shell comes with many system-wide Linux packages. Creating `.venv` creates an isolated sandbox for RailPulse AI's libraries (`google-adk`, `streamlit`, `pydantic`), preventing version conflicts with the underlying operating system.
+> 2. **Clean Container Parity:** What runs inside `.venv` matches the exact dependencies that get packaged into our Google Cloud Run Docker container in Step 5, eliminating "works on my machine" deployment bugs.
+> 3. **Permission Safety:** It allows packages to be installed cleanly in user space without requiring `sudo` or altering system-level Linux binaries.
 
 ---
 
