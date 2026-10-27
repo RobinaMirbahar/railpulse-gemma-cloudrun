@@ -252,8 +252,15 @@ Start the Streamlit application on port 8080:
 streamlit run app.py --server.port=8080 --server.address=0.0.0.0
 ```
 
-1. In the upper-right corner of Google Cloud Shell, click the **Web Preview** icon.
-2. Select **Change port > 8080 > Preview and Run**.
+<br>
+
+![Step 4: Streamlit Server Running on Port 8080](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_server_started.png)
+
+<br>
+
+#### 🌐 Opening the Live Dashboard:
+1. In the top-right toolbar of Google Cloud Shell, click the **Web Preview** icon (the small window/eye icon next to the blue terminal icon).
+2. Select **Change port > 8080 > Preview and Run** (or click **Preview on port 8080**).
 
 <br>
 
