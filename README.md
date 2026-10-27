@@ -79,7 +79,7 @@ I designed every step with four clear answers:
 3. **🔗 How does this connect to the complete system?**
 4. **💻 What commands to run & what you see on screen.**
 
-![45-Minute Workshop Steps Flow](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/workshop_steps_flow.png)
+![45-Minute Workshop Steps Flow](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/workshop_steps_roadmap.png)
 
 ---
 
