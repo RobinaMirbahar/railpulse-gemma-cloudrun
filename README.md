@@ -261,6 +261,28 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enable
 #### 🌐 Opening the Live Dashboard:
 1. In the top-right toolbar of Google Cloud Shell, click the **Web Preview** icon (the small window/eye icon next to the blue terminal icon).
 2. Select **Change port > 8080 > Preview and Run** (or click **Preview on port 8080**).
+<br>
+
+> 🔄 **How to Pull Code Updates During the Workshop:**  
+> Whenever new features, prompt templates, or UI fixes are pushed to the GitHub repository, attendees do not need to re-clone the repository or recreate their virtual environment! Simply update the running Cloud Shell workspace with these two quick steps:  
+>  
+> 1. In your Cloud Shell terminal, press **`Ctrl + C`** to stop the current Streamlit process.  
+> 2. Fetch the latest code from GitHub:  
+>    ```bash  
+>    git pull origin main  
+>    ```  
+> 3. Restart the interactive server with Cloud Shell reverse-proxy routing permitted:  
+>    ```bash  
+>    streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enableCORS=false --server.enableXsrfProtection=false  
+>    ```  
+> 4. Refresh your **Web Preview** browser tab (`F5`) to immediately see the changes!
+
+<br>
+
+![Step 4: Interactive Trilingual RailPulse AI Dashboard](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/05_streamlit_trilingual_dashboard.png)
+
+<br>
+
 
 <br>
 
