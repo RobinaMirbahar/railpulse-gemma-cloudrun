@@ -160,6 +160,12 @@ pip install -r requirements.txt
 
 <br>
 
+> 📸 **[Console Screenshot: Step 1.5 — Dependencies Successfully Installed & Ready]**
+
+![Step 1.5: Dependencies Successfully Installed](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/03_pip_install_success.png)
+
+<br>
+
 > 💡 **Why create a Virtual Environment (`.venv`)?**
 >
 > 1. **Dependency Isolation:** Google Cloud Shell comes with many system-wide Linux packages. Creating `.venv` creates an isolated sandbox for RailPulse AI's libraries (`google-adk`, `streamlit`, `pydantic`), preventing version conflicts with the underlying operating system.
