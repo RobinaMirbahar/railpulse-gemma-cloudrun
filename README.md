@@ -79,10 +79,7 @@ I designed every step with four clear answers:
 3. **🔗 How does this connect to the complete system?**
 4. **💻 What commands to run & what you see on screen.**
 
-```
-Step 1: Cloud Shell Setup ──> Step 2: Gemma Tools ──> Step 3: Safety Guardrails ──> Step 4: Web Dashboard ──> Step 5: Live Cloud Run
- (Free Browser Machine)       (Live Train Sensors)      (Zero-Collision Rules)      (Interactive UI Map)       (Scale-to-$0 Public URL)
-```
+![45-Minute Workshop Steps Flow](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/workshop_steps_flow.png)
 
 ---
 
