@@ -2,9 +2,22 @@
 
 ![RailPulse AI Cover](assets/railpulse_cover.jpg)
 
-> **Accepted 45-Minute Hands-On Workshop — DevFest Baku 2026**
->
-> Build, containerize, and deploy a real-time **Rail Tracking & Smart Dispatch AI Agent (`RailPulse AI`)** powered by **open-weights Gemma**, **Google Agent Development Kit (ADK)**, **Streamlit**, and **Google Cloud Run (scale-to-zero)**.
+> **Accepted 45-Minute Hands-On Workshop — DevFest Baku 2026**  
+> **Speaker:** [Robina Mirbahar](https://github.com/RobinaMirbahar) (Google Developer Expert in Cloud & AI)  
+> **Topic:** Building, containerizing, and deploying a production-ready railway dispatch and tracking AI agent powered by open-weights Gemma, Google ADK, and Google Cloud Run with zero idle costs.
+
+---
+
+## 🌟 Real-World Inspiration: From Patri (Live Rail Tracking) to Autonomous Dispatch
+
+**RailPulse AI** is inspired by real-world live transit systems such as **[Patri (پٹڑی)](https://patri.hataf.dev/)**—a progressive web application providing live GPS tracking, station arrival times, and delay telemetry for Pakistan Railways.
+
+While passenger-facing platforms like [patri.hataf.dev](https://patri.hataf.dev/) track where trains currently are, **railway operators and dispatchers face a much harder problem:**
+- How do you react in real time when a sudden high crosswind off the Caspian Sea forces speed restrictions?
+- Which train gets priority when a primary track block is occupied?
+- How can an AI assistant provide intelligent rerouting advisories without ever violating non-negotiable physical railway interlocks?
+
+**RailPulse AI** solves this by pairing Google's open-weights **Gemma** model with **Google Agent Development Kit (ADK)**, deterministic safety guardrails, and serverless **Google Cloud Run** deployment.
 
 ---
 
@@ -12,44 +25,203 @@
 
 ![RailPulse AI Architecture](assets/railpulse_architecture.jpg)
 
-1. **Interactive Streamlit Rail Tracker (`app.py`):** Visualizes active trains across **Azerbaijan Railways (ADY)** corridors (*Baku–Ganja High-Speed Express*, *Baku–Sumgayit Absheron Commuter*, *Baku–Tbilisi Silk Road Express*), includes a 1-click **Caspian Wind & Block Occupancy Simulator**, and renders live station departure boards.
-2. **Lightweight Gemma Inference Engine (`Ollama` on Cloud Run):** Runs open-weights Gemma (`gemma3:4b` / `gemma4:e4b`) serverlessly with `--min-instances=0` so idle cost is `$0`.
-3. **Python Function Calling (`railpulse_agent/tools.py`):**
-   - `get_live_train_telemetry(train_id)` — Live GPS, speed (`km/h`), delay (`minutes`), and active track block.
-   - `check_corridor_signals_and_wind(corridor_id)` — Track block occupancy (`FREE`, `OCCUPIED`, `MAINTENANCE`) and live Caspian wind speeds.
-   - `calculate_schedule_recovery(train_id, target_speed_kmh, use_passing_siding)` — Deterministic ETA and headway recovery calculator.
-4. **Deterministic Railway Interlock Guardrail (`railpulse_agent/guardrails.py`):**
-   - **Block Occupancy Interlock:** Prevents routing a train into an `OCCUPIED` primary block and automatically switches onto a verified `FREE` passing loop siding (`BLK-BILAJARI-SIDING-S1`).
-   - **Caspian High-Wind Speed Cap:** Clamps train speed to `<= 80 km/h` whenever crosswinds exceed `65 km/h`.
-5. **Structured JSON Outputs (`railpulse_agent/schemas.py`):** Enforces a strict Pydantic v2 `output_schema` (`RailDispatchAdvisory`) on the ADK `LlmAgent`.
+```mermaid
+flowchart TD
+    subgraph UI ["Frontend & Telemetry"]
+        A[Interactive Streamlit Dashboard] -->|User Query / Sensor Event| B[Google ADK Dispatch Agent]
+    end
 
----
+    subgraph Agent ["Agent Core (Google ADK + Gemma)"]
+        B --> C[Ollama / Gemma Inference Engine]
+        C --> D{Function Calling Tools}
+        D -->|GPS, Speed, Delay| T1[get_live_train_telemetry]
+        D -->|Block Occupancy & Wind| T2[check_corridor_signals_and_wind]
+        D -->|ETA & Headway Recovery| T3[calculate_schedule_recovery]
+    end
 
-## 🚀 Quickstart (Google Cloud Shell — Zero Local Install)
+    subgraph Safety ["Deterministic Safety Layer"]
+        C --> G[Deterministic Interlock Guardrail]
+        G -->|Block Occupied?| G1[Force Siding Divert]
+        G -->|Caspian Wind > 65 km/h?| G2[Clamp Speed <= 80 km/h]
+        G --> S[Pydantic v2 Schema Validation]
+    end
 
-```bash
-git clone https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git
-cd railpulse-gemma-cloudrun
-
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 1. Run CLI verification & unit tests
-python scripts/run_demo.py
-pytest -v
-
-# 2. Launch Interactive Streamlit Rail Tracker (Cloud Shell Web Preview on port 8080)
-streamlit run app.py --server.port=8080 --server.address=0.0.0.0
+    subgraph Cloud ["Serverless Infrastructure"]
+        UI --> CR[Google Cloud Run Container]
+        CR -->|Scale to Zero| CS[Zero Idle Costs]
+    end
 ```
 
 ---
 
-## ☁️ Deploy to Google Cloud Run (Scale-to-Zero)
+## ⏱️ 45-Minute Hands-On Workshop Lab Guide (Google Cloud Shell)
+
+Everything in this workshop runs entirely inside **Google Cloud Shell**—requiring **zero local software installation**. Bring your laptop, open a browser, and follow along step by step.
+
+```
+00:00 ─── [Module 1: Cloud Shell Setup] ─── 05:00
+05:00 ─── [Module 2: Gemma Tools & Function Calling] ─── 15:00
+15:00 ─── [Module 3: Deterministic Interlocks & Schemas] ─── 25:00
+25:00 ─── [Module 4: Live Streamlit Rail Tracker] ─── 35:00
+35:00 ─── [Module 5: Serverless Cloud Run Deployment] ─── 45:00
+```
+
+---
+
+### Module 1: Cloud Shell Setup (00:00 - 05:00)
+
+1. Open your browser and navigate to the [Google Cloud Console](https://console.cloud.google.com/).
+2. In the top navigation bar, click the **Activate Cloud Shell** icon (`>_`).
+
+![Step 1: Activate Cloud Shell](assets/screenshots/01_activate_cloud_shell.png)
+
+3. Verify your active Google Cloud project and authenticated account:
+
+```bash
+gcloud auth list
+gcloud config set project $(gcloud config get-value project)
+```
+
+![Step 2: Verify gcloud authentication](assets/screenshots/02_gcloud_auth_list.png)
+
+4. Clone the RailPulse AI repository and enter the directory:
+
+```bash
+git clone https://github.com/RobinaMirbahar/railpulse-gemma-cloudrun.git
+cd railpulse-gemma-cloudrun
+```
+
+![Step 3: Clone RailPulse AI repository](assets/screenshots/03_git_clone_railpulse.png)
+
+5. Create and activate a Python 3.11 virtual environment, then install dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+---
+
+### Module 2: Function Calling & Telemetry Tools (05:00 - 15:00)
+
+In this module, we inspect how the agent queries live train status and track conditions using Python function calling in `railpulse_agent/tools.py`:
+
+- `get_live_train_telemetry(train_id)`: Fetches live GPS coordinates, speed (`km/h`), delay (`minutes`), and current block location for corridors such as the *Baku–Ganja High-Speed Express* (`ADY-EXP-101`) or *Baku–Sumgayit Absheron Commuter* (`ADY-SUB-304`).
+- `check_corridor_signals_and_wind(corridor_id)`: Queries track block status (`FREE`, `OCCUPIED`, `MAINTENANCE`) and live Caspian coastal crosswind velocity (`km/h`).
+- `calculate_schedule_recovery(train_id, target_speed_kmh, use_passing_siding)`: Runs deterministic timetable math to compute headway recovery and arrival adjustments.
+
+Test the full agent workflow via the CLI runner:
+
+```bash
+python scripts/run_demo.py
+```
+
+![Step 4: Run CLI Demo in Cloud Shell Terminal](assets/screenshots/04_run_demo_terminal.png)
+
+---
+
+### Module 3: Deterministic Interlocks & Structured Outputs (15:00 - 25:00)
+
+> [!IMPORTANT]
+> **Safety Rule for AI in Critical Infrastructure:** Large language models must **never** be given unilateral authority to route physical vehicles or override safety interlocks.
+
+In `railpulse_agent/guardrails.py`, RailPulse AI implements a two-tier safety interlock that runs before any advisory is approved:
+
+1. **Track Block Interlock:** If the downstream block is `OCCUPIED`, the agent strictly forbids proceeding along the main line and automatically diverts the train into a verified `FREE` siding loop (`BLK-BILAJARI-SIDING-S1`).
+2. **Caspian High-Wind Speed Cap:** If crosswinds off the Absheron peninsula exceed `65 km/h`, the advisory clamps train speed to `<= 80 km/h` regardless of LLM output.
+3. **Pydantic v2 Schema Validation (`railpulse_agent/schemas.py`):** Ensures every response conforms strictly to the `RailDispatchAdvisory` JSON structure:
+
+```json
+{
+  "train_id": "ADY-EXP-101",
+  "status": "REROUTED_TO_SIDING",
+  "assigned_block": "BLK-BILAJARI-SIDING-S1",
+  "max_speed_kmh": 80,
+  "headway_recovery_min": 6.5,
+  "rationale": "Primary block BLK-GANJA-MAIN-02 is OCCUPIED and Caspian crosswind is 72 km/h. Siding diversion enforced."
+}
+```
+
+Run the automated test suite to verify the guardrails:
+
+```bash
+pytest tests/test_railpulse.py -v
+```
+
+---
+
+### Module 4: Launching the Interactive Streamlit Dashboard (25:00 - 35:00)
+
+Launch the interactive dashboard to visualize live train positions, departure boards, and the interactive **Caspian Wind & Block Occupancy Simulator**:
+
+```bash
+streamlit run app.py --server.port=8080 --server.address=0.0.0.0
+```
+
+1. In the upper-right corner of Google Cloud Shell, click **Web Preview** (`eye icon`).
+2. Select **Change port > 8080 > Preview and Run**.
+
+![Step 5: Interactive Streamlit Rail Tracker](assets/screenshots/05_streamlit_railpulse_dashboard.png)
+
+In the dashboard, try:
+- Toggling **Caspian Wind Speed** to `> 65 km/h` to see the high-wind safety clamp engage.
+- Changing **Track Block 02** from `FREE` to `OCCUPIED` to see the autonomous siding diversion trigger in real time.
+
+---
+
+### Module 5: Deploying to Google Cloud Run (35:00 - 45:00)
+
+Now package and deploy the entire solution to **Google Cloud Run** with a single command:
 
 ```bash
 chmod +x deploy/deploy_cloud_run.sh
 ./deploy/deploy_cloud_run.sh
+```
+
+Or deploy directly with `gcloud`:
+
+```bash
+gcloud run deploy railpulse-gemma   --source .   --region europe-west1   --allow-unauthenticated   --memory 2Gi   --cpu 2   --min-instances 0   --max-instances 5
+```
+
+![Step 6: Google Cloud Run Deployment Success](assets/screenshots/06_cloud_run_deploy_success.png)
+
+When deployment completes, Cloud Run outputs your live service URL:
+```text
+Service [railpulse-gemma] revision [railpulse-gemma-00001-xyz] has been deployed and is serving 100 percent of traffic.
+Service URL: https://railpulse-gemma-xxxxxxxxxx-ew.a.run.app
+```
+
+> [!TIP]
+> **Scale-to-Zero ($0 Idle Cost):** Because `--min-instances 0` is set, Cloud Run automatically scales container instances down to zero when no HTTP requests are arriving, meaning your workshop demo incurs $0 in idle compute costs.
+
+---
+
+## 📁 Repository Structure
+
+```text
+railpulse-gemma-cloudrun/
+├── app.py                      # Interactive Streamlit live rail tracking UI & simulator
+├── Dockerfile                  # Container definition for Google Cloud Run
+├── requirements.txt            # Python dependencies (streamlit, pydantic, google-genai)
+├── pyproject.toml              # Build & test configuration
+├── deploy/
+│   └── deploy_cloud_run.sh     # One-click Cloud Run deployment script
+├── railpulse_agent/
+│   ├── __init__.py
+│   ├── agent.py                # Google ADK agent orchestrator
+│   ├── guardrails.py           # Deterministic railway safety interlocks
+│   ├── schemas.py              # Pydantic v2 structured JSON advisory models
+│   └── tools.py                # Telemetry, signal & timetable recovery tools
+├── scripts/
+│   └── run_demo.py             # CLI demonstration runner for terminal walkthroughs
+├── tests/
+│   └── test_railpulse.py       # Unit tests for tools, interlocks & schemas
+└── assets/
+    ├── railpulse_cover.jpg
+    ├── railpulse_architecture.jpg
+    └── screenshots/            # Step-by-step workshop screenshots (1 to 6)
 ```
 
 <!-- AUTHOR_SIGNATURE_START -->
