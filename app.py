@@ -46,34 +46,40 @@ TRAIN_GPS_INFO = {
         "lat": 40.4286,
         "lon": 49.8058,
         "coords_label": "40.4286° N, 49.8058° E",
-        "current_station": "Bilajari Junction",
-        "next_station": "Khirdalan (5.4 km ahead)",
+        "current_station": "Bilajari Jn",
+        "next_station": "Khirdalan",
+        "distance_km": "5.4 km",
+        "progress_pct": 55,
     },
     "ADY-702": {
         "lat": 40.6172,
         "lon": 47.1501,
         "coords_label": "40.6172° N, 47.1501° E",
-        "current_station": "Yevlakh Junction",
-        "next_station": "Ganja Central (67 km ahead)",
+        "current_station": "Yevlakh Jn",
+        "next_station": "Ganja Central",
+        "distance_km": "67 km",
+        "progress_pct": 72,
     },
     "ADY-410": {
         "lat": 40.8297,
         "lon": 46.0178,
         "coords_label": "40.8297° N, 46.0178° E",
-        "current_station": "Shamkir Station",
-        "next_station": "Agstafa Border (52 km ahead)",
+        "current_station": "Shamkir Stn",
+        "next_station": "Agstafa Border",
+        "distance_km": "52 km",
+        "progress_pct": 48,
     },
 }
 
 # ---------------------------------------------------------
-# Custom Styling: Mobile-Responsive, Blinking Live Nodes & High-Contrast Light Mode
+# Custom Styling: Graphical Cockpit, SVG Gauges, Blinking Beacons & Mobile Responsive
 # ---------------------------------------------------------
 st.markdown(
     """<style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-    --ground: #f8fafc;
+    --ground: #f1f5f9;
     --surface: #ffffff;
     --ink: #0f172a;
     --ink-muted: #64748b;
@@ -100,37 +106,128 @@ h1, h2, h3, h4, h5, h6, .stMarkdown h5 {
 }
 
 .section-hdr {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
     color: #0f172a !important;
-    margin: 10px 0 8px 0;
+    margin: 8px 0 6px 0;
     display: flex;
     align-items: center;
     gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Visual Cockpit Hero Banner with Animated SVG Train */
+.cockpit-hero {
+    background: linear-gradient(125deg, #0f172a 0%, #1e3a8a 55%, #0284c7 100%);
+    border-radius: 16px;
+    padding: 14px 20px;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+    position: relative;
+    overflow: hidden;
+}
+
+.cockpit-hero * {
+    color: #ffffff;
+}
+
+.hero-train-svg {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+@keyframes trainGlideGlow {
+    0%, 100% { filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6)); transform: translateX(0px); }
+    50% { filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.95)); transform: translateX(4px); }
+}
+
+.svg-locomotive {
+    animation: trainGlideGlow 2.4s infinite ease-in-out;
 }
 
 .live-badge-blink {
-    background: #fef3c7;
-    color: #b45309;
+    background: rgba(245, 158, 11, 0.22);
+    border: 1.5px solid #fbbf24;
+    color: #fde68a !important;
     font-weight: 800;
     font-size: 11px;
     padding: 4px 10px;
-    border-radius: 6px;
-    animation: badgePulse 1.5s infinite;
+    border-radius: 999px;
+    animation: badgePulse 1.4s infinite;
 }
 
 @keyframes badgePulse {
     0%, 100% { opacity: 1.0; box-shadow: 0 0 0px rgba(245, 158, 11, 0); }
-    50% { opacity: 0.75; box-shadow: 0 0 10px rgba(245, 158, 11, 0.55); }
+    50% { opacity: 0.78; box-shadow: 0 0 12px rgba(245, 158, 11, 0.7); }
 }
 
+/* Graphical Gauge KPI Cards */
+.gauge-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 112px;
+}
+
+.gauge-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.gauge-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    color: #64748b !important;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+.gauge-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a !important;
+    margin: 2px 0;
+    line-height: 1.15;
+}
+
+.gauge-sub {
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-top: 3px;
+}
+
+@keyframes spinTurbine {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.wind-rotor {
+    transform-origin: 28px 28px;
+    animation: spinTurbine 1.8s linear infinite;
+}
+
+/* Station Timeline with Blinking Active Node */
 .timeline-wrapper {
     background: white;
     border: 1.5px solid #e2e8f0;
     border-radius: 14px;
-    padding: 14px 20px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    padding: 12px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -140,15 +237,15 @@ h1, h2, h3, h4, h5, h6, .stMarkdown h5 {
     align-items: center;
     justify-content: space-between;
     position: relative;
-    padding: 22px 20px 12px 20px;
+    padding: 18px 18px 8px 18px;
     min-width: 420px;
 }
 
 .timeline-line {
     position: absolute;
-    top: 36px;
-    left: 50px;
-    right: 50px;
+    top: 32px;
+    left: 48px;
+    right: 48px;
     height: 6px;
     background: #e2e8f0;
     border-radius: 999px;
@@ -157,8 +254,8 @@ h1, h2, h3, h4, h5, h6, .stMarkdown h5 {
 
 .timeline-fill {
     position: absolute;
-    top: 36px;
-    left: 50px;
+    top: 32px;
+    left: 48px;
     height: 6px;
     background: linear-gradient(90deg, #2563eb, #06b6d4, #10b981);
     border-radius: 999px;
@@ -172,19 +269,19 @@ h1, h2, h3, h4, h5, h6, .stMarkdown h5 {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-width: 82px;
+    min-width: 80px;
 }
 
 .node-circle {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     border: 2.5px solid white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
@@ -197,7 +294,7 @@ h1, h2, h3, h4, h5, h6, .stMarkdown h5 {
 .node-active {
     background: #f59e0b;
     color: #ffffff !important;
-    transform: scale(1.25);
+    transform: scale(1.22);
     border: 2.5px solid #0284c7;
     animation: livePulse 1.3s infinite ease-in-out;
     box-shadow: 0 0 16px rgba(245, 158, 11, 0.85);
@@ -215,79 +312,99 @@ h1, h2, h3, h4, h5, h6, .stMarkdown h5 {
     border: 2px solid #cbd5e1;
 }
 
-.kpi-card {
-    background: white;
+/* Visual Interlock & Digital LED Board Cards (Concise Text + Rich Graphics) */
+.interlock-visual-card {
+    background: #ffffff;
     border: 1.5px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-
-.announcement-card {
-    background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
-    border: 1px solid #bfdbfe;
-    border-left: 6px solid #2563eb;
-    border-radius: 10px;
-    padding: 14px 16px;
+    border-radius: 14px;
+    padding: 12px 14px;
     margin-bottom: 12px;
-    color: #0f172a !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-.audit-card-warn {
-    background: #fffbeb;
-    border: 1px solid #fef3c7;
-    border-left: 6px solid #f59e0b;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    color: #0f172a !important;
-}
-
-.audit-card-safe {
-    background: #ecfdf5;
-    border: 1px solid #d1fae5;
-    border-left: 6px solid #10b981;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    color: #0f172a !important;
-}
-
-.telemetry-table-container {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 10px 12px;
+.interlock-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     margin-top: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+}
+
+.interlock-tile {
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.led-board-card {
+    background: #0f172a;
+    border: 1.5px solid #1e293b;
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    color: #f8fafc !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.led-board-card * {
+    color: #f8fafc;
+}
+
+@keyframes eqBar1 { 0%, 100% { height: 6px; } 50% { height: 18px; } }
+@keyframes eqBar2 { 0%, 100% { height: 16px; } 50% { height: 5px; } }
+@keyframes eqBar3 { 0%, 100% { height: 9px; } 50% { height: 20px; } }
+
+.eq-bars {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 20px;
+}
+.eq-bar {
+    width: 3.5px;
+    background: #38bdf8;
+    border-radius: 2px;
+}
+.eq-bar:nth-child(1) { animation: eqBar1 0.8s infinite; }
+.eq-bar:nth-child(2) { animation: eqBar2 0.7s infinite; }
+.eq-bar:nth-child(3) { animation: eqBar3 0.9s infinite; }
+.eq-bar:nth-child(4) { animation: eqBar1 0.6s infinite; }
+
+/* Fleet Visual Speed Bars Card */
+.fleet-visual-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 @media (max-width: 768px) {
     .block-container {
-        padding-top: 1.5rem !important;
-        padding-left: 0.75rem !important;
-        padding-right: 0.75rem !important;
+        padding-top: 1.2rem !important;
+        padding-left: 0.65rem !important;
+        padding-right: 0.65rem !important;
     }
-    .kpi-card {
-        padding: 10px 12px;
-        margin-bottom: 8px;
+    .cockpit-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px 14px;
     }
-    .timeline-wrapper {
-        padding: 10px 10px;
+    .hero-train-svg {
+        width: 100%;
+        justify-content: center;
+    }
+    .interlock-grid {
+        grid-template-columns: 1fr;
     }
     .timeline-box {
         min-width: 340px;
-        padding: 16px 6px 8px 6px;
+        padding: 14px 6px 6px 6px;
     }
     .station-node {
         min-width: 62px;
-    }
-    .telemetry-table-container table {
-        font-size: 11.5px !important;
-        min-width: 480px;
     }
 }
 </style>""",
@@ -376,91 +493,110 @@ advisory = run_railpulse_dispatch(
 )
 
 # ---------------------------------------------------------
-# Trilingual Localization Dictionary
+# Trilingual Localization Dictionary (Concise & Visual-First)
 # ---------------------------------------------------------
 I18N = {
     "EN": {
-        "tagline": "Azerbaijan Railways (ADY) High-Speed Corridor • Open-Weights Gemma • Google ADK • Cloud Run",
-        "running_now": "🚄 ADY FLEET CORRIDORS (Click to Select Active Train)",
-        "kpi_active_train": "Active Train & Route",
-        "kpi_approved_speed": "Approved Safe Speed",
-        "kpi_track_block": "Assigned Track Block",
-        "kpi_station_eta": "Station Arrival ETA",
-        "speed_clamped": f"↓ Clamped ({advisory.approved_speed_kmh - requested_speed} km/h)",
-        "speed_clear": "✓ Normal Approved Speed",
-        "siding_alert": "⚠️ Passing Loop Siding",
-        "main_line": "✓ Clear Primary Line",
-        "timeline_title": f"🚉 STATION PROGRESSION · {LIVE_TRAINS[selected_train]['route_name']}",
-        "announcement_hdr": "📢 Passenger Station Board Announcement (ADY Audio Synthesizer)",
+        "tagline": "Azerbaijan Railways (ADY) Autonomous Dispatch • Gemma + Google ADK • Cloud Run",
+        "running_now": "🚄 SELECT ACTIVE ADY CORRIDOR",
+        "kpi_active_train": "Active Corridor",
+        "kpi_approved_speed": "Speedometer Gauge",
+        "kpi_track_block": "Signal & Wind Sensor",
+        "kpi_station_eta": "Arrival & Recovery",
+        "timeline_title": f"🚉 LIVE STATION PROGRESSION · {LIVE_TRAINS[selected_train]['route_name']}",
+        "announcement_hdr": "LIVE STATION AUDIO BOARD",
         "announcement_body": advisory.passenger_announcement,
-        "audit_hdr": "Deterministic Railway Interlock Audit",
-        "map_hdr": "🗺️ Live Azerbaijan Railways (ADY) High-Speed Network",
-        "chat_title": "💬 Gemma Rail Assistant (Live Departure & Schedule Q&A)",
+        "audit_hdr": "🛡️ SAFETY INTERLOCK TELEMETRY MATRIX",
+        "map_hdr": "🗺️ LIVE AZERBAIJAN (ADY) GPS RADAR MAP",
+        "chat_title": "💬 GEMMA RAIL ASSISTANT",
         "chat_placeholder": "Ask about airport transit, departure times, schedules, or weather...",
-        "telemetry_hdr": "📊 Live ADY Fleet Telemetry & Block Clearance",
+        "telemetry_hdr": "📊 FLEET SPEED & CORRIDOR VISUAL TELEMETRY",
     },
     "AZ": {
-        "tagline": "Azərbaycan Dəmir Yolları (ADY) • Açıq Gemma Modeli • Google ADK • Cloud Run",
-        "running_now": "🚄 ADY QATAR MARŞRUTLARI (Aktiv qatarı seçmək üçün klikləyin)",
-        "kpi_active_train": "Aktiv Qatar və Marşrut",
-        "kpi_approved_speed": "Təsdiqlənmiş Təhlükəsiz Sürət",
-        "kpi_track_block": "Təyin Olunmuş Yol Bloku",
-        "kpi_station_eta": "Stansiyaya Çatma Vaxtı",
-        "speed_clamped": f"↓ Məhdudlaşdırıldı ({advisory.approved_speed_kmh - requested_speed} km/s)",
-        "speed_clear": "✓ Təhlükəsiz Sürət Rejimi",
-        "siding_alert": "⚠️ Ehtiyat Yan Xətt",
-        "main_line": "✓ Əsas Xətt Açıqdır",
-        "timeline_title": f"🚉 MARŞRUT VƏ STANSİYA HƏRƏKƏTİ · {LIVE_TRAINS[selected_train]['route_name']}",
-        "announcement_hdr": "📢 Stansiya Sərnişin Məlumat Lövhəsi (ADY Səsli Bildiriş)",
-        "announcement_body": f"Diqqət, sərnişinlərin nəzərinə! {LIVE_TRAINS[selected_train]['route_name']} qatarı ({advisory.train_id}) {advisory.assigned_block_id} blokuna təyin edildi. Təhlükəsiz sürət həddi: {advisory.approved_speed_kmh} km/saat. Yenilənmiş çatma vaxtı: {advisory.updated_eta}.",
-        "audit_hdr": "Deterministik Dəmiryolu Təhlükəsizlik Auditi",
-        "map_hdr": "🗺️ Azərbaycan Dəmir Yolları (ADY) Canlı Sürətli Qatar Xəritəsi",
-        "chat_title": "💬 Gemma Dəmiryolu Köməkçisi (Real Vaxt Çıxış və Cədvəl)",
+        "tagline": "Azərbaycan Dəmir Yolları (ADY) • Gemma + Google ADK • Cloud Run",
+        "running_now": "🚄 AKTİV ADY QATARINI SEÇİN",
+        "kpi_active_train": "Aktiv Marşrut",
+        "kpi_approved_speed": "Sürət Ölçən (Spidometr)",
+        "kpi_track_block": "Siqnal və Külək Sensoru",
+        "kpi_station_eta": "Çatma Vaxtı (ETA)",
+        "timeline_title": f"🚉 CANLI STANSİYA HƏRƏKƏTİ · {LIVE_TRAINS[selected_train]['route_name']}",
+        "announcement_hdr": "CANLI STANSİYA SƏSLİ MƏLUMAT LÖVHƏSİ",
+        "announcement_body": f"Diqqət! {LIVE_TRAINS[selected_train]['route_name']} ({advisory.train_id}) → {advisory.assigned_block_id} ({advisory.approved_speed_kmh} km/s). ETA: {advisory.updated_eta}.",
+        "audit_hdr": "🛡️ TƏHLÜKƏSİZLİK İNTERLOK MATRİSİ",
+        "map_hdr": "🗺️ AZƏRBAYCAN DƏMİR YOLLARI (ADY) CANLI GPS XƏRİTƏSİ",
+        "chat_title": "💬 GEMMA DƏMİRYOLU KÖMƏKÇİSİ",
         "chat_placeholder": "Hava limanı nəqliyyatı, çıxış vaxtları və ya hava haqqında soruşun...",
-        "telemetry_hdr": "📊 ADY Qatar Parkının Canlı Telemetriyası və Yol Təhlükəsizliyi",
+        "telemetry_hdr": "📊 QATAR PARKININ VİZUAL TELEMETRİYASI",
     },
     "RU": {
-        "tagline": "Азербайджанские Железные Дороги (ADY) • Open-Weights Gemma • Google ADK • Cloud Run",
-        "running_now": "🚄 АКТИВНЫЕ МАРШРУТЫ ПОЕЗДОВ АЖД (Нажмите для выбора поезда)",
-        "kpi_active_train": "Активный поезд и маршрут",
-        "kpi_approved_speed": "Безопасная скорость",
-        "kpi_track_block": "Назначенный блок пути",
-        "kpi_station_eta": "Время прибытия (ETA)",
-        "speed_clamped": f"↓ Ограничено ({advisory.approved_speed_kmh - requested_speed} км/ч)",
-        "speed_clear": "✓ В пределах нормы",
-        "siding_alert": "⚠️ Боковой разъезд",
-        "main_line": "✓ Главный путь свободен",
-        "timeline_title": f"🚉 МАРШРУТ И ПРОХОЖДЕНИЕ СТАНЦИЙ · {LIVE_TRAINS[selected_train]['route_name']}",
-        "announcement_hdr": "📢 Вокзальное Табло и Оповещение Пассажиров (Аудиосинтезатор)",
-        "announcement_body": f"Внимание пассажиров! Поезд {LIVE_TRAINS[selected_train]['route_name']} ({advisory.train_id}) направлен на блок {advisory.assigned_block_id}. Безопасная скорость: {advisory.approved_speed_kmh} км/ч. Новое время прибытия: {advisory.updated_eta}.",
-        "audit_hdr": "Аудит Детерминированных Блокировок Безопасности",
-        "map_hdr": "🗺️ Карта Скоростной Железнодорожной Сети Азербайджана",
-        "chat_title": "💬 Gemma Rail Assistant (Расписание и Отправления Онлайн)",
+        "tagline": "Азербайджанские Железные Дороги (ADY) • Gemma + Google ADK • Cloud Run",
+        "running_now": "🚄 ВЫБЕРИТЕ АКТИВНЫЙ МАРШРУТ АЖД",
+        "kpi_active_train": "Активный маршрут",
+        "kpi_approved_speed": "Спидометр поезда",
+        "kpi_track_block": "Сигнал и датчик ветра",
+        "kpi_station_eta": "Прибытие (ETA)",
+        "timeline_title": f"🚉 ПРОХОЖДЕНИЕ СТАНЦИЙ · {LIVE_TRAINS[selected_train]['route_name']}",
+        "announcement_hdr": "ЦИФРОВОЕ ТАБЛО ВОКЗАЛА",
+        "announcement_body": f"Внимание! Поезд {advisory.train_id} направлен на блок {advisory.assigned_block_id} ({advisory.approved_speed_kmh} км/ч). Прибытие: {advisory.updated_eta}.",
+        "audit_hdr": "🛡️ МАТРИЦА БЛОКИРОВОК БЕЗОПАСНОСТИ",
+        "map_hdr": "🗺️ КАРТА СЕТИ АЖД И GPS РАДАР",
+        "chat_title": "💬 GEMMA RAIL ASSISTANT",
         "chat_placeholder": "Спросите о трансфере из аэропорта, расписании или погоде...",
-        "telemetry_hdr": "📊 Телеметрия Парка Поездов АЖД и Статус Путей",
+        "telemetry_hdr": "📊 ВИЗУАЛЬНАЯ ТЕЛЕМЕТРИЯ ПАРКА АЖД",
     },
 }
 
 t = I18N[lang]
 
 # ---------------------------------------------------------
-# Top Header Row: Branding & Clickable Language Switcher
+# Top Graphical Cockpit Banner with Animated SVG Stadler Train & Language Switcher
 # ---------------------------------------------------------
-col_head_left, col_head_right = st.columns([2.6, 1.4])
+col_head_left, col_head_right = st.columns([3.0, 1.1])
 with col_head_left:
     st.markdown(
-        """<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px;">
-<span style="font-size: 26px;">🚄</span>
-<span style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">RailPulse AI</span>
-<span style="background: #e0f2fe; color: #0369a1; font-weight: 800; font-size: 11px; padding: 4px 9px; border-radius: 6px; letter-spacing: 0.5px;">ADY AZERBAIJAN</span>
-<span class="live-badge-blink">● LIVE DISPATCH</span>
+        f"""<div class="cockpit-hero">
+<div>
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+    <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.4px;">🚄 RailPulse AI</span>
+    <span style="background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; color: #7dd3fc !important; font-weight: 800; font-size: 10.5px; padding: 3px 9px; border-radius: 999px;">🇦🇿 ADY MISSION CONTROL</span>
+    <span class="live-badge-blink">● LIVE TELEMETRY</span>
+  </div>
+  <div style="font-size: 12px; color: #cbd5e1 !important; margin-top: 4px;">{t['tagline']}</div>
+</div>
+<div class="hero-train-svg">
+  <svg class="svg-locomotive" width="210" height="48" viewBox="0 0 210 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Electrified Catenary Wire & Track -->
+    <line x1="4" y1="6" x2="206" y2="6" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7"/>
+    <line x1="2" y1="43" x2="208" y2="43" stroke="#94a3b8" stroke-width="2.5"/>
+    <!-- Pantograph -->
+    <path d="M55 15 L63 7 L71 15" stroke="#fbbf24" stroke-width="1.8" fill="none"/>
+    <!-- Coach 1 -->
+    <rect x="12" y="15" width="66" height="23" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+    <rect x="18" y="19" width="12" height="8" rx="1.5" fill="#38bdf8" opacity="0.85"/>
+    <rect x="34" y="19" width="12" height="8" rx="1.5" fill="#38bdf8" opacity="0.85"/>
+    <rect x="50" y="19" width="12" height="8" rx="1.5" fill="#38bdf8" opacity="0.85"/>
+    <line x1="12" y1="31" x2="78" y2="31" stroke="#f59e0b" stroke-width="2.2"/>
+    <!-- Aerodynamic Stadler High-Speed Nose -->
+    <path d="M82 15 H165 C182 15 194 25 198 35 C199 37 197 38 194 38 H82 V15 Z" fill="#2563eb" stroke="#ffffff" stroke-width="1.5"/>
+    <path d="M162 18 H177 C185 20 190 25 192 29 H162 V18 Z" fill="#fef08a"/>
+    <rect x="90" y="19" width="14" height="8" rx="1.5" fill="#bae6fd"/>
+    <rect x="108" y="19" width="14" height="8" rx="1.5" fill="#bae6fd"/>
+    <rect x="126" y="19" width="14" height="8" rx="1.5" fill="#bae6fd"/>
+    <rect x="144" y="19" width="12" height="8" rx="1.5" fill="#bae6fd"/>
+    <line x1="82" y1="32" x2="195" y2="32" stroke="#fbbf24" stroke-width="2.5"/>
+    <!-- Headlight Beam -->
+    <polygon points="198,33 210,28 210,39" fill="#fde047" opacity="0.65"/>
+    <!-- Wheels -->
+    <circle cx="24" cy="40" r="3.2" fill="#e2e8f0"/><circle cx="64" cy="40" r="3.2" fill="#e2e8f0"/>
+    <circle cx="98" cy="40" r="3.2" fill="#e2e8f0"/><circle cx="138" cy="40" r="3.2" fill="#e2e8f0"/><circle cx="176" cy="40" r="3.2" fill="#e2e8f0"/>
+  </svg>
+</div>
 </div>""",
         unsafe_allow_html=True,
     )
-    st.markdown(f"<div style='font-size: 12.5px; color: #475569; margin-bottom: 6px;'>{t['tagline']}</div>", unsafe_allow_html=True)
 
 with col_head_right:
-    st.markdown("<div style='font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;'>CLICK TO SWITCH LANGUAGE / DİL / ЯЗЫК:</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size: 10.5px; color: #475569; font-weight: 800; margin-bottom: 4px;'>LANGUAGE / DİL / ЯЗЫК:</div>", unsafe_allow_html=True)
     lang_c1, lang_c2, lang_c3 = st.columns(3)
     with lang_c1:
         btn_en_type = "primary" if lang == "EN" else "secondary"
@@ -505,51 +641,112 @@ with c_train3:
         st.rerun()
 
 # ---------------------------------------------------------
-# Full-Width Section 2: Four Key Telemetry & KPI Cards
+# Full-Width Section 2: 4 Graphical SVG Gauge & Signal Cards
 # ---------------------------------------------------------
+is_clamped = advisory.approved_speed_kmh != requested_speed
+is_siding = "SIDING" in advisory.assigned_block_id
+gps_meta = TRAIN_GPS_INFO[selected_train]
+
+# Calculate SVG Speedometer arc dashoffset (max 180 km/h -> arc length 110)
+speed_ratio = min(max(advisory.approved_speed_kmh / 180.0, 0.05), 1.0)
+arc_offset = round(110 * (1.0 - speed_ratio), 1)
+gauge_stroke = "#f59e0b" if is_clamped else "#10b981"
+
+# Signal lamp colors (Red / Amber / Green)
+sig_red = "#ef4444" if block_status != "FREE" else "#334155"
+sig_amber = "#f59e0b" if (is_clamped and block_status == "FREE") else "#334155"
+sig_green = "#10b981" if (not is_clamped and block_status == "FREE") else "#334155"
+
 k1, k2, k3, k4 = st.columns(4)
+
 with k1:
     st.markdown(
-        f"""<div class="kpi-card">
-<div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">{t['kpi_active_train']}</div>
-<div style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 4px 0;">{LIVE_TRAINS[selected_train]['route_name']}</div>
-<div style="font-size: 12px; color: #0284c7; font-weight: 700;">📍 {TRAIN_GPS_INFO[selected_train]['current_station']} → {LIVE_TRAINS[selected_train]['next_station']}</div>
+        f"""<div class="gauge-card">
+<div class="gauge-info">
+  <div class="gauge-label">{t['kpi_active_train']}</div>
+  <div style="font-size: 15.5px; font-weight: 800; color: #0f172a; margin: 3px 0;">{selected_train} • {gps_meta['current_station']}</div>
+  <div style="width:100%; background:#e2e8f0; height:7px; border-radius:999px; margin: 6px 0; overflow:hidden;">
+    <div style="width:{gps_meta['progress_pct']}%; background:linear-gradient(90deg,#2563eb,#06b6d4); height:100%; border-radius:999px;"></div>
+  </div>
+  <div class="gauge-sub" style="color: #0284c7;">⏭️ {gps_meta['next_station']} ({gps_meta['distance_km']})</div>
+</div>
+<svg width="54" height="54" viewBox="0 0 54 54" fill="none">
+  <circle cx="27" cy="27" r="25" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <rect x="15" y="13" width="24" height="24" rx="5" fill="#2563eb"/>
+  <rect x="19" y="17" width="16" height="8" rx="2" fill="#bae6fd"/>
+  <circle cx="21" cy="31" r="2.2" fill="#fde047"/>
+  <circle cx="33" cy="31" r="2.2" fill="#fde047"/>
+  <path d="M18 41 L22 37 M36 41 L32 37" stroke="#475569" stroke-width="2.2" stroke-linecap="round"/>
+</svg>
 </div>""",
         unsafe_allow_html=True,
     )
 
 with k2:
-    is_clamped = advisory.approved_speed_kmh != requested_speed
-    speed_sub = t["speed_clamped"] if is_clamped else t["speed_clear"]
-    speed_color = "#ea580c" if is_clamped else "#10b981"
+    speed_badge_txt = f"Clamped from {requested_speed} km/h" if is_clamped else f"Target {requested_speed} km/h Clear"
     st.markdown(
-        f"""<div class="kpi-card">
-<div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">{t['kpi_approved_speed']}</div>
-<div style="font-size: 21px; font-weight: 800; color: #0f172a; margin: 2px 0;">{advisory.approved_speed_kmh} <span style="font-size: 13px; font-weight: 600; color: #64748b;">km/h</span></div>
-<div style="font-size: 12px; color: {speed_color}; font-weight: 700;">{speed_sub}</div>
+        f"""<div class="gauge-card">
+<div class="gauge-info">
+  <div class="gauge-label">{t['kpi_approved_speed']}</div>
+  <div class="gauge-val">{advisory.approved_speed_kmh} <span style="font-size: 12px; color: #64748b;">km/h</span></div>
+  <div class="gauge-sub" style="color: {gauge_stroke};">{'⚠️ ' + speed_badge_txt if is_clamped else '✓ ' + speed_badge_txt}</div>
+</div>
+<svg width="76" height="54" viewBox="0 0 76 54">
+  <path d="M 8 44 A 30 30 0 0 1 68 44" fill="none" stroke="#e2e8f0" stroke-width="7" stroke-linecap="round"/>
+  <path d="M 8 44 A 30 30 0 0 1 68 44" fill="none" stroke="{gauge_stroke}" stroke-width="7" stroke-linecap="round"
+        stroke-dasharray="110" stroke-dashoffset="{arc_offset}"/>
+  <text x="38" y="42" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">{int(speed_ratio*100)}%</text>
+</svg>
 </div>""",
         unsafe_allow_html=True,
     )
 
 with k3:
-    is_siding = "SIDING" in advisory.assigned_block_id
-    block_sub = t["siding_alert"] if is_siding else t["main_line"]
-    block_color = "#b45309" if is_siding else "#0284c7"
+    wind_color = "#ea580c" if wind_speed > 65 else "#0284c7"
     st.markdown(
-        f"""<div class="kpi-card">
-<div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">{t['kpi_track_block']}</div>
-<div style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 5px 0;"><code>{advisory.assigned_block_id}</code></div>
-<div style="font-size: 12px; color: {block_color}; font-weight: 700;">{block_sub}</div>
+        f"""<div class="gauge-card">
+<div class="gauge-info">
+  <div class="gauge-label">{t['kpi_track_block']}</div>
+  <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 3px 0;"><code>{advisory.assigned_block_id}</code></div>
+  <div class="gauge-sub" style="color: {wind_color};">🌬️ {wind_speed} km/h Wind • {'Siding' if is_siding else 'Main Line'}</div>
+</div>
+<div style="display:flex; align-items:center; gap:6px;">
+  <!-- 3-Aspect Railway Signal Graphic -->
+  <svg width="24" height="54" viewBox="0 0 24 54">
+    <rect x="3" y="2" width="18" height="44" rx="9" fill="#0f172a" stroke="#475569" stroke-width="1.5"/>
+    <circle cx="12" cy="12" r="4.5" fill="{sig_red}"/>
+    <circle cx="12" cy="24" r="4.5" fill="{sig_amber}"/>
+    <circle cx="12" cy="36" r="4.5" fill="{sig_green}"/>
+  </svg>
+  <!-- Spinning Wind Anemometer Graphic -->
+  <svg width="46" height="54" viewBox="0 0 56 56">
+    <line x1="28" y1="28" x2="28" y2="52" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
+    <g class="wind-rotor">
+      <circle cx="28" cy="28" r="4" fill="#0284c7"/>
+      <path d="M28 28 L25 8 C28 5 31 5 31 8 Z" fill="{wind_color}"/>
+      <path d="M28 28 L46 37 C48 40 45 42 42 40 Z" fill="{wind_color}"/>
+      <path d="M28 28 L10 37 C8 40 11 42 14 40 Z" fill="{wind_color}"/>
+    </g>
+  </svg>
+</div>
 </div>""",
         unsafe_allow_html=True,
     )
 
 with k4:
     st.markdown(
-        f"""<div class="kpi-card">
-<div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">{t['kpi_station_eta']}</div>
-<div style="font-size: 21px; font-weight: 800; color: #0284c7; margin: 2px 0;">{advisory.updated_eta}</div>
-<div style="font-size: 12px; color: #10b981; font-weight: 700;">✓ {advisory.delay_minutes_remaining} min delay remaining</div>
+        f"""<div class="gauge-card">
+<div class="gauge-info">
+  <div class="gauge-label">{t['kpi_station_eta']}</div>
+  <div class="gauge-val" style="color: #0284c7 !important;">{advisory.updated_eta}</div>
+  <div class="gauge-sub" style="color: #10b981;">✓ {advisory.delay_minutes_remaining} min delay left</div>
+</div>
+<svg width="54" height="54" viewBox="0 0 54 54">
+  <circle cx="27" cy="27" r="23" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5" stroke-dasharray="105 35"/>
+  <line x1="27" y1="27" x2="27" y2="14" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="27" y1="27" x2="37" y2="27" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="27" cy="27" r="3" fill="#10b981"/>
+</svg>
 </div>""",
         unsafe_allow_html=True,
     )
@@ -597,31 +794,63 @@ timeline_full_html = f'<div class="timeline-wrapper"><div class="timeline-box"><
 st.markdown(timeline_full_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Two-Column Balanced Grid: Left Safety & Assistant | Right Network Map & Telemetry
+# Two-Column Balanced Visual Grid
 # ---------------------------------------------------------
 col_left, col_right = st.columns([1.0, 1.0], gap="medium")
 
 with col_left:
-    # 1. Passenger Announcement Card
+    # 1. Digital LED Station Audio Board with Animated Sound Equalizer Bars
     st.markdown(
-        f"""<div class="announcement-card">
-<div style="font-weight: 800; font-size: 11.5px; text-transform: uppercase; color: #1e40af; margin-bottom: 5px;">
-{t['announcement_hdr']}
+        f"""<div class="led-board-card">
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+  <span style="font-size:11px; font-weight:800; color:#38bdf8 !important; letter-spacing:0.6px;">📢 {t['announcement_hdr']}</span>
+  <div class="eq-bars"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div>
 </div>
-<div style="font-size: 13.5px; line-height: 1.5; color: #0f172a;">{t['announcement_body']}</div>
+<div style="font-size:13px; font-weight:600; color:#f8fafc !important; line-height:1.45;">{t['announcement_body']}</div>
 </div>""",
         unsafe_allow_html=True,
     )
 
-    # 2. Guardrail Audit Card
-    audit_class = "audit-card-warn" if (is_clamped or is_siding) else "audit-card-safe"
-    audit_icon = "⚠️" if (is_clamped or is_siding) else "🛡️"
+    # 2. Graphical 2-Channel Safety Interlock Matrix (Replaces Wall of Text!)
+    wind_pct = min(int((wind_speed / 110.0) * 100), 100)
+    wind_tile_bg = "#fffbeb" if wind_speed > 65 else "#ecfdf5"
+    wind_tile_bdr = "#fde68a" if wind_speed > 65 else "#a7f3d0"
+    wind_bar_col = "#f59e0b" if wind_speed > 65 else "#10b981"
+    wind_status_lbl = f"CLAMPED → {advisory.approved_speed_kmh} km/h" if is_clamped else "PASS (WITHIN ENVELOPE)"
+
+    blk_tile_bg = "#fffbeb" if is_siding else "#ecfdf5"
+    blk_tile_bdr = "#fde68a" if is_siding else "#a7f3d0"
+    blk_col = "#f59e0b" if is_siding else "#10b981"
+    blk_status_lbl = "REROUTED TO SIDING" if is_siding else "PRIMARY TRACK LOCKED"
+
     st.markdown(
-        f"""<div class="{audit_class}">
-<div style="font-weight: 800; font-size: 11.5px; text-transform: uppercase; margin-bottom: 4px; color: #0f172a;">
-{audit_icon} {t['audit_hdr']}
+        f"""<div class="interlock-visual-card">
+<div style="font-size:11.5px; font-weight:800; color:#0f172a; text-transform:uppercase;">{t['audit_hdr']}</div>
+<div class="interlock-grid">
+  <div class="interlock-tile" style="background:{wind_tile_bg}; border:1.5px solid {wind_tile_bdr};">
+    <div style="width:100%;">
+      <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:#0f172a;">
+        <span>🌬️ WIND INTERLOCK</span><span>{wind_speed} / 65 km/h</span>
+      </div>
+      <div style="width:100%; background:#e2e8f0; height:7px; border-radius:999px; margin:6px 0; overflow:hidden;">
+        <div style="width:{wind_pct}%; background:{wind_bar_col}; height:100%; border-radius:999px;"></div>
+      </div>
+      <div style="font-size:11px; font-weight:800; color:{'#b45309' if is_clamped else '#047857'};">{wind_status_lbl}</div>
+    </div>
+  </div>
+  <div class="interlock-tile" style="background:{blk_tile_bg}; border:1.5px solid {blk_tile_bdr};">
+    <div style="width:100%;">
+      <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:#0f172a;">
+        <span>🚦 TRACK INTERLOCK</span><span>{block_status}</span>
+      </div>
+      <div style="margin:6px 0; display:flex; align-items:center; gap:6px;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:{blk_col};"></span>
+        <code style="font-size:11.5px; font-weight:800; color:#0f172a;">{advisory.assigned_block_id}</code>
+      </div>
+      <div style="font-size:11px; font-weight:800; color:{'#b45309' if is_siding else '#047857'};">{blk_status_lbl}</div>
+    </div>
+  </div>
 </div>
-<div style="font-size: 12.5px; font-family: monospace; color: #0f172a;">{advisory.guardrail_intervention_summary}</div>
 </div>""",
         unsafe_allow_html=True,
     )
@@ -650,28 +879,21 @@ with col_left:
         response = answer_rail_chat_query(user_prompt, lang=lang, selected_train=selected_train, advisory=advisory)
         st.session_state["chat_history"].append({"role": "assistant", "content": response})
 
-    chat_container = st.container(height=290)
+    chat_container = st.container(height=280)
     with chat_container:
         for msg in st.session_state["chat_history"]:
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
 
-    with st.expander("🤖 Ordered Google ADK Function Trajectory"):
-        for idx, tool_name in enumerate(advisory.tools_invoked, start=1):
-            st.markdown(f"**Step {idx}:** `{tool_name}()`")
-
-    with st.expander("📄 Validated Structured JSON (`RailDispatchAdvisory`)"):
+    with st.expander("🤖 Google ADK Tool Trajectory & Structured JSON"):
+        st.markdown(" **ADK Tool Execution Order:** " + " ➔ ".join([f"`{fn}()`" for fn in advisory.tools_invoked]))
         st.code(json.dumps(advisory.model_dump(), indent=2), language="json")
 
 with col_right:
     # 1. Section Header
     st.markdown(f'<div class="section-hdr">{t["map_hdr"]}</div>', unsafe_allow_html=True)
 
-    # 2. Interactive Leaflet Map with:
-    #    - Blinking/pulsing active station beacon & radar ring
-    #    - Smooth ONE-WAY forward running train animation along the railway corridor (no fast back-and-forth!)
-    #    - Real-time updating GPS coordinate HUD inside the map
-    #    - Elevated callout badge ABOVE the train pin so the station dot never overlaps text
+    # 2. Interactive Leaflet Map with Blinking Beacons & Smooth Forward Train Glide
     leaflet_map_html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -682,10 +904,9 @@ with col_right:
   <style>
     * {{ box-sizing: border-box; }}
     body {{ margin: 0; padding: 0; background: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
-    #map-wrapper {{ position: relative; width: 100%; height: 420px; border-radius: 12px; overflow: hidden; border: 1.5px solid #cbd5e1; }}
+    #map-wrapper {{ position: relative; width: 100%; height: 410px; border-radius: 14px; overflow: hidden; border: 1.5px solid #cbd5e1; }}
     #railmap {{ width: 100%; height: 100%; }}
 
-    /* Live GPS Bar at Top of Map */
     .live-gps-hud {{
       position: absolute;
       top: 10px;
@@ -721,7 +942,6 @@ with col_right:
       50% {{ opacity: 0.3; transform: scale(0.8); }}
     }}
 
-    /* Station Dots & Blinking Active Station Beacon */
     .station-node-icon {{
       background: #ffffff;
       border: 2.5px solid #0284c7;
@@ -744,7 +964,6 @@ with col_right:
       50% {{ transform: scale(1.45); box-shadow: 0 0 18px rgba(245, 158, 11, 1.0); }}
     }}
 
-    /* Moving Train GPS Pin + Radar Blinking Ring + Elevated Non-Overlapping Badge */
     .train-pin-wrapper {{
       position: relative;
       width: 20px;
@@ -790,7 +1009,6 @@ with col_right:
       100% {{ transform: scale(2.2); opacity: 0; }}
     }}
 
-    /* Elevated Train Badge Positioned Cleanly Above GPS Pin (Never Overlaps Circle) */
     .train-tag {{
       position: absolute;
       bottom: 22px;
@@ -854,8 +1072,8 @@ with col_right:
   <div id="map-wrapper">
     <div id="railmap"></div>
     <div class="live-gps-hud">
-      <div><span class="blink-dot"></span><b>LIVE GPS ({selected_train}):</b> <span id="hud-station">{TRAIN_GPS_INFO[selected_train]['current_station']} ➔ {LIVE_TRAINS[selected_train]['next_station']}</span></div>
-      <div style="color:#38bdf8;font-family:monospace;" id="hud-coords">{TRAIN_GPS_INFO[selected_train]['coords_label']}</div>
+      <div><span class="blink-dot"></span><b>LIVE GPS ({selected_train}):</b> <span>{gps_meta['current_station']} ➔ {gps_meta['next_station']}</span></div>
+      <div style="color:#38bdf8;font-family:monospace;" id="hud-coords">{gps_meta['coords_label']}</div>
     </div>
     <div class="map-controls">
       <button class="map-btn" onclick="focusActiveTrain()">🎯 Locate Active Train ({selected_train})</button>
@@ -1002,11 +1220,10 @@ with col_right:
       zIndexOffset: is410Active ? 1000 : 100
     }}).addTo(map);
 
-    // Smooth ONE-WAY Forward Movement Along Active Railway Segment (No Fast Ping-Pong Bounce!)
     var progress = 0.0;
     var hudCoordsEl = document.getElementById('hud-coords');
-    var currentActiveLat = {TRAIN_GPS_INFO[selected_train]['lat']};
-    var currentActiveLon = {TRAIN_GPS_INFO[selected_train]['lon']};
+    var currentActiveLat = {gps_meta['lat']};
+    var currentActiveLon = {gps_meta['lon']};
 
     function animateTrainsForward() {{
       progress += 0.00075;
@@ -1014,17 +1231,14 @@ with col_right:
         progress = 0.0;
       }}
 
-      // ADY-104 moving forward from Bilajari [40.4286, 49.8058] -> Khirdalan [40.4503, 49.7547] -> Sumgayit [40.5897, 49.6686]
       var lat104 = 40.4286 + (40.5897 - 40.4286) * progress;
       var lon104 = 49.8058 + (49.6686 - 49.8058) * progress;
       marker104.setLatLng([lat104, lon104]);
 
-      // ADY-702 moving forward from Yevlakh [40.6172, 47.1501] -> Ganja [40.6828, 46.3606]
       var lat702 = 40.6172 + (40.6828 - 40.6172) * progress;
       var lon702 = 47.1501 + (46.3606 - 47.1501) * progress;
       marker702.setLatLng([lat702, lon702]);
 
-      // ADY-410 moving forward from Shamkir [40.8297, 46.0178] -> Agstafa [41.1189, 45.4539]
       var lat410 = 40.8297 + (41.1189 - 40.8297) * progress;
       var lon410 = 46.0178 + (45.4539 - 46.0178) * progress;
       marker410.setLatLng([lat410, lon410]);
@@ -1053,49 +1267,51 @@ with col_right:
 </body>
 </html>"""
 
-    components.html(leaflet_map_html, height=430)
+    components.html(leaflet_map_html, height=418)
 
-    # 3. Live Fleet Telemetry & Block Status Table
+    # 3. Graphical Fleet Speed & Block Telemetry Bars (Replaces Dense Text Table!)
     st.markdown(f'<div class="section-hdr">{t["telemetry_hdr"]}</div>', unsafe_allow_html=True)
 
-    telemetry_html = f"""<div class="telemetry-table-container">
-<table style="width: 100%; border-collapse: collapse; font-size: 12.5px; color: #0f172a;">
-<thead>
-<tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569;">
-<th style="padding: 8px 10px;">Train</th>
-<th style="padding: 8px 10px;">Route & Live Station</th>
-<th style="padding: 8px 10px;">Speed</th>
-<th style="padding: 8px 10px;">Active Block</th>
-<th style="padding: 8px 10px;">Status</th>
-<th style="padding: 8px 10px;">ETA</th>
-</tr>
-</thead>
-<tbody>
-<tr style="border-bottom: 1px solid #f1f5f9; background: {'#eff6ff' if selected_train == 'ADY-104' else 'white'};">
-<td style="padding: 9px 10px; font-weight: 700;">🚆 ADY-104</td>
-<td style="padding: 9px 10px;">Baku ➔ Sumgayit<br><span style="font-size:11px;color:#0284c7;font-weight:600;">📍 Bilajari Jn (40.4286°N, 49.8058°E)</span></td>
-<td style="padding: 9px 10px; font-weight: 700;">{advisory.approved_speed_kmh if selected_train == 'ADY-104' else '80'} km/h</td>
-<td style="padding: 9px 10px;"><code>{advisory.assigned_block_id if selected_train == 'ADY-104' else 'BLK-SUMGAYIT-A1'}</code></td>
-<td style="padding: 9px 10px;"><span style="background: #fef3c7; color: #b45309; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 11px;">⚠️ High Wind Clamped</span></td>
-<td style="padding: 9px 10px; font-weight: 700; color: #0284c7;">{advisory.updated_eta if selected_train == 'ADY-104' else '13:23'}</td>
-</tr>
-<tr style="border-bottom: 1px solid #f1f5f9; background: {'#eff6ff' if selected_train == 'ADY-702' else 'white'};">
-<td style="padding: 9px 10px; font-weight: 700;">⚡ ADY-702</td>
-<td style="padding: 9px 10px;">Baku ➔ Ganja Express<br><span style="font-size:11px;color:#0284c7;font-weight:600;">📍 Yevlakh Jn (40.6172°N, 47.1501°E)</span></td>
-<td style="padding: 9px 10px; font-weight: 700;">{advisory.approved_speed_kmh if selected_train == 'ADY-702' else '145'} km/h</td>
-<td style="padding: 9px 10px;"><code>{advisory.assigned_block_id if selected_train == 'ADY-702' else 'BLK-GANJA-EXPR'}</code></td>
-<td style="padding: 9px 10px;"><span style="background: #ecfdf5; color: #047857; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 11px;">✓ On Schedule</span></td>
-<td style="padding: 9px 10px; font-weight: 700; color: #0284c7;">{advisory.updated_eta if selected_train == 'ADY-702' else '14:30'}</td>
-</tr>
-<tr style="background: {'#eff6ff' if selected_train == 'ADY-410' else 'white'};">
-<td style="padding: 9px 10px; font-weight: 700;">🌍 ADY-410</td>
-<td style="padding: 9px 10px;">Baku ➔ Tbilisi Silk Road<br><span style="font-size:11px;color:#0284c7;font-weight:600;">📍 Shamkir Stn (40.8297°N, 46.0178°E)</span></td>
-<td style="padding: 9px 10px; font-weight: 700;">{advisory.approved_speed_kmh if selected_train == 'ADY-410' else '110'} km/h</td>
-<td style="padding: 9px 10px;"><code>{advisory.assigned_block_id if selected_train == 'ADY-410' else 'BLK-SILKROAD-04'}</code></td>
-<td style="padding: 9px 10px;"><span style="background: #ecfdf5; color: #047857; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 11px;">✓ Border Route Clear</span></td>
-<td style="padding: 9px 10px; font-weight: 700; color: #0284c7;">{advisory.updated_eta if selected_train == 'ADY-410' else '16:45'}</td>
-</tr>
-</tbody>
-</table>
+    sp104 = advisory.approved_speed_kmh if selected_train == "ADY-104" else 80
+    sp702 = advisory.approved_speed_kmh if selected_train == "ADY-702" else 145
+    sp410 = advisory.approved_speed_kmh if selected_train == "ADY-410" else 110
+
+    pct104 = min(int((sp104 / 180.0) * 100), 100)
+    pct702 = min(int((sp702 / 180.0) * 100), 100)
+    pct410 = min(int((sp410 / 180.0) * 100), 100)
+
+    fleet_visual_html = f"""<div class="fleet-visual-card">
+<!-- ADY-104 Visual Bar Row -->
+<div style="padding: 8px 10px; border-radius: 10px; margin-bottom: 8px; background: {'#eff6ff' if selected_train == 'ADY-104' else '#f8fafc'}; border: 1.5px solid {'#93c5fd' if selected_train == 'ADY-104' else '#e2e8f0'};">
+  <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:800; color:#0f172a;">
+    <span>🚆 ADY-104 • Baku ➔ Sumgayit <span style="color:#0284c7;font-weight:700;">(📍 Bilajari Jn)</span></span>
+    <span><code style="font-size:11px;">{advisory.assigned_block_id if selected_train == 'ADY-104' else 'BLK-SUMGAYIT-A1'}</code> • <b>{sp104} km/h</b> • ETA {advisory.updated_eta if selected_train == 'ADY-104' else '13:23'}</span>
+  </div>
+  <div style="width:100%; background:#e2e8f0; height:8px; border-radius:999px; margin-top:6px; overflow:hidden;">
+    <div style="width:{pct104}%; background:linear-gradient(90deg,#f59e0b,#2563eb); height:100%; border-radius:999px;"></div>
+  </div>
+</div>
+
+<!-- ADY-702 Visual Bar Row -->
+<div style="padding: 8px 10px; border-radius: 10px; margin-bottom: 8px; background: {'#eff6ff' if selected_train == 'ADY-702' else '#f8fafc'}; border: 1.5px solid {'#93c5fd' if selected_train == 'ADY-702' else '#e2e8f0'};">
+  <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:800; color:#0f172a;">
+    <span>⚡ ADY-702 • Baku ➔ Ganja Express <span style="color:#0284c7;font-weight:700;">(📍 Yevlakh Jn)</span></span>
+    <span><code style="font-size:11px;">{advisory.assigned_block_id if selected_train == 'ADY-702' else 'BLK-GANJA-EXPR'}</code> • <b>{sp702} km/h</b> • ETA {advisory.updated_eta if selected_train == 'ADY-702' else '14:30'}</span>
+  </div>
+  <div style="width:100%; background:#e2e8f0; height:8px; border-radius:999px; margin-top:6px; overflow:hidden;">
+    <div style="width:{pct702}%; background:linear-gradient(90deg,#2563eb,#10b981); height:100%; border-radius:999px;"></div>
+  </div>
+</div>
+
+<!-- ADY-410 Visual Bar Row -->
+<div style="padding: 8px 10px; border-radius: 10px; background: {'#eff6ff' if selected_train == 'ADY-410' else '#f8fafc'}; border: 1.5px solid {'#93c5fd' if selected_train == 'ADY-410' else '#e2e8f0'};">
+  <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:800; color:#0f172a;">
+    <span>🌍 ADY-410 • Baku ➔ Tbilisi Silk Road <span style="color:#0284c7;font-weight:700;">(📍 Shamkir Stn)</span></span>
+    <span><code style="font-size:11px;">{advisory.assigned_block_id if selected_train == 'ADY-410' else 'BLK-SILKROAD-04'}</code> • <b>{sp410} km/h</b> • ETA {advisory.updated_eta if selected_train == 'ADY-410' else '16:45'}</span>
+  </div>
+  <div style="width:100%; background:#e2e8f0; height:8px; border-radius:999px; margin-top:6px; overflow:hidden;">
+    <div style="width:{pct410}%; background:linear-gradient(90deg,#06b6d4,#10b981); height:100%; border-radius:999px;"></div>
+  </div>
+</div>
 </div>"""
-    st.markdown(telemetry_html, unsafe_allow_html=True)
+    st.markdown(fleet_visual_html, unsafe_allow_html=True)
