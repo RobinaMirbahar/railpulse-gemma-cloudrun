@@ -3,6 +3,7 @@
 Unique modern Caspian Indigo & Cyan transit identity.
 Trilingual: English • Azerbaijani (Azərbaycan dili) • Russian (Русский язык).
 Powered by Open-Weights Gemma, Google ADK Function Calling, Deterministic Guardrails, and Cloud Run.
+Includes Live Departure, Timetable & Train Availability Chat Assistant.
 """
 
 import json
@@ -10,6 +11,7 @@ import pandas as pd
 import streamlit as st
 
 from railpulse_agent.agent import run_railpulse_dispatch
+from railpulse_agent.chat import answer_rail_chat_query
 from railpulse_agent.tools import CORRIDOR_SIGNALS, LIVE_TRAINS
 
 st.set_page_config(
@@ -26,9 +28,16 @@ if "lang" not in st.session_state:
     st.session_state["lang"] = "EN"
 if "active_train" not in st.session_state:
     st.session_state["active_train"] = "ADY-104"
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = [
+        {
+            "role": "assistant",
+            "content": "👋 **Hello! I am Gemma Rail Copilot.** Ask me about real-time train departures, live schedules, delays, or Caspian weather conditions!",
+        }
+    ]
 
 # ---------------------------------------------------------
-# Unique RailPulse Caspian Indigo & Electric Cyan Design System
+# Modern Transit Design System Tokens & Styling
 # ---------------------------------------------------------
 st.markdown(
     """<style>
@@ -40,7 +49,6 @@ st.markdown(
     --ink: #0f172a;
     --ink-muted: #64748b;
     --line: #e2e8f0;
-    --indigo-deep: #1e1b4b;
     --caspian-blue: #2563eb;
     --electric-cyan: #06b6d4;
     --baku-amber: #f59e0b;
@@ -124,6 +132,12 @@ html, body, [class*="css"] {
     box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
 }
 
+@keyframes livePulse {
+    0% { transform: scale(1.15); box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
+    50% { transform: scale(1.32); box-shadow: 0 0 16px rgba(245, 158, 11, 0.85); }
+    100% { transform: scale(1.15); box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
+}
+
 .node-next {
     background: white;
     color: #94a3b8;
@@ -163,12 +177,6 @@ html, body, [class*="css"] {
     color: #881337;
     font-size: 13.5px;
     margin-bottom: 16px;
-}
-
-@keyframes livePulse {
-    0% { transform: scale(1.15); box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
-    50% { transform: scale(1.32); box-shadow: 0 0 16px rgba(245, 158, 11, 0.85); }
-    100% { transform: scale(1.15); box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
 }
 </style>""",
     unsafe_allow_html=True,
@@ -305,6 +313,8 @@ I18N = {
         "announcement_body": advisory.passenger_announcement,
         "audit_hdr": "🛡️ Deterministic Railway Interlock Audit",
         "map_hdr": "🗺️ Live Azerbaijan Railways (ADY) Network Map",
+        "chat_title": "💬 Gemma Rail Copilot (Live Departure & Schedule Q&A)",
+        "chat_placeholder": "Ask about departure times, train availability, or weather...",
     },
     "AZ": {
         "tagline": "Azərbaycan Dəmir Yolları (ADY) • Açıq Gemma Modeli • Google ADK • Cloud Run",
@@ -318,6 +328,8 @@ I18N = {
         "announcement_body": f"Diqqət, sərnişinlərin nəzərinə! {LIVE_TRAINS[selected_train]['route_name']} qatarı ({advisory.train_id}) {advisory.assigned_block_id} blokuna təyin edildi. Təhlükəsiz sürət həddi: {advisory.approved_speed_kmh} km/saat. Yenilənmiş çatma vaxtı: {advisory.updated_eta}.",
         "audit_hdr": "🛡️ Deterministik Dəmiryolu Təhlükəsizlik Auditi",
         "map_hdr": "🗺️ Azərbaycan Dəmir Yolları (ADY) Canlı Şəbəkə Xəritəsi",
+        "chat_title": "💬 Gemma Dəmiryolu Köməkçisi (Real Vaxt Çıxış və Cədvəl)",
+        "chat_placeholder": "Çıxış vaxtları, qatar cədvəli və ya hava haqqında soruşun...",
     },
     "RU": {
         "tagline": "Азербайджанские Железные Дороги (ADY) • Open-Weights Gemma • Google ADK • Cloud Run",
@@ -331,6 +343,8 @@ I18N = {
         "announcement_body": f"Внимание пассажиров! Поезд {LIVE_TRAINS[selected_train]['route_name']} ({advisory.train_id}) направлен на блок {advisory.assigned_block_id}. Безопасная скорость: {advisory.approved_speed_kmh} км/ч. Новое время прибытия: {advisory.updated_eta}.",
         "audit_hdr": "🛡️ Аудит Детерминированных Блокировок Безопасности",
         "map_hdr": "🗺️ Интерактивная Карта Сети Азербайджанских Железных Дорог",
+        "chat_title": "💬 Gemma Rail Copilot (Расписание и Отправления Онлайн)",
+        "chat_placeholder": "Спросите о времени отправления, расписании или погоде...",
     },
 }
 
@@ -379,6 +393,44 @@ with col_left:
 </div>""",
         unsafe_allow_html=True,
     )
+
+    # -----------------------------------------------------
+    # Interactive Gemma Rail Copilot Chat Assistant
+    # -----------------------------------------------------
+    st.markdown(f"#### {t['chat_title']}")
+    
+    # Quick prompt suggestion pills
+    q_col1, q_col2, q_col3 = st.columns(3)
+    user_prompt = None
+    with q_col1:
+        if st.button("🕒 Sumgayit Next?", use_container_width=True):
+            user_prompt = "When is the next train to Sumgayit?"
+    with q_col2:
+        if st.button("⚡ Ganja Schedule?", use_container_width=True):
+            user_prompt = "What is the schedule for Baku-Ganja?"
+    with q_col3:
+        if st.button("📋 All Departures", use_container_width=True):
+            user_prompt = "Show all available train departures"
+
+    # Chat Input field
+    text_input = st.chat_input(t["chat_placeholder"])
+    if text_input:
+        user_prompt = text_input
+
+    # Process chat query
+    if user_prompt:
+        st.session_state["chat_history"].append({"role": "user", "content": user_prompt})
+        response = answer_rail_chat_query(user_prompt, lang=lang)
+        st.session_state["chat_history"].append({"role": "assistant", "content": response})
+
+    # Render recent chat messages (scrollable container)
+    chat_container = st.container(height=260)
+    with chat_container:
+        for msg in st.session_state["chat_history"]:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+    st.markdown("---")
 
     # Announcement Card
     st.markdown(
