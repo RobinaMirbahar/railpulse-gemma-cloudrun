@@ -8,6 +8,7 @@ Workshop for DevFest Baku 2026.
 import json
 import os
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 from railpulse_agent.agent import run_railpulse_dispatch
 from railpulse_agent.chat import answer_rail_chat_query
@@ -295,7 +296,7 @@ I18N = {
         "announcement_hdr": "📢 Passenger Station Board Announcement (ADY Audio Synthesizer)",
         "announcement_body": advisory.passenger_announcement,
         "audit_hdr": "🛡️ Deterministic Railway Interlock Audit",
-        "map_hdr": "🗺️ Live Azerbaijan Railways (ADY) Network Map",
+        "map_hdr": "🗺️ Live Azerbaijan Railways (ADY) High-Speed Network",
         "chat_title": "💬 Gemma Rail Copilot (Live Departure & Schedule Q&A)",
         "chat_placeholder": "Ask about departure times, train availability, or weather...",
         "telemetry_hdr": "📊 Live ADY Fleet Telemetry & Block Clearance",
@@ -315,7 +316,7 @@ I18N = {
         "announcement_hdr": "📢 Stansiya Sərnişin Məlumat Lövhəsi (ADY Səsli Bildiriş)",
         "announcement_body": f"Diqqət, sərnişinlərin nəzərinə! {LIVE_TRAINS[selected_train]['route_name']} qatarı ({advisory.train_id}) {advisory.assigned_block_id} blokuna təyin edildi. Təhlükəsiz sürət həddi: {advisory.approved_speed_kmh} km/saat. Yenilənmiş çatma vaxtı: {advisory.updated_eta}.",
         "audit_hdr": "🛡️ Deterministik Dəmiryolu Təhlükəsizlik Auditi",
-        "map_hdr": "🗺️ Azərbaycan Dəmir Yolları (ADY) Canlı Şəbəkə Xəritəsi",
+        "map_hdr": "🗺️ Azərbaycan Dəmir Yolları (ADY) Canlı Sürətli Qatar Xəritəsi",
         "chat_title": "💬 Gemma Dəmiryolu Köməkçisi (Real Vaxt Çıxış və Cədvəl)",
         "chat_placeholder": "Çıxış vaxtları, qatar cədvəli və ya hava haqqında soruşun...",
         "telemetry_hdr": "📊 ADY Qatar Parkının Canlı Telemetriyası və Yol Təhlükəsizliyi",
@@ -335,7 +336,7 @@ I18N = {
         "announcement_hdr": "📢 Вокзальное Табло и Оповещение Пассажиров (Аудиосинтезатор)",
         "announcement_body": f"Внимание пассажиров! Поезд {LIVE_TRAINS[selected_train]['route_name']} ({advisory.train_id}) направлен на блок {advisory.assigned_block_id}. Безопасная скорость: {advisory.approved_speed_kmh} км/ч. Новое время прибытия: {advisory.updated_eta}.",
         "audit_hdr": "🛡️ Аудит Детерминированных Блокировок Безопасности",
-        "map_hdr": "🗺️ Интерактивная Карта Сети Азербайджанских Железных Дорог",
+        "map_hdr": "🗺️ Карта Скоростной Железнодорожной Сети Азербайджана",
         "chat_title": "💬 Gemma Rail Copilot (Расписание и Отправления Онлайн)",
         "chat_placeholder": "Спросите о времени отправления, расписании или погоде...",
         "telemetry_hdr": "📊 Телеметрия Парка Поездов АЖД и Статус Путей",
@@ -570,26 +571,284 @@ with col_left:
         st.code(json.dumps(advisory.model_dump(), indent=2), language="json")
 
 with col_right:
-    # 1. Network Geospatial Map
+    # 1. Custom Interactive Azerbaijan Rail Network Map (Highlighted Azerbaijan + Running Trains)
     st.markdown(f"##### 🗺️ **{t['map_hdr']}**")
 
-    map_rows = []
-    for t_id, t_info in LIVE_TRAINS.items():
-        map_rows.append(
-            {
-                "Train ID": t_id,
-                "Route": t_info["route_name"],
-                "Current Station": t_info["current_station"],
-                "Next Station": t_info["next_station"],
-                "lat": t_info["latitude"],
-                "lon": t_info["longitude"],
-                "Speed (km/h)": advisory.approved_speed_kmh if t_id == selected_train else t_info["current_speed_kmh"],
-                "Delay (min)": advisory.delay_minutes_remaining if t_id == selected_train else t_info["delay_minutes"],
-                "ETA": advisory.updated_eta if t_id == selected_train else t_info["scheduled_eta"],
-            }
-        )
-    df_trains = pd.DataFrame(map_rows)
-    st.map(df_trains, latitude="lat", longitude="lon", size=320, zoom=6)
+    # Dynamic Center and Zoom depending on active train
+    if selected_train == "ADY-104":
+        map_center_lat, map_center_lon, map_zoom = 40.46, 49.80, 10
+    elif selected_train == "ADY-702":
+        map_center_lat, map_center_lon, map_zoom = 40.50, 48.00, 8
+    else:
+        map_center_lat, map_center_lon, map_zoom = 40.80, 46.50, 8
+
+    # Render Leaflet Map with highlighted Azerbaijan border and animated running trains
+    leaflet_map_html = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body {{ margin: 0; padding: 0; background: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
+    #railmap {{ width: 100%; height: 380px; border-radius: 12px; border: 1.5px solid #cbd5e1; }}
+    
+    .station-node-icon {{
+      background: #ffffff;
+      border: 2px solid #0284c7;
+      border-radius: 50%;
+      width: 10px;
+      height: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }}
+    .station-active-icon {{
+      background: #f59e0b;
+      border: 2.5px solid #ffffff;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.95);
+      animation: stPulse 1.4s infinite;
+    }}
+    @keyframes stPulse {{
+      0%, 100% {{ transform: scale(1.0); }}
+      50% {{ transform: scale(1.35); }}
+    }}
+
+    .train-tag {{
+      background: #0f172a;
+      color: #38bdf8;
+      border: 1.5px solid #38bdf8;
+      border-radius: 16px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.4);
+    }}
+    .train-tag-active {{
+      background: #2563eb;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 16px rgba(37, 99, 235, 0.85);
+    }}
+    .ping-circle {{
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.45);
+      top: -8px;
+      left: -8px;
+      z-index: -1;
+      animation: radarRing 1.8s infinite;
+    }}
+    @keyframes radarRing {{
+      0% {{ transform: scale(0.6); opacity: 0.9; }}
+      100% {{ transform: scale(2.2); opacity: 0; }}
+    }}
+    .overlay-badge {{
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.88);
+      color: #38bdf8;
+      backdrop-filter: blur(6px);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }}
+  </style>
+</head>
+<body>
+  <div id="railmap"></div>
+  <div class="overlay-badge">🇦🇿 AZERBAIJAN LIVE ADY CORRIDORS</div>
+
+  <script>
+    var map = L.map('railmap', {{
+      center: [{map_center_lat}, {map_center_lon}],
+      zoom: {map_zoom},
+      zoomControl: true,
+      attributionControl: false,
+      maxBounds: [[38.0, 44.2], [42.2, 51.2]],
+      minZoom: 6,
+      maxZoom: 13
+    }});
+
+    // Crisp high-contrast Positron basemap
+    L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png', {{
+      subdomains: 'abcd',
+      maxZoom: 19
+    }}).addTo(map);
+
+    // 1. Highlight Azerbaijan Territory (Republic of Azerbaijan border polygon)
+    var azerbaijanBorder = [
+      [38.40, 44.78], [38.75, 45.45], [38.92, 46.02], [38.85, 48.05],
+      [38.42, 48.88], [39.15, 49.32], [39.75, 49.38], [40.25, 49.85],
+      [40.45, 50.35], [40.75, 49.95], [41.05, 49.25], [41.52, 48.80],
+      [41.90, 48.55], [41.92, 46.50], [41.35, 45.15], [41.10, 45.02],
+      [40.85, 45.40], [40.35, 45.65], [39.72, 46.05], [39.22, 46.52],
+      [38.40, 44.78]
+    ];
+
+    // Luminous Azerbaijan Highlight Polygon
+    L.polygon(azerbaijanBorder, {{
+      color: '#0284c7',
+      weight: 2.5,
+      opacity: 0.9,
+      fillColor: '#38bdf8',
+      fillOpacity: 0.05,
+      dashArray: '5, 5'
+    }}).addTo(map);
+
+    // 2. Azerbaijan Railways (ADY) High-Speed Corridors
+    var absheronTrack = [
+      [40.3798, 49.8488], // Baku Central
+      [40.3953, 49.8912], // Keshla
+      [40.4286, 49.8058], // Bilajari
+      [40.4503, 49.7547], // Khirdalan
+      [40.5897, 49.6686]  // Sumgayit
+    ];
+
+    var bakuGanjaTrack = [
+      [40.3798, 49.8488], // Baku Central
+      [40.4286, 49.8058], // Bilajari
+      [40.0167, 49.4000], // Alyat
+      [40.0389, 48.9328], // Hajigabul
+      [40.3436, 48.1608], // Kurdamir
+      [40.5194, 47.6542], // Ujar
+      [40.6172, 47.1501], // Yevlakh
+      [40.6272, 46.7778], // Goran
+      [40.6828, 46.3606]  // Ganja
+    ];
+
+    var silkRoadTrack = [
+      [40.6828, 46.3606], // Ganja
+      [40.8297, 46.0178], // Shamkir
+      [40.9922, 45.6289], // Tovuz
+      [41.1189, 45.4539], // Agstafa
+      [41.2056, 45.1861], // Boyuk Kasik (Border)
+      [41.5495, 45.0006], // Rustavi
+      [41.7225, 44.7986]  // Tbilisi Central
+    ];
+
+    // Render Track Polylines
+    var is104Active = "{selected_train}" === "ADY-104";
+    var is702Active = "{selected_train}" === "ADY-702";
+    var is410Active = "{selected_train}" === "ADY-410";
+
+    // Absheron Line
+    L.polyline(absheronTrack, {{
+      color: is104Active ? '#2563eb' : '#64748b',
+      weight: is104Active ? 5 : 3,
+      opacity: is104Active ? 1.0 : 0.6,
+      dashArray: is104Active ? null : '4, 4'
+    }}).addTo(map).bindTooltip("ADY Absheron Circular Commuter (Baku ⇄ Sumgayit)");
+
+    // Baku-Ganja Line
+    L.polyline(bakuGanjaTrack, {{
+      color: is702Active ? '#2563eb' : '#64748b',
+      weight: is702Active ? 5 : 3,
+      opacity: is702Active ? 1.0 : 0.6,
+      dashArray: is702Active ? null : '4, 4'
+    }}).addTo(map).bindTooltip("ADY High-Speed Express (Baku ⇄ Ganja)");
+
+    // Silk Road Line
+    L.polyline(silkRoadTrack, {{
+      color: is410Active ? '#2563eb' : '#64748b',
+      weight: is410Active ? 5 : 3,
+      opacity: is410Active ? 1.0 : 0.6,
+      dashArray: is410Active ? null : '4, 4'
+    }}).addTo(map).bindTooltip("ADY Silk Road International (Baku ⇄ Tbilisi)");
+
+    // 3. Station Markers
+    var stations = [
+      {{ name: "Baku Central", lat: 40.3798, lon: 49.8488, isLive: false }},
+      {{ name: "Keshla Hub", lat: 40.3953, lon: 49.8912, isLive: false }},
+      {{ name: "Bilajari Jn", lat: 40.4286, lon: 49.8058, isLive: is104Active }},
+      {{ name: "Khirdalan", lat: 40.4503, lon: 49.7547, isLive: false }},
+      {{ name: "Sumgayit Pass.", lat: 40.5897, lon: 49.6686, isLive: false }},
+      {{ name: "Kurdamir", lat: 40.3436, lon: 48.1608, isLive: false }},
+      {{ name: "Yevlakh", lat: 40.6172, lon: 47.1501, isLive: is702Active }},
+      {{ name: "Ganja Central", lat: 40.6828, lon: 46.3606, isLive: false }},
+      {{ name: "Shamkir", lat: 40.8297, lon: 46.0178, isLive: is410Active }},
+      {{ name: "Agstafa Border", lat: 41.1189, lon: 45.4539, isLive: false }}
+    ];
+
+    stations.forEach(function(st) {{
+      var iconHtml = st.isLive ? '<div class="station-active-icon"></div>' : '<div class="station-node-icon"></div>';
+      var stIcon = L.divIcon({{ className: '', html: iconHtml, iconSize: [14, 14], iconAnchor: [7, 7] }});
+      L.marker([st.lat, st.lon], {{ icon: stIcon }})
+        .addTo(map)
+        .bindTooltip("<b>" + st.name + "</b>" + (st.isLive ? " (● Current Live Station)" : ""), {{ direction: 'top' }});
+    }});
+
+    // 4. Running Trains with Smooth Real-Time Glide Animation
+    // ADY-104 Marker
+    var marker104Html = '<div class="train-tag ' + (is104Active ? 'train-tag-active' : '') + '">' +
+      (is104Active ? '<div class="ping-circle"></div>' : '') +
+      '🚆 ADY-104 <span>{advisory.approved_speed_kmh if selected_train == "ADY-104" else 80} km/h</span></div>';
+    var icon104 = L.divIcon({{ className: '', html: marker104Html, iconSize: [120, 24], iconAnchor: [60, 12] }});
+    var marker104 = L.marker([40.4286, 49.8058], {{ icon: icon104 }}).addTo(map);
+    marker104.bindPopup("<b>🚆 ADY-104 Absheron Commuter</b><br>Speed: {advisory.approved_speed_kmh if selected_train == 'ADY-104' else 80} km/h<br>Block: {advisory.assigned_block_id if selected_train == 'ADY-104' else 'BLK-SUMGAYIT-A1'}<br>ETA: {advisory.updated_eta if selected_train == 'ADY-104' else '13:23'}");
+
+    // ADY-702 Marker
+    var marker702Html = '<div class="train-tag ' + (is702Active ? 'train-tag-active' : '') + '">' +
+      (is702Active ? '<div class="ping-circle"></div>' : '') +
+      '⚡ ADY-702 <span>{advisory.approved_speed_kmh if selected_train == "ADY-702" else 145} km/h</span></div>';
+    var icon702 = L.divIcon({{ className: '', html: marker702Html, iconSize: [120, 24], iconAnchor: [60, 12] }});
+    var marker702 = L.marker([40.6172, 47.1501], {{ icon: icon702 }}).addTo(map);
+    marker702.bindPopup("<b>⚡ ADY-702 Baku-Ganja Express</b><br>Speed: {advisory.approved_speed_kmh if selected_train == 'ADY-702' else 145} km/h<br>Block: {advisory.assigned_block_id if selected_train == 'ADY-702' else 'BLK-GANJA-EXPR'}<br>ETA: {advisory.updated_eta if selected_train == 'ADY-702' else '14:30'}");
+
+    // ADY-410 Marker
+    var marker410Html = '<div class="train-tag ' + (is410Active ? 'train-tag-active' : '') + '">' +
+      (is410Active ? '<div class="ping-circle"></div>' : '') +
+      '🌍 ADY-410 <span>{advisory.approved_speed_kmh if selected_train == "ADY-410" else 110} km/h</span></div>';
+    var icon410 = L.divIcon({{ className: '', html: marker410Html, iconSize: [120, 24], iconAnchor: [60, 12] }});
+    var marker410 = L.marker([40.8297, 46.0178], {{ icon: icon410 }}).addTo(map);
+    marker410.bindPopup("<b>🌍 ADY-410 Silk Road Express</b><br>Speed: {advisory.approved_speed_kmh if selected_train == 'ADY-410' else 110} km/h<br>Block: {advisory.assigned_block_id if selected_train == 'ADY-410' else 'BLK-SILKROAD-04'}<br>ETA: {advisory.updated_eta if selected_train == 'ADY-410' else '16:45'}");
+
+    // Smooth real-time running simulation along active railway segments
+    var progress = 0;
+    var direction = 1;
+
+    function animateTrainsRunning() {{
+      progress += 0.003 * direction;
+      if (progress >= 1.0) {{ progress = 1.0; direction = -1; }}
+      else if (progress <= 0.0) {{ progress = 0.0; direction = 1; }}
+
+      // ADY-104 running between Bilajari [40.4286, 49.8058] and Khirdalan [40.4503, 49.7547]
+      var lat104 = 40.4286 + (40.4503 - 40.4286) * progress;
+      var lon104 = 49.8058 + (49.7547 - 49.8058) * progress;
+      marker104.setLatLng([lat104, lon104]);
+
+      // ADY-702 running between Yevlakh [40.6172, 47.1501] and Ganja [40.6828, 46.3606]
+      var lat702 = 40.6172 + (40.6828 - 40.6172) * progress;
+      var lon702 = 47.1501 + (46.3606 - 47.1501) * progress;
+      marker702.setLatLng([lat702, lon702]);
+
+      // ADY-410 running between Shamkir [40.8297, 46.0178] and Tovuz [40.9922, 45.6289]
+      var lat410 = 40.8297 + (40.9922 - 40.8297) * progress;
+      var lon410 = 46.0178 + (45.6289 - 46.0178) * progress;
+      marker410.setLatLng([lat410, lon410]);
+
+      requestAnimationFrame(animateTrainsRunning);
+    }}
+
+    requestAnimationFrame(animateTrainsRunning);
+  </script>
+</body>
+</html>"""
+
+    components.html(leaflet_map_html, height=405)
 
     # 2. Live Fleet Telemetry & Block Status Table (Directly below map to balance height)
     st.markdown(f"##### 📊 **{t['telemetry_hdr']}**")
