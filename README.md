@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Why We Use This Documentation (Purpose & Real-World Value)
+## 🎯 Why I Created This Documentation (Purpose & Real-World Value)
 
 Most generative AI tutorials showcase toy chatbots, creative writing prompts, or basic customer service bots. **RailPulse AI addresses a fundamentally different and much higher-stakes engineering challenge: how to build AI agents for safety-critical physical infrastructure.**
 
@@ -17,13 +17,10 @@ Here is why this documentation and architecture are essential:
 ### 1. 🛡️ Moving Beyond "Toy Demos" to Safety-Critical AI
 In passenger rail systems (like Azerbaijan Railways), a single hallucinated route or ignored signal can cause catastrophe. This documentation demonstrates how to wrap open-weights models (Gemma) inside **deterministic, non-negotiable software interlocks** (`guardrails.py`) so physical safety rules always take precedence over AI suggestions.
 
-### 2. ⚡ 100% Reproducibility with Zero Local Setup Friction
-In conference workshops (such as DevFest Baku 2026), attendees arrive with different laptops (macOS, Windows, Linux, Chromebooks) and mismatched Python or CUDA environments. This documentation standardizes the entire 45-minute lab around **Google Cloud Shell** with **1-click launch buttons**, ensuring every developer gets an identical, ready-to-run environment without installing anything locally.
-
-### 3. 💰 Privacy, Data Sovereignty & $0 Idle Serverless Economics
+### 2. 💰 Privacy, Data Sovereignty & $0 Idle Serverless Economics
 Many enterprise organizations cannot stream sensitive internal operational telemetry, crew rosters, or signal logs to closed third-party cloud APIs. By using **Gemma open-weights models** hosted on **Google Cloud Run with scale-to-zero (`--min-instances 0`)**, teams retain 100% data privacy and control while paying **$0 when the application is idle**.
 
-### 4. 🧭 Dual-Purpose: Live Presentation Playbook & Self-Paced Blueprint
+### 3. 🧭 Dual-Purpose: Live Presentation Playbook & Self-Paced Blueprint
 - **For DevFest Baku 2026 Attendees:** Acts as the live step-by-step companion guide during the 45-minute interactive workshop.
 - **For the Open-Source Community:** Serves as a reference implementation demonstrating how to combine **Google Agent Development Kit (ADK)**, **Pydantic v2 structured JSON schemas**, **Streamlit**, and **Cloud Run** in production.
 
@@ -31,13 +28,13 @@ Many enterprise organizations cannot stream sensitive internal operational telem
 
 ## 🌟 Live Interactive Rail Tracking & Smart Dispatch Demo (Baku 2026)
 
-**RailPulse AI** provides a complete, live interactive rail tracking experience built specifically for our hands-on session at **DevFest Baku 2026**.
+**RailPulse AI** provides a complete, live interactive rail tracking experience built specifically for my hands-on workshop at **DevFest Baku 2026**.
 
 The live demo features a real-time tracking map and operational dashboard modeled after modern railway transit systems across the **Azerbaijan Railways (ADY)** network:
 - **Live GPS & Track Telemetry:** Track active passenger trains (*Baku–Ganja High-Speed Express*, *Baku–Sumgayit Absheron Commuter*, *Baku–Tbilisi Silk Road Express*) moving across real coordinates.
 - **Dynamic Station Departure Boards:** Live estimated arrival times (ETAs), delay counters, and track assignments.
 - **Interactive Weather & Track Simulator:** Attendees can toggle Caspian coastal crosswinds and block occupancies in real time.
-- **Autonomous Dispatch Agent:** When disruptions occur, our open-weights **Gemma** agent assesses options and issues collision-free, guardrail-verified rerouting advisories without ever violating physical railway safety interlocks.
+- **Autonomous Dispatch Agent:** When disruptions occur, the open-weights **Gemma** agent assesses options and issues collision-free, guardrail-verified rerouting advisories without ever violating physical railway safety interlocks.
 
 ---
 
@@ -76,10 +73,10 @@ flowchart TD
 
 ## ⏱️ 45-Minute Hands-On Workshop Lab Guide (Step-by-Step for Students)
 
-Every step is designed with four clear answers:
+I designed every step with four clear answers:
 1. **📌 What is this step?**
-2. **❓ Why do we use this?**
-3. **🔗 What is the link with the other steps?**
+2. **❓ Why is this used?**
+3. **🔗 How does this connect to the complete system?**
 4. **💻 What commands to run & what you see on screen.**
 
 ```
@@ -89,7 +86,7 @@ Step 1: Cloud Shell Setup ──> Step 2: Gemma Tools ──> Step 3: Safety Gua
 
 ---
 
-### ❓ Where Does This Code Come From? (Pre-Built vs. Extracting)
+### ❓ Where Does This Code Come From? (How I Architected This Workshop)
 
 > [!NOTE]
 > **For Workshop Students & Beginners:**  
@@ -103,8 +100,8 @@ Step 1: Cloud Shell Setup ──> Step 2: Gemma Tools ──> Step 3: Safety Gua
 ### 📍 Step 1: Google Cloud Shell Environment Setup (00:00 – 05:00)
 
 - **📌 What is this step?** Launching a browser-based Linux developer environment provided by Google Cloud and downloading the RailPulse AI code.
-- **❓ Why do we use this?** Students have different laptops (Windows, macOS, Linux, Chromebooks) with different software versions. Google Cloud Shell provides a 100% free, identical Linux machine in your browser with `gcloud`, Python 3.11, and Docker pre-installed—so nobody has to troubleshoot local setup errors.
-- **🔗 What is the link?** This creates the clean workspace where we will inspect Gemma's tools (Step 2), enforce safety rules (Step 3), test the web UI (Step 4), and build the container (Step 5).
+- **❓ Why is this used?** Attendees have different laptops (Windows, macOS, Linux, Chromebooks) with different software versions. Google Cloud Shell provides a 100% free, identical Linux machine in your browser with `gcloud`, Python 3.11, and Docker pre-installed—so nobody has to troubleshoot local setup errors.
+- **🔗 How does this connect?** This creates the clean workspace where you will inspect Gemma's tools (Step 2), test safety rules (Step 3), launch the web UI (Step 4), and deploy the container (Step 5).
 
 #### 💻 Actions:
 
@@ -163,10 +160,10 @@ pip install -r requirements.txt
 
 <br>
 
-> 💡 **Why do we create a Virtual Environment (`.venv`)?**
+> 💡 **Why create a Virtual Environment (`.venv`)?**
 >
 > 1. **Dependency Isolation:** Google Cloud Shell comes with many system-wide Linux packages. Creating `.venv` creates an isolated sandbox for RailPulse AI's libraries (`google-adk`, `streamlit`, `pydantic`), preventing version conflicts with the underlying operating system.
-> 2. **Clean Container Parity:** What runs inside `.venv` matches the exact dependencies that get packaged into our Google Cloud Run Docker container in Step 5, eliminating "works on my machine" deployment bugs.
+> 2. **Clean Container Parity:** What runs inside `.venv` matches the exact dependencies packaged into the Google Cloud Run Docker container in Step 5, eliminating "works on my machine" deployment bugs.
 > 3. **Permission Safety:** It allows packages to be installed cleanly in user space without requiring `sudo` or altering system-level Linux binaries.
 
 ---
@@ -174,7 +171,7 @@ pip install -r requirements.txt
 ### 📍 Step 2: Equipping Gemma with Live Railway Telemetry Tools (05:00 – 15:00)
 
 - **📌 What is this step?** Giving Google's open-weights Gemma model access to live Python functions that read train speeds, GPS coordinates, block signals, and weather.
-- **❓ Why do we use this?** An AI language model on its own only knows text; it has zero real-time awareness of where trains are. Just like live railway transit maps connect to GPS signals to display real-time positions, our Gemma agent uses **Function Calling** to inspect live sensors before generating any dispatch decision.
+- **❓ Why is this used?** An AI language model on its own only knows text; it has zero real-time awareness of where trains are. Just like live railway transit maps connect to GPS signals to display real-time positions, the Gemma agent uses **Function Calling** to inspect live sensors before generating any dispatch decision.
 - **🔗 What is the link?** Takes the environment prepared in **Step 1** and gives Gemma the live data it needs so that **Step 3** can evaluate whether those conditions are physically safe.
 
 #### 💻 How It Works (`railpulse_agent/tools.py`):
@@ -201,7 +198,7 @@ python scripts/run_demo.py
 ### 📍 Step 3: Enforcing Deterministic Safety Guardrails & Schemas (15:00 – 25:00)
 
 - **📌 What is this step?** Wrapping Gemma's output in non-negotiable software interlocks (`guardrails.py`) and a strict JSON data schema (`schemas.py`).
-- **❓ Why do we use this?** In mission-critical railway operations, an AI hallucination could cause a collision or derailment. A language model must **never** have the final say on physical safety. If a track is blocked, a software guardrail must *physically force* a diversion regardless of what the LLM generated.
+- **❓ Why is this used?** In mission-critical railway operations, an AI hallucination could cause a collision or derailment. A language model must **never** have the final say on physical safety. If a track is blocked, a software guardrail must *physically force* a diversion regardless of what the LLM generated.
 - **🔗 What is the link?** Protects the telemetry gathered in **Step 2** from hallucinations and outputs a strictly verified `RailDispatchAdvisory` JSON object that **Step 4** can safely render on a visual map.
 
 #### 🛡️ The Two Non-Negotiable Safety Rules:
@@ -225,7 +222,7 @@ pytest tests/test_railpulse.py -v
 ### 📍 Step 4: Launching the Interactive Web Rail Tracker & Simulator (25:00 – 35:00)
 
 - **📌 What is this step?** Launching an interactive Streamlit web dashboard in Cloud Shell that displays train positions on a map, live departure boards, and a 1-click **Caspian Wind & Block Occupancy Simulator**.
-- **❓ Why do we use this?** Train dispatchers and station masters cannot operate by reading raw command-line JSON. They need an interactive visual interface to see where trains are, test scenarios, and review the AI agent's recommendations in human-friendly format.
+- **❓ Why is this used?** Train dispatchers and station masters cannot operate by reading raw command-line JSON. They need an interactive visual interface to see where trains are, test scenarios, and review the AI agent's recommendations in human-friendly format.
 - **🔗 What is the link?** Connects the verified backend agent from **Steps 2 & 3** to a user-friendly frontend that students can click and explore before deploying to production in **Step 5**.
 
 #### 💻 Actions:
@@ -256,8 +253,8 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0
 ### 📍 Step 5: Deploying to Google Cloud Run with Scale-to-Zero (35:00 – 45:00)
 
 - **📌 What is this step?** Packaging the entire application into a Docker container and deploying it as a production serverless web service on Google Cloud Run.
-- **❓ Why do we use this?** Inside Cloud Shell, the app only runs while your browser tab is open. Cloud Run gives you a permanent, secure `https://...run.app` URL accessible from anywhere in the world. With `--min-instances 0`, Cloud Run automatically scales to zero instances when idle—meaning **students pay $0** after the workshop ends.
-- **🔗 What is the link?** Takes everything built in **Steps 1 through 4** (Gemma + Google ADK + Safety Guardrails + Streamlit UI) and turns it into a live public product you can show on your portfolio or resume.
+- **❓ Why is this used?** Inside Cloud Shell, the app only runs while your browser tab is open. Cloud Run gives you a permanent, secure `https://...run.app` URL accessible from anywhere in the world. With `--min-instances 0`, Cloud Run automatically scales to zero instances when idle—meaning **students pay $0** after the workshop ends.
+- **🔗 How does this connect?** Takes everything built in **Steps 1 through 4** (Gemma + Google ADK + Safety Guardrails + Streamlit UI) and turns it into a live public product for your portfolio or resume.
 
 #### 💻 Actions:
 
