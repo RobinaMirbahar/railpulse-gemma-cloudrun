@@ -40,34 +40,78 @@ The live demo features a real-time tracking map and operational dashboard modele
 
 ## 🏗️ Architecture Overview
 
-![RailPulse AI Architecture](assets/railpulse_architecture.jpg)
+I designed RailPulse AI with a strict separation between **autonomous LLM reasoning (Gemma + Google ADK)**, **deterministic railway safety interlocks**, and an **interactive trilingual operations frontend**.
 
 ```mermaid
 flowchart TD
-    subgraph UI ["Frontend & Telemetry"]
-        A[Interactive Streamlit Dashboard] -->|User Query / Sensor Event| B[Google ADK Dispatch Agent]
+    subgraph UI ["1. Frontend & Telemetry Layer (Streamlit on Google Cloud Run)"]
+        UI_Head["Trilingual Switcher [ 🇬🇧 EN | 🇦🇿 AZ | 🇷🇺 RU ]"]
+        UI_KPI["Top Telemetry Strip (Active Train, Clamped Speed, Block, ETA)"]
+        UI_Timeline["Station Progression Timeline (Pulsing Live Active Node)"]
+        UI_Sim["Live Corridor Simulator (Caspian Crosswinds & Block Status Injector)"]
+        UI_Chat["💬 Gemma Rail Assistant (Real-Time Passenger & Dispatch Q&A)"]
+        UI_Announce["📢 Passenger Station Audio Board (ADY Audio Synthesizer)"]
+        UI_Map["🗺️ Interactive Azerbaijan Transit Map (OpenStreetMap & Running Trains)"]
+        UI_Table["📊 Fleet Clearance & Telemetry Table"]
     end
 
-    subgraph Agent ["Agent Core (Google ADK + Gemma)"]
-        B --> C[Ollama / Gemma Inference Engine]
-        C --> D{Function Calling Tools}
-        D -->|GPS, Speed, Delay| T1[get_live_train_telemetry]
-        D -->|Block Occupancy & Wind| T2[check_corridor_signals_and_wind]
-        D -->|ETA & Headway Recovery| T3[calculate_schedule_recovery]
+    subgraph Agent ["2. Agent Core (Google ADK + Gemma Open-Weights)"]
+        A_Agent["Google ADK Dispatch Agent (railpulse_agent/agent.py)"]
+        A_Chat["Gemma Rail Assistant Engine (railpulse_agent/chat.py)"]
+        A_Tools{"ADK Registered Tools"}
+        A_T1["get_live_train_telemetry()"]
+        A_T2["check_corridor_signals_and_wind()"]
+        A_T3["calculate_schedule_recovery()"]
     end
 
-    subgraph Safety ["Deterministic Safety Layer"]
-        C --> G[Deterministic Interlock Guardrail]
-        G -->|Block Occupied?| G1[Force Siding Divert]
-        G -->|Caspian Wind > 65 km/h?| G2[Clamp Speed <= 80 km/h]
-        G --> S[Pydantic v2 Schema Validation]
+    subgraph Safety ["3. Deterministic Safety Interlocks (Rule-Based Hardening)"]
+        S_Audit["Safety Audit Engine (railpulse_agent/guardrails.py)"]
+        S_Wind{"Caspian Wind > 65 km/h?"}
+        S_Clamp["Deterministic Speed Clamping (<= 80 km/h)"]
+        S_Block{"Primary Block Occupied / Maint?"}
+        S_Divert["Automatic Divert to Siding Passing Loop"]
+        S_Schema["Pydantic v2 Schema Enforcement (RailDispatchAdvisory)"]
     end
 
-    subgraph Cloud ["Serverless Infrastructure"]
-        UI --> CR[Google Cloud Run Container]
-        CR -->|Scale to Zero| CS[Zero Idle Costs]
+    subgraph Cloud ["4. Serverless Google Cloud Infrastructure"]
+        CR["Google Cloud Run (europe-west1 / us-central1)"]
+        CR_Container["Containerized Streamlit App (Dockerfile)"]
+        CR_Scale["Scale-to-Zero (0 idle instances = $0.00 cost)"]
+        CR_Auth["Allow Unauthenticated / IAM Secured"]
     end
+
+    UI_Sim -->|Live Simulation Events| A_Agent
+    UI_Chat -->|Passenger & Dispatch Inquiries| A_Chat
+    A_Chat -->|Live Fleet & Weather Context| A_Tools
+    A_Agent --> A_Tools
+    A_Tools --> A_T1
+    A_Tools --> A_T2
+    A_Tools --> A_T3
+    A_Tools --> S_Audit
+    S_Audit --> S_Wind
+    S_Wind -->|Yes| S_Clamp
+    S_Audit --> S_Block
+    S_Block -->|Yes| S_Divert
+    S_Audit --> S_Schema
+    S_Schema --> UI_Announce
+    S_Schema --> UI_KPI
+    S_Schema --> UI_Timeline
+    UI --> CR_Container
+    CR_Container --> CR
+    CR --> CR_Scale
 ```
+
+### 🧩 Key Architectural Subsystems
+
+| Subsystem | File Location | Responsibility |
+| :--- | :--- | :--- |
+| **Gemma Rail Assistant** | [`railpulse_agent/chat.py`](railpulse_agent/chat.py) | Real-time passenger Q&A, airport-to-hotel transit guidance, ticket rules, station amenities, and corridor operations in English, Azerbaijani, and Russian. |
+| **Google ADK Agent Pipeline** | [`railpulse_agent/agent.py`](railpulse_agent/agent.py) | Orchestrates Gemma tool invocation, ordered trajectory execution, and dispatch advisory synthesis. |
+| **Railway Telemetry Tools** | [`railpulse_agent/tools.py`](railpulse_agent/tools.py) | Live state of ADY trains (`ADY-104`, `ADY-702`, `ADY-410`), Caspian wind sensors, and track block signals. |
+| **Deterministic Guardrails** | [`railpulse_agent/guardrails.py`](railpulse_agent/guardrails.py) | Non-negotiable physical constraints: clamping speeds during high crosswinds and forcing train diversion into passing sidings when blocks are blocked. |
+| **Structured Output Schema** | [`railpulse_agent/schema.py`](railpulse_agent/schema.py) | Strict Pydantic v2 model (`RailDispatchAdvisory`) guaranteeing validated JSON output. |
+| **Interactive Operations UI** | [`app.py`](app.py) | Streamlit dashboard with full-width KPI cards, station timeline, Leaflet running map, simulator controls, and audio board. |
+| **Serverless Containerization** | [`Dockerfile`](Dockerfile), [`deploy/`](deploy/) | Docker packaging with Cloud Run deployment scripts for scale-to-zero serverless hosting. |
 
 ---
 
