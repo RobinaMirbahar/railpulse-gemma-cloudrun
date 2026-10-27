@@ -192,10 +192,9 @@ python scripts/run_demo.py
 
 <br>
 
-> 📸 **[Your Console Screenshot Here]**  
-> *Capture your Google Cloud Shell terminal output showing Gemma executing the function calling tools and printing the telemetry values.*
+> 📸 **[Console Screenshot: Step 2 — Gemma Function Calling & Dispatch Execution Output]**
 
-![Step 4: Run CLI Demo in Cloud Shell Terminal](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/04_run_demo_terminal.png)
+![Step 2: Run CLI Demo in Cloud Shell Terminal](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/screenshots/04_run_demo_terminal.png)
 
 <br>
 
