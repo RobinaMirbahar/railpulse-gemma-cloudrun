@@ -307,19 +307,19 @@ streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enable
 2. Select **Change port > 8080 > Preview and Run** (or click **Preview on port 8080**).
 <br>
 
-> 🔄 **How to Pull Code Updates During the Workshop:**  
-> Whenever new features, prompt templates, or UI fixes are pushed to the GitHub repository, attendees do not need to re-clone the repository or recreate their virtual environment! Simply update the running Cloud Shell workspace with these quick steps:  
+> 🔄 **How to Sync New Features or Code Updates:**  
+> If you fork this repository, add a new feature, customize the agent prompts, or want to pull the latest code updates into your active Cloud Shell workspace without re-cloning or rebuilding `.venv`, run these commands:  
 >  
-> 1. In your Cloud Shell terminal, press **`Ctrl + C`** to stop the current Streamlit process.  
-> 2. Fetch the latest code from GitHub:  
+> 1. In your Cloud Shell terminal, press **`Ctrl + C`** to stop the running Streamlit server.  
+> 2. Pull the latest updates from `main`:  
 >    ```bash  
 >    git pull origin main  
 >    ```  
-> 3. Restart the interactive server with Cloud Shell reverse-proxy routing permitted:  
+> 3. Restart the interactive server:  
 >    ```bash  
 >    streamlit run app.py --server.port=8080 --server.address=0.0.0.0 --server.enableCORS=false --server.enableXsrfProtection=false  
 >    ```  
-> 4. Refresh your **Web Preview** browser tab (`F5`) to immediately see the changes!
+> 4. Refresh your **Web Preview** browser tab (`F5`) to test your updated features!
 
 <br>
 
@@ -432,6 +432,34 @@ gcloud run deploy railpulse-gemma   --source .   --region europe-west1   --allow
 https://railpulse-gemma-xxxxxxxxxx-ew.a.run.app
 ```
 Congratulations! You have built, verified, and deployed an open-source AI agent powered by Gemma on Google Cloud! 🎉
+
+---
+
+### 🧹 Step 6: Cleaning Up Google Cloud Resources (Zero-Cost Teardown)
+
+- **📌 What is this step?** Deleting the deployed Cloud Run service and container build artifacts after you finish testing the live demo.
+- **❓ Why is this used?** Even though Cloud Run is configured with `--min-instances 0` (meaning it scales to zero and costs $0 when idle), cleaning up unused services and Artifact Registry container images is a cloud engineering best practice to keep your GCP project tidy and prevent storage charges.
+
+#### 💻 Actions:
+
+1. **Delete the Cloud Run Service:**
+```bash
+gcloud run services delete railpulse-gemma \
+  --region=europe-west1 \
+  --quiet
+```
+
+2. **(Optional) Delete the Source Build Artifact Repository:**
+```bash
+gcloud artifacts repositories delete cloud-run-source-deploy \
+  --location=europe-west1 \
+  --quiet
+```
+
+3. **Verify Resource Removal:**
+```bash
+gcloud run services list --region=europe-west1 --limit=5
+```
 
 
 ## 📁 Repository Structure
