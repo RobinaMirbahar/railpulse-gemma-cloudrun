@@ -18,6 +18,27 @@
 
 ---
 
+## 🎯 Why We Use This Documentation (Purpose & Real-World Value)
+
+Most generative AI tutorials showcase toy chatbots, creative writing prompts, or basic customer service bots. **RailPulse AI addresses a fundamentally different and much higher-stakes engineering challenge: how to build AI agents for safety-critical physical infrastructure.**
+
+Here is why this documentation and architecture are essential:
+
+### 1. 🛡️ Moving Beyond "Toy Demos" to Safety-Critical AI
+In passenger rail systems (like Azerbaijan Railways or [Patri](https://patri.hataf.dev/)), a single hallucinated route or ignored signal can cause catastrophe. This documentation demonstrates how to wrap open-weights models (Gemma) inside **deterministic, non-negotiable software interlocks** (`guardrails.py`) so physical safety rules always take precedence over AI suggestions.
+
+### 2. ⚡ 100% Reproducibility with Zero Local Setup Friction
+In conference workshops (such as DevFest Baku 2026), attendees arrive with different laptops (macOS, Windows, Linux, Chromebooks) and mismatched Python or CUDA environments. This documentation standardizes the entire 45-minute lab around **Google Cloud Shell** with **1-click launch buttons**, ensuring every developer gets an identical, ready-to-run environment without installing anything locally.
+
+### 3. 💰 Privacy, Data Sovereignty & $0 Idle Serverless Economics
+Many enterprise organizations cannot stream sensitive internal operational telemetry, crew rosters, or signal logs to closed third-party cloud APIs. By using **Gemma open-weights models** hosted on **Google Cloud Run with scale-to-zero (`--min-instances 0`)**, teams retain 100% data privacy and control while paying **$0 when the application is idle**.
+
+### 4. 🧭 Dual-Purpose: Live Presentation Playbook & Self-Paced Blueprint
+- **For DevFest Baku 2026 Attendees:** Acts as the live step-by-step companion guide during the 45-minute interactive workshop.
+- **For the Open-Source Community:** Serves as a reference implementation demonstrating how to combine **Google Agent Development Kit (ADK)**, **Pydantic v2 structured JSON schemas**, **Streamlit**, and **Cloud Run** in production.
+
+---
+
 ## 🌟 Real-World Inspiration: From Patri (Live Rail Tracking) to Autonomous Dispatch
 
 **RailPulse AI** is inspired by real-world live transit systems such as **[Patri (پٹڑی)](https://patri.hataf.dev/)**—a progressive web application providing live GPS tracking, station arrival times, and delay telemetry for Pakistan Railways.
