@@ -41,7 +41,7 @@ def answer_rail_chat_query(query: str, lang: str = "EN") -> str:
         else:
             return (
                 "👋 **Hello! Welcome to RailPulse AI.**\n\n"
-                "I am Gemma, your autonomous rail operations copilot for Azerbaijan Railways (ADY). How can I help you today?\n"
+                "I am Gemma, your autonomous rail operations assistant for Azerbaijan Railways (ADY). How can I help you today?\n"
                 "* 🕒 **Live departures & arrivals** (e.g. *When is the next train to Sumgayit?*)\n"
                 "* ✈️ **Airport to city center / hotel transit routes**\n"
                 "* ⚡ **Train status & schedule recovery** (e.g. *Is Baku-Ganja on time?*)\n"
