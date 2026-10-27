@@ -409,6 +409,34 @@ Click the printed **Service URL** (e.g., `https://railpulse-gemma-810328212248.e
 
 🎉 **Your open-weights Gemma + Google ADK railway dispatch agent is now live on Google Cloud Run!**
 
+#### 🔄 How to Pull Code Updates & Redeploy to Your Live Cloud Run Service
+
+Once your service is live on Cloud Run, you can ship new UI enhancements, mobile responsiveness fixes, or new agent capabilities to the **exact same HTTPS URL** with zero downtime. Pull the latest commits from GitHub and run `gcloud run deploy` to roll out a new Cloud Run revision:
+
+```bash
+cd ~/cloudshell_open/railpulse-gemma-cloudrun && \
+git pull origin main && \
+gcloud run deploy railpulse-gemma \
+  --source . \
+  --region europe-west1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --cpu 2 \
+  --port 8080 \
+  --set-env-vars="SIMULATION_MODE=true" \
+  --quiet
+```
+
+![Pulling Updates and Redeploying a New Cloud Run Revision](assets/screenshots/06_cloud_run_update_redeploy.png)
+
+#### 🛠️ Troubleshooting: `No such file or directory` When Navigating in Cloud Shell
+
+If you launched the workspace via the **"Open in Google Cloud Shell"** button, Google Cloud clones the repository inside `~/cloudshell_open/railpulse-gemma-cloudrun` rather than `~/railpulse-gemma-cloudrun`. Running `cd ~/railpulse-gemma-cloudrun` will return `-bash: cd: /home/<user>/railpulse-gemma-cloudrun: No such file or directory`:
+
+![Cloud Shell Directory Path Troubleshooting](assets/screenshots/06_troubleshooting_directory_path.png)
+
+- **Fix:** Always navigate to `~/cloudshell_open/railpulse-gemma-cloudrun` (or use `cd ~/cloudshell_open/railpulse-gemma-cloudrun 2>/dev/null || cd ~/railpulse-gemma-cloudrun`) before running `git pull` or `gcloud run deploy`.
+
 ---
 
 ### 🧹 Step 6: Cleaning Up Google Cloud Resources (Zero-Cost Teardown)
