@@ -1,6 +1,6 @@
 # 🚆 RailPulse AI — Building & Deploying Open-Source AI Agents with Gemma and Google Cloud Run (DevFest Baku 2026)
 
-![RailPulse AI Cover](https://raw.githubusercontent.com/RobinaMirbahar/railpulse-gemma-cloudrun/main/assets/railpulse_cover.jpg)
+![RailPulse AI Cover](assets/railpulse_cover.jpg)
 
 > **Accepted 45-Minute Hands-On Workshop — DevFest Baku 2026**  
 > **Author & Speaker:** [Robina Mirbahar](https://github.com/RobinaMirbahar) (Google Developer Expert in Cloud & AI)  
