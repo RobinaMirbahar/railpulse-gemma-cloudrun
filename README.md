@@ -1,9 +1,16 @@
 # 🚆 RailPulse AI — Building & Deploying Open-Source AI Agents with Gemma and Google Cloud Run (DevFest Baku 2026)
 
-![RailPulse AI Cover](assets/railpulse_banner_v2.jpg)
+[![RailPulse AI Cover](assets/railpulse_banner_v2.jpg)](https://youtu.be/ZmMh8aMzDng)
+
+<p align="center">
+  <a href="https://youtu.be/ZmMh8aMzDng" target="_blank">
+    <img src="https://img.shields.io/badge/Watch%20Full%20Hands--On%20Walkthrough-YouTube%20Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch on YouTube" />
+  </a>
+</p>
 
 > **Accepted 45-Minute Hands-On Workshop — DevFest Baku 2026**  
 > **Author & Speaker:** [Robina Mirbahar](https://github.com/RobinaMirbahar) (Google Developer Expert in Cloud & AI)  
+> **🎥 YouTube Video Walkthrough:** [https://youtu.be/ZmMh8aMzDng](https://youtu.be/ZmMh8aMzDng)  
 > **Focus:** Designing, verifying, containerizing, and deploying a safety-critical railway dispatch and live tracking AI agent powered by open-weights **Gemma**, **Google Agent Development Kit (ADK)**, **Streamlit**, and **Google Cloud Run** with scale-to-zero serverless economics.
 
 ---
