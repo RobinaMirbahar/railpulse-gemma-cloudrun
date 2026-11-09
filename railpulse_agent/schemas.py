@@ -51,6 +51,10 @@ class GuardrailDecision(BaseModel):
     speed_kmh: int = Field(..., ge=0, le=160, description="Approved cruise speed in km/h.")
     approved_speed_kmh: int = Field(..., ge=0, le=160, description="Approved cruise speed in km/h.")
     assigned_track_block: str = Field(..., description="Verified track block ID.")
+    guardrail_interlock_passed: bool = Field(
+        default=False,
+        description="False when the guardrail fails closed: unknown block status or an occupied passing loop.",
+    )
     stale_reason: Optional[StaleReason] = Field(
         default=None,
         description="Telemetry halt discriminator: 'expired' (>15.0s) or 'clock_skew' (<-0.5s).",
