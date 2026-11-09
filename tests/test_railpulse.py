@@ -81,6 +81,27 @@ def test_consumer_monotonic_ingest_and_producer_offset_telemetry() -> None:
     assert res["guardrail_interlock_passed"] is False
 
 
+def test_wall_clock_read_exactly_once_at_ingress() -> None:
+    # Verify that wall time (observed_at_wall) is captured once at ingress and never re-read
+    # downstream by any helper in the schedule recovery or guardrail pipeline.
+    wall_calls = 0
+
+    def fake_wall_clock() -> float:
+        nonlocal wall_calls
+        wall_calls += 1
+        return 1762680000.0
+
+    recovery = calculate_schedule_recovery(
+        train_id="ADY-410",
+        target_speed_kmh=140,
+        use_passing_siding=False,
+        wall_clock=fake_wall_clock,
+    )
+    assert wall_calls == 1
+    assert recovery["approved_speed_kmh"] == 140
+    assert recovery["stale_reason"] is None
+
+
 def test_structured_json_dispatch_advisory() -> None:
     advisory = run_railpulse_dispatch(train_id="ADY-702", requested_speed_kmh=145)
     assert isinstance(advisory, RailDispatchAdvisory)

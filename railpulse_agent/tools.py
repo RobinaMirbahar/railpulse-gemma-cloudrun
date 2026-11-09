@@ -1,7 +1,7 @@
 """Pure-Python function calling tools for live rail telemetry, signals, and schedule recovery."""
 
 import time
-from typing import Any, Dict
+from typing import Any, Callable, Dict, Optional
 
 # Live state store for Azerbaijan Railways (ADY) corridors (mutable via Streamlit simulator)
 LIVE_TRAINS: Dict[str, Dict[str, Any]] = {
@@ -91,21 +91,39 @@ def get_live_train_telemetry(train_id: str) -> Dict[str, Any]:
     return dict(train)
 
 
-def check_corridor_signals_and_wind(corridor_id: str) -> Dict[str, Any]:
+def check_corridor_signals_and_wind(
+    corridor_id: str,
+    wall_clock: Optional[Callable[[], float]] = None,
+    monotonic_clock: Optional[Callable[[], float]] = None,
+) -> Dict[str, Any]:
     """Check railway block occupancy ('FREE', 'OCCUPIED', 'MAINTENANCE') and live Caspian wind speed.
 
-    Stamps `received_at_monotonic` from the consumer's own `time.monotonic()` clock at ingest.
+    Captures `observed_at_wall` and `received_at_monotonic` exactly once at ingress so downstream
+    helpers never re-read wall time (`time.time()`) to derive a duration.
 
     Args:
         corridor_id: Corridor identifier ('BAKU-GANJA', 'ABSHERON-RING', or 'BTK-CORRIDOR').
+        wall_clock: Optional injectable wall-clock callable (defaults to `time.time`).
+        monotonic_clock: Optional injectable monotonic-clock callable (defaults to `time.monotonic`).
 
     Returns:
-        Dictionary containing primary block status, passing siding status, live wind speed, and ingest timestamp.
+        Dictionary containing primary block status, passing siding status, live wind speed, and ingest timestamps.
     """
     normalized_corridor = corridor_id.strip().upper()
     signals = dict(CORRIDOR_SIGNALS.get(normalized_corridor, CORRIDOR_SIGNALS["BAKU-GANJA"]))
-    signals.setdefault("received_at_monotonic", time.monotonic())
-    signals.setdefault("producer_offset_s", 0.0)
+    wall_fn = wall_clock or time.time
+    mono_fn = monotonic_clock or time.monotonic
+
+    if "received_at_monotonic" not in signals:
+        signals["received_at_monotonic"] = mono_fn()
+
+    if "producer_offset_s" not in signals:
+        ingest_wall = wall_fn()
+        observed_wall = signals.setdefault("observed_at_wall", ingest_wall)
+        signals["producer_offset_s"] = round(float(observed_wall) - float(ingest_wall), 6)
+    elif "observed_at_wall" not in signals:
+        signals["observed_at_wall"] = wall_fn()
+
     return signals
 
 
@@ -113,6 +131,8 @@ def calculate_schedule_recovery(
     train_id: str,
     target_speed_kmh: int,
     use_passing_siding: bool = False,
+    wall_clock: Optional[Callable[[], float]] = None,
+    monotonic_clock: Optional[Callable[[], float]] = None,
 ) -> Dict[str, Any]:
     """Calculate updated station ETA and recovered delay minutes based on target speed and track selection.
 
@@ -120,6 +140,8 @@ def calculate_schedule_recovery(
         train_id: Unique train identifier ('ADY-702', 'ADY-104', or 'ADY-410').
         target_speed_kmh: Requested cruise speed in km/h (subject to deterministic guardrail limits).
         use_passing_siding: True to route around an occupied primary block via the passing loop siding.
+        wall_clock: Optional injectable wall-clock callable captured once at ingress.
+        monotonic_clock: Optional injectable monotonic-clock callable.
 
     Returns:
         Dictionary containing approved_speed_kmh, assigned_track_block, recovered_minutes, and updated_eta.
@@ -127,7 +149,12 @@ def calculate_schedule_recovery(
     from railpulse_agent.guardrails import enforce_railway_physics_limits
 
     train = get_live_train_telemetry(train_id)
-    corridor = check_corridor_signals_and_wind(train["corridor_id"])
+    corridor = check_corridor_signals_and_wind(
+        train["corridor_id"],
+        wall_clock=wall_clock,
+        monotonic_clock=monotonic_clock,
+    )
+    now_mono = monotonic_clock() if monotonic_clock is not None else None
 
     # Run deterministic railway interlocking, freshness & wind-speed guardrail check
     verified = enforce_railway_physics_limits(
@@ -135,6 +162,7 @@ def calculate_schedule_recovery(
         requested_speed_kmh=target_speed_kmh,
         use_passing_siding=use_passing_siding,
         corridor_state=corridor,
+        now_monotonic=now_mono,
     )
 
     approved_speed = verified["approved_speed_kmh"]
