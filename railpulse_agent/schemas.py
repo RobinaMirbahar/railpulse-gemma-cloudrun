@@ -1,7 +1,9 @@
 """Pydantic v2 data contracts and structured JSON output schemas for RailPulse AI."""
 
-from typing import List, Literal
+from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
+
+StaleReason = Literal["expired", "clock_skew"]
 
 
 class TrainTelemetry(BaseModel):
@@ -33,6 +35,31 @@ class CorridorSignalWeather(BaseModel):
     )
     wind_speed_kmh: int = Field(..., ge=0, le=200, description="Live Caspian crosswind speed in km/h.")
     weather_alert: str = Field(..., description="Active weather advisory on the corridor.")
+    received_at_monotonic: Optional[float] = Field(
+        default=None,
+        description="Consumer-side time.monotonic() timestamp stamped at telemetry ingest.",
+    )
+    producer_offset_s: Optional[float] = Field(
+        default=None,
+        description="Wayside producer wall-clock offset (observed_at - received_at) in seconds.",
+    )
+
+
+class GuardrailDecision(BaseModel):
+    """Structured result returned by deterministic railway physics & freshness guardrails."""
+
+    speed_kmh: int = Field(..., ge=0, le=160, description="Approved cruise speed in km/h.")
+    approved_speed_kmh: int = Field(..., ge=0, le=160, description="Approved cruise speed in km/h.")
+    assigned_track_block: str = Field(..., description="Verified track block ID.")
+    stale_reason: Optional[StaleReason] = Field(
+        default=None,
+        description="Telemetry halt discriminator: 'expired' (>15.0s) or 'clock_skew' (<-0.5s).",
+    )
+    producer_offset_s: Optional[float] = Field(
+        default=None,
+        description="Observed wayside producer clock offset in seconds for NTP drift telemetry.",
+    )
+    guardrail_note: str = Field(..., description="Audit note from the deterministic railway guardrail.")
 
 
 class ScheduleRecoveryPlan(BaseModel):
@@ -43,6 +70,14 @@ class ScheduleRecoveryPlan(BaseModel):
     assigned_track_block: str = Field(..., description="Assigned track block after interlocking check.")
     recovered_minutes: int = Field(..., description="Delay minutes recovered by this dispatch plan.")
     updated_eta: str = Field(..., description="Updated station arrival time (HH:MM).")
+    stale_reason: Optional[StaleReason] = Field(
+        default=None,
+        description="Telemetry halt reason ('expired' or 'clock_skew') when speed is clamped to 0.",
+    )
+    producer_offset_s: Optional[float] = Field(
+        default=None,
+        description="Wayside producer clock offset in seconds for observability.",
+    )
     guardrail_note: str = Field(..., description="Audit note from the deterministic railway guardrail.")
 
 
@@ -51,7 +86,13 @@ class RailDispatchAdvisory(BaseModel):
 
     train_id: str = Field(..., description="Target train identifier (e.g., ADY-702).")
     route_name: str = Field(..., description="Rail corridor name.")
-    operational_status: Literal["ON_TIME", "DELAY_RECOVERY", "WIND_SPEED_RESTRICTED", "REROUTED_SIDING"] = Field(
+    operational_status: Literal[
+        "ON_TIME",
+        "DELAY_RECOVERY",
+        "WIND_SPEED_RESTRICTED",
+        "REROUTED_SIDING",
+        "TELEMETRY_HALT",
+    ] = Field(
         ..., description="High-level dispatch status badge for the Streamlit dashboard."
     )
     approved_speed_kmh: int = Field(
@@ -65,6 +106,14 @@ class RailDispatchAdvisory(BaseModel):
     )
     guardrail_interlock_passed: bool = Field(
         ..., description="True if deterministic block occupancy and wind caps were enforced."
+    )
+    stale_reason: Optional[StaleReason] = Field(
+        default=None,
+        description="Observable telemetry halt discriminator ('expired' vs 'clock_skew').",
+    )
+    producer_offset_s: Optional[float] = Field(
+        default=None,
+        description="Wayside sensor wall-clock offset (seconds) for NTP drift monitoring.",
     )
     guardrail_intervention_summary: str = Field(
         ..., description="Explanation of any speed clamping or block rerouting applied by the guardrail."

@@ -1,5 +1,6 @@
 """Pure-Python function calling tools for live rail telemetry, signals, and schedule recovery."""
 
+import time
 from typing import Any, Dict
 
 # Live state store for Azerbaijan Railways (ADY) corridors (mutable via Streamlit simulator)
@@ -93,15 +94,19 @@ def get_live_train_telemetry(train_id: str) -> Dict[str, Any]:
 def check_corridor_signals_and_wind(corridor_id: str) -> Dict[str, Any]:
     """Check railway block occupancy ('FREE', 'OCCUPIED', 'MAINTENANCE') and live Caspian wind speed.
 
+    Stamps `received_at_monotonic` from the consumer's own `time.monotonic()` clock at ingest.
+
     Args:
         corridor_id: Corridor identifier ('BAKU-GANJA', 'ABSHERON-RING', or 'BTK-CORRIDOR').
 
     Returns:
-        Dictionary containing primary block status, passing siding status, and live wind speed in km/h.
+        Dictionary containing primary block status, passing siding status, live wind speed, and ingest timestamp.
     """
     normalized_corridor = corridor_id.strip().upper()
-    signals = CORRIDOR_SIGNALS.get(normalized_corridor, CORRIDOR_SIGNALS["BAKU-GANJA"])
-    return dict(signals)
+    signals = dict(CORRIDOR_SIGNALS.get(normalized_corridor, CORRIDOR_SIGNALS["BAKU-GANJA"]))
+    signals.setdefault("received_at_monotonic", time.monotonic())
+    signals.setdefault("producer_offset_s", 0.0)
+    return signals
 
 
 def calculate_schedule_recovery(
@@ -124,7 +129,7 @@ def calculate_schedule_recovery(
     train = get_live_train_telemetry(train_id)
     corridor = check_corridor_signals_and_wind(train["corridor_id"])
 
-    # Run deterministic railway interlocking & wind-speed guardrail check
+    # Run deterministic railway interlocking, freshness & wind-speed guardrail check
     verified = enforce_railway_physics_limits(
         train_id=train["train_id"],
         requested_speed_kmh=target_speed_kmh,
@@ -137,7 +142,7 @@ def calculate_schedule_recovery(
 
     # Deterministic ETA recovery calculation
     initial_delay = int(train["delay_minutes"])
-    if initial_delay == 0:
+    if initial_delay == 0 or approved_speed == 0:
         recovered_minutes = 0
     elif approved_speed >= 130:
         recovered_minutes = min(initial_delay, 12)
@@ -159,5 +164,7 @@ def calculate_schedule_recovery(
         "remaining_delay_minutes": remaining_delay,
         "updated_eta": updated_eta,
         "guardrail_interlock_passed": True,
+        "stale_reason": verified["stale_reason"],
+        "producer_offset_s": verified["producer_offset_s"],
         "guardrail_note": verified["guardrail_note"],
     }

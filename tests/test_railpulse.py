@@ -1,6 +1,13 @@
 """Unit and integration tests for RailPulse AI tools, guardrails, and structured JSON schema."""
 
+import pytest
+
 from railpulse_agent.agent import run_railpulse_dispatch
+from railpulse_agent.guardrails import (
+    enforce_guardrails,
+    enforce_railway_physics_limits,
+    wind_at,
+)
 from railpulse_agent.schemas import RailDispatchAdvisory
 from railpulse_agent.tools import (
     calculate_schedule_recovery,
@@ -28,6 +35,43 @@ def test_deterministic_wind_and_block_interlock_guardrail() -> None:
     # Must automatically reroute away from OCCUPIED primary block onto FREE passing loop siding
     assert recovery["assigned_track_block"] == "BLK-BILAJARI-SIDING-S1"
     assert recovery["guardrail_interlock_passed"] is True
+    assert recovery["stale_reason"] is None
+
+
+@pytest.mark.parametrize(
+    "age_s,expect_speed,expect_reason",
+    [
+        (15.000, 140, None),
+        (15.001, 0, "expired"),
+        (-0.500, 140, None),
+        (-0.501, 0, "clock_skew"),
+    ],
+)
+def test_wind_age_and_stale_reason(age_s: float, expect_speed: int, expect_reason: str | None) -> None:
+    res = enforce_guardrails(wind_at(age_s))
+    assert (res.speed_kmh, res.stale_reason) == (expect_speed, expect_reason)
+
+
+def test_consumer_monotonic_ingest_and_producer_offset_telemetry() -> None:
+    # Verify that a future-stamped wayside packet (producer_offset_s > 0.5s) triggers clock_skew
+    # even when consumer residence time (now_monotonic - received_at_monotonic) is 0.05s.
+    res = enforce_railway_physics_limits(
+        train_id="ADY-702",
+        requested_speed_kmh=140,
+        use_passing_siding=False,
+        corridor_state={
+            "primary_block_id": "BLK-BILAJARI-B3",
+            "primary_block_status": "FREE",
+            "siding_block_id": "BLK-BILAJARI-SIDING-S1",
+            "wind_speed_kmh": 28,
+            "received_at_monotonic": 1000.000,
+            "producer_offset_s": 0.501,
+        },
+        now_monotonic=1000.050,
+    )
+    assert res["approved_speed_kmh"] == 0
+    assert res["stale_reason"] == "clock_skew"
+    assert res["producer_offset_s"] == 0.501
 
 
 def test_structured_json_dispatch_advisory() -> None:
@@ -35,6 +79,7 @@ def test_structured_json_dispatch_advisory() -> None:
     assert isinstance(advisory, RailDispatchAdvisory)
     assert advisory.approved_speed_kmh <= 80
     assert advisory.assigned_block_id == "BLK-BILAJARI-SIDING-S1"
+    assert advisory.stale_reason is None
     assert advisory.tools_invoked == [
         "get_live_train_telemetry",
         "check_corridor_signals_and_wind",
@@ -45,6 +90,8 @@ def test_structured_json_dispatch_advisory() -> None:
 def test_clear_corridor_btk_express() -> None:
     signals = check_corridor_signals_and_wind("BTK-CORRIDOR")
     assert signals["primary_block_status"] == "FREE"
+    assert isinstance(signals["received_at_monotonic"], float)
     advisory = run_railpulse_dispatch(train_id="ADY-410", requested_speed_kmh=110)
     assert advisory.approved_speed_kmh == 110
     assert advisory.operational_status == "ON_TIME"
+    assert advisory.stale_reason is None

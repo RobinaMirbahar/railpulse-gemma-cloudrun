@@ -94,7 +94,9 @@ def run_railpulse_dispatch(
     recovery = calculate_schedule_recovery(**tool_args)
 
     # Classify operational badge
-    if signals["wind_speed_kmh"] > 65:
+    if recovery.get("stale_reason") is not None:
+        status_badge = "TELEMETRY_HALT"
+    elif signals["wind_speed_kmh"] > 65:
         status_badge = "WIND_SPEED_RESTRICTED"
     elif signals["primary_block_status"] != "FREE":
         status_badge = "REROUTED_SIDING"
@@ -124,6 +126,8 @@ def run_railpulse_dispatch(
             "calculate_schedule_recovery",
         ],
         guardrail_interlock_passed=recovery["guardrail_interlock_passed"],
+        stale_reason=recovery.get("stale_reason"),
+        producer_offset_s=recovery.get("producer_offset_s"),
         guardrail_intervention_summary=recovery["guardrail_note"],
         passenger_announcement=announcement,
     )
