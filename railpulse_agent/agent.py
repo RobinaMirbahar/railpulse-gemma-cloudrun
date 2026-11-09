@@ -127,6 +127,7 @@ def run_railpulse_dispatch(
         ],
         guardrail_interlock_passed=recovery["guardrail_interlock_passed"],
         stale_reason=recovery.get("stale_reason"),
+        age_used=recovery.get("age_used"),
         producer_offset_s=recovery.get("producer_offset_s"),
         guardrail_intervention_summary=recovery["guardrail_note"],
         passenger_announcement=announcement,

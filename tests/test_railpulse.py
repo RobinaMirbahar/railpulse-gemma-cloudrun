@@ -48,8 +48,13 @@ def test_deterministic_wind_and_block_interlock_guardrail() -> None:
     ],
 )
 def test_wind_age_and_stale_reason(age_s: float, expect_speed: int, expect_reason: str | None) -> None:
-    res = enforce_guardrails(wind_at(age_s))
+    packet = wind_at(age_s)
+    assert packet["corridor_state"]["corridor_id"] == "BTK-CORRIDOR"
+    assert packet["corridor_state"]["wind_speed_kmh"] == 28
+    res = enforce_guardrails(packet)
     assert (res.speed_kmh, res.stale_reason) == (expect_speed, expect_reason)
+    assert res.age_used == max(0.0, age_s)
+    assert res.guardrail_interlock_passed is (expect_reason is None)
 
 
 def test_consumer_monotonic_ingest_and_producer_offset_telemetry() -> None:
@@ -72,6 +77,8 @@ def test_consumer_monotonic_ingest_and_producer_offset_telemetry() -> None:
     assert res["approved_speed_kmh"] == 0
     assert res["stale_reason"] == "clock_skew"
     assert res["producer_offset_s"] == 0.501
+    assert res["age_used"] == 0.05
+    assert res["guardrail_interlock_passed"] is False
 
 
 def test_structured_json_dispatch_advisory() -> None:

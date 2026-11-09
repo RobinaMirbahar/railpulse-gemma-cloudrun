@@ -59,6 +59,10 @@ class GuardrailDecision(BaseModel):
         default=None,
         description="Telemetry halt discriminator: 'expired' (>15.0s) or 'clock_skew' (<-0.5s).",
     )
+    age_used: Optional[float] = Field(
+        default=None,
+        description="Clamped non-negative telemetry age (max(0.0, age_s)) evaluated by the freshness interlock.",
+    )
     producer_offset_s: Optional[float] = Field(
         default=None,
         description="Observed wayside producer clock offset in seconds for NTP drift telemetry.",
@@ -77,6 +81,10 @@ class ScheduleRecoveryPlan(BaseModel):
     stale_reason: Optional[StaleReason] = Field(
         default=None,
         description="Telemetry halt reason ('expired' or 'clock_skew') when speed is clamped to 0.",
+    )
+    age_used: Optional[float] = Field(
+        default=None,
+        description="Clamped non-negative telemetry age (max(0.0, age_s)) evaluated by the freshness interlock.",
     )
     producer_offset_s: Optional[float] = Field(
         default=None,
@@ -114,6 +122,10 @@ class RailDispatchAdvisory(BaseModel):
     stale_reason: Optional[StaleReason] = Field(
         default=None,
         description="Observable telemetry halt discriminator ('expired' vs 'clock_skew').",
+    )
+    age_used: Optional[float] = Field(
+        default=None,
+        description="Clamped non-negative telemetry age (max(0.0, age_s)) evaluated by the freshness interlock.",
     )
     producer_offset_s: Optional[float] = Field(
         default=None,

@@ -165,6 +165,7 @@ def calculate_schedule_recovery(
         "updated_eta": updated_eta,
         "guardrail_interlock_passed": verified["guardrail_interlock_passed"],
         "stale_reason": verified["stale_reason"],
+        "age_used": verified["age_used"],
         "producer_offset_s": verified["producer_offset_s"],
         "guardrail_note": verified["guardrail_note"],
     }

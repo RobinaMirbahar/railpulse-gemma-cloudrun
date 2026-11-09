@@ -37,10 +37,12 @@ def _normalize_block_status(raw: Any) -> str:
 def _resolve_telemetry_freshness(
     corridor_state: Dict[str, Any],
     now_monotonic: Optional[float] = None,
-) -> tuple[Optional[float], Optional[float], Optional[StaleReason]]:
+) -> tuple[Optional[float], Optional[float], Optional[float], Optional[StaleReason]]:
     """Derive consumer-side monotonic age and check wayside producer clock skew.
 
-    - Consumer age is derived from `now_monotonic - received_at_monotonic` when stamped at ingest.
+    - Consumer age is derived from `now_monotonic - received_at_monotonic` when stamped at ingest,
+      with `age_used = max(0.0, age_s)` exposed so negative clock offsets are clamped to 0.0 for
+      age evaluation while still triggering `clock_skew` when beyond `-0.500s`.
     - Wayside producer clock drift (`producer_offset_s = observed_at - received_at`) is tracked as
       telemetry and triggers `stale_reason="clock_skew"` if the producer clock runs ahead by more
       than 0.500s (`age_s < -0.500` or `producer_offset_s > 0.500`).
@@ -59,18 +61,20 @@ def _resolve_telemetry_freshness(
         ref_mono = float(now_monotonic) if now_monotonic is not None else time.monotonic()
         age_s = round(ref_mono - float(received_mono), 6)
 
+    age_used: Optional[float] = max(0.0, age_s) if age_s is not None else None
+
     # Check future-stamped wayside packet / negative effective age beyond -0.500s tolerance
     if producer_offset_s is not None and producer_offset_s > abs(MIN_CLOCK_SKEW_TOLERANCE_S):
-        return age_s, producer_offset_s, "clock_skew"
+        return age_s, age_used, producer_offset_s, "clock_skew"
     if age_s is not None:
         if age_s < MIN_CLOCK_SKEW_TOLERANCE_S:
             if producer_offset_s is None:
                 producer_offset_s = -age_s
-            return age_s, producer_offset_s, "clock_skew"
+            return age_s, age_used, producer_offset_s, "clock_skew"
         if age_s > MAX_TELEMETRY_AGE_S:
-            return age_s, producer_offset_s, "expired"
+            return age_s, age_used, producer_offset_s, "expired"
 
-    return age_s, producer_offset_s, None
+    return age_s, age_used, producer_offset_s, None
 
 
 def enforce_railway_physics_limits(
@@ -96,7 +100,7 @@ def enforce_railway_physics_limits(
     3. Passenger Corridor Speed Ceiling: Max speed is clamped to 160 km/h.
     """
     notes = []
-    age_s, producer_offset_s, stale_reason = _resolve_telemetry_freshness(
+    age_s, age_used, producer_offset_s, stale_reason = _resolve_telemetry_freshness(
         corridor_state, now_monotonic=now_monotonic
     )
 
@@ -144,7 +148,7 @@ def enforce_railway_physics_limits(
     primary_status = _normalize_block_status(corridor_state.get("primary_block_status"))
     primary_block = corridor_state.get("primary_block_id", "BLK-PRIMARY")
     siding_block = corridor_state.get("siding_block_id", "BLK-SIDING")
-    interlock_passed = True
+    interlock_passed = stale_reason is None
 
     if primary_status != "FREE" or use_passing_siding:
         assigned_block = siding_block
@@ -175,6 +179,7 @@ def enforce_railway_physics_limits(
         "assigned_track_block": assigned_block,
         "guardrail_interlock_passed": interlock_passed,
         "stale_reason": stale_reason,
+        "age_used": age_used,
         "producer_offset_s": producer_offset_s,
         "guardrail_note": " | ".join(notes),
     }
@@ -184,9 +189,10 @@ def wind_at(
     age_s: float,
     wind_speed_kmh: int = 28,
     requested_speed_kmh: int = 140,
-    train_id: str = "ADY-702",
+    train_id: str = "ADY-410",
+    corridor_id: str = "BTK-CORRIDOR",
 ) -> Dict[str, Any]:
-    """Construct a corridor wind telemetry packet at a target age or clock-skew offset for testing."""
+    """Construct a clear-corridor (BTK-CORRIDOR, wind 28 km/h) telemetry packet at a target age or clock-skew offset."""
     now_mono = time.monotonic()
     return {
         "train_id": train_id,
@@ -194,10 +200,10 @@ def wind_at(
         "use_passing_siding": False,
         "now_monotonic": now_mono,
         "corridor_state": {
-            "corridor_id": "BAKU-GANJA",
-            "primary_block_id": "BLK-BILAJARI-B3",
+            "corridor_id": corridor_id,
+            "primary_block_id": "BLK-AGSTAFA-M1",
             "primary_block_status": "FREE",
-            "siding_block_id": "BLK-BILAJARI-SIDING-S1",
+            "siding_block_id": "BLK-AGSTAFA-SIDING-S1",
             "siding_block_status": "FREE",
             "wind_speed_kmh": wind_speed_kmh,
             "received_at_monotonic": now_mono - float(age_s),
@@ -211,7 +217,7 @@ def enforce_guardrails(packet: Dict[str, Any]) -> GuardrailDecision:
     """Evaluate a telemetry packet through `enforce_railway_physics_limits` and return a `GuardrailDecision`."""
     corridor_state = packet.get("corridor_state", packet)
     res = enforce_railway_physics_limits(
-        train_id=str(packet.get("train_id", "ADY-702")),
+        train_id=str(packet.get("train_id", "ADY-410")),
         requested_speed_kmh=int(packet.get("requested_speed_kmh", 140)),
         use_passing_siding=bool(packet.get("use_passing_siding", False)),
         corridor_state=corridor_state,
