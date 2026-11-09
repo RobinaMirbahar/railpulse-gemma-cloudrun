@@ -1,5 +1,7 @@
 """Unit and integration tests for RailPulse AI tools, guardrails, and structured JSON schema."""
 
+from unittest import mock
+
 import pytest
 
 from railpulse_agent.agent import run_railpulse_dispatch
@@ -83,7 +85,8 @@ def test_consumer_monotonic_ingest_and_producer_offset_telemetry() -> None:
 
 def test_wall_clock_read_exactly_once_at_ingress() -> None:
     # Verify that wall time (observed_at_wall) is captured once at ingress and never re-read
-    # downstream by any helper in the schedule recovery or guardrail pipeline.
+    # downstream by any helper in the schedule recovery or guardrail pipeline, including via
+    # direct module-level `time.time()` calls.
     wall_calls = 0
 
     def fake_wall_clock() -> float:
@@ -91,12 +94,14 @@ def test_wall_clock_read_exactly_once_at_ingress() -> None:
         wall_calls += 1
         return 1762680000.0
 
-    recovery = calculate_schedule_recovery(
-        train_id="ADY-410",
-        target_speed_kmh=140,
-        use_passing_siding=False,
-        wall_clock=fake_wall_clock,
-    )
+    with mock.patch("time.time", side_effect=fake_wall_clock) as mock_time:
+        recovery = calculate_schedule_recovery(
+            train_id="ADY-410",
+            target_speed_kmh=140,
+            use_passing_siding=False,
+        )
+        assert mock_time.call_count == 1
+
     assert wall_calls == 1
     assert recovery["approved_speed_kmh"] == 140
     assert recovery["stale_reason"] is None
