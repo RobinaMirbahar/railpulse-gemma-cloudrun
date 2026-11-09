@@ -163,7 +163,7 @@ def calculate_schedule_recovery(
         "recovered_minutes": recovered_minutes,
         "remaining_delay_minutes": remaining_delay,
         "updated_eta": updated_eta,
-        "guardrail_interlock_passed": True,
+        "guardrail_interlock_passed": verified["guardrail_interlock_passed"],
         "stale_reason": verified["stale_reason"],
         "producer_offset_s": verified["producer_offset_s"],
         "guardrail_note": verified["guardrail_note"],

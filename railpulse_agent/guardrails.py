@@ -1,5 +1,6 @@
 """Deterministic railway physics & block interlocking guardrails (Non-Security operational safety)."""
 
+import math
 import time
 from typing import Any, Dict, Optional
 
@@ -10,6 +11,27 @@ HIGH_WIND_THRESHOLD_KMH = 65
 MAX_PASSENGER_RAIL_SPEED_KMH = 160
 MAX_TELEMETRY_AGE_S = 15.0
 MIN_CLOCK_SKEW_TOLERANCE_S = -0.5
+
+
+def _parse_wind_kmh(raw: Any) -> Optional[float]:
+    """Parse a wind reading, returning None when there is no usable number to act on."""
+    if raw is None:
+        return None
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(value):
+        return None
+    return min(max(value, 0.0), 200.0)
+
+
+def _normalize_block_status(raw: Any) -> str:
+    """Normalise a block occupancy field. A missing or empty status is UNKNOWN, never FREE."""
+    if raw is None:
+        return "UNKNOWN"
+    status = str(raw).strip().upper()
+    return status or "UNKNOWN"
 
 
 def _resolve_telemetry_freshness(
@@ -100,26 +122,46 @@ def enforce_railway_physics_limits(
             )
             approved_speed = MAX_PASSENGER_RAIL_SPEED_KMH
 
-        # Rule 2: Caspian wind-speed cap
-        wind_kmh = int(corridor_state.get("wind_speed_kmh", 0))
-        if wind_kmh > HIGH_WIND_THRESHOLD_KMH and approved_speed > MAX_HIGH_WIND_SPEED_KMH:
+        # Rule 2: Caspian wind-speed cap. An unreadable sensor is not calm weather: a missing,
+        # non-numeric or NaN reading is capped exactly like a high-wind reading until data arrives.
+        wind_kmh = _parse_wind_kmh(corridor_state.get("wind_speed_kmh"))
+        if wind_kmh is None:
+            if approved_speed > MAX_HIGH_WIND_SPEED_KMH:
+                notes.append(
+                    f"Wind reading unavailable (raw={corridor_state.get('wind_speed_kmh')!r}): "
+                    f"clamped speed {approved_speed} km/h -> {MAX_HIGH_WIND_SPEED_KMH} km/h (wind_unknown)."
+                )
+                approved_speed = MAX_HIGH_WIND_SPEED_KMH
+        elif wind_kmh > HIGH_WIND_THRESHOLD_KMH and approved_speed > MAX_HIGH_WIND_SPEED_KMH:
             notes.append(
-                f"High-wind interlock triggered (wind={wind_kmh} km/h > {HIGH_WIND_THRESHOLD_KMH} km/h): "
+                f"High-wind interlock triggered (wind={wind_kmh:g} km/h > {HIGH_WIND_THRESHOLD_KMH} km/h): "
                 f"clamped speed {approved_speed} km/h -> {MAX_HIGH_WIND_SPEED_KMH} km/h."
             )
             approved_speed = MAX_HIGH_WIND_SPEED_KMH
 
-    # Rule 3: Single-track / block occupancy collision interlock
-    primary_status = corridor_state.get("primary_block_status", "FREE")
+    # Rule 3: Single-track / block occupancy collision interlock. An unknown status is never
+    # treated as FREE: a missing field routes the train to the loop exactly like an OCCUPIED one.
+    primary_status = _normalize_block_status(corridor_state.get("primary_block_status"))
     primary_block = corridor_state.get("primary_block_id", "BLK-PRIMARY")
     siding_block = corridor_state.get("siding_block_id", "BLK-SIDING")
+    interlock_passed = True
 
     if primary_status != "FREE" or use_passing_siding:
         assigned_block = siding_block
-        if primary_status != "FREE" and not use_passing_siding:
+        if primary_status != "FREE":
             notes.append(
                 f"Block collision interlock triggered: {primary_block} is {primary_status}; "
                 f"auto-rerouted {train_id} onto passing loop {siding_block}."
+            )
+
+        # The loop itself still has to be verified FREE, otherwise there is no safe block at all.
+        siding_status = _normalize_block_status(corridor_state.get("siding_block_status"))
+        if siding_status != "FREE":
+            interlock_passed = False
+            approved_speed = 0
+            notes.append(
+                f"Passing loop {siding_block} is {siding_status}: no verified block for {train_id}, "
+                "held at 0 km/h at the signal."
             )
         else:
             notes.append(f"Verified passing loop {siding_block} is FREE for {train_id}.")
@@ -131,6 +173,7 @@ def enforce_railway_physics_limits(
         "speed_kmh": approved_speed,
         "approved_speed_kmh": approved_speed,
         "assigned_track_block": assigned_block,
+        "guardrail_interlock_passed": interlock_passed,
         "stale_reason": stale_reason,
         "producer_offset_s": producer_offset_s,
         "guardrail_note": " | ".join(notes),
