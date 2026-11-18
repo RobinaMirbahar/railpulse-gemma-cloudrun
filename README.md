@@ -9,10 +9,6 @@
 </p>
 
 > **Accepted 45-Minute Hands-On Workshop — DevFest Baku 2026**  
-> **Author & Speaker:** [Robina Mirbahar](https://github.com/RobinaMirbahar) (Google Developer Expert in Cloud & AI)  
-> **🎥 YouTube Video Walkthrough:** [https://youtu.be/ZmMh8aMzDng](https://youtu.be/ZmMh8aMzDng)  
-> **Focus:** Designing, verifying, containerizing, and deploying a safety-critical railway dispatch and live tracking AI agent powered by open-weights **Gemma**, **Google Agent Development Kit (ADK)**, **Streamlit**, and **Google Cloud Run** with scale-to-zero serverless economics.
-
 > **Author & Architect:** [Robina Mirbahar](https://github.com/RobinaMirbahar) ([Google Developer Expert in Cloud & AI](https://developers.google.com/profile/u/106918534005910641104?utm_campaign=deveco_gdemembers&utm_source=deveco) · Google Cloud Champion Innovator · Co-Author of [*AI Engineering*](https://www.amazon.com/dp/B0GWCZWCF4))  
 > 📚 **Companion Publications:** [DEV.to (@gde) Featured Article](https://dev.to/gde/building-railpulse-ai-deploying-an-open-source-railway-dispatch-agent-with-gemma-and-google-cloud-2b9g) · [Medium Article](https://medium.com/@robinamirbahar/building-railpulse-ai-deploying-an-open-source-railway-dispatch-agent-with-gemma-and-google-cloud-04a28fa0ac27) · [YouTube Video Tutorial](https://www.youtube.com/watch?v=ZmMh8aMzDng)  
 > **Core Stack:** Open-Weights [Google Gemma](https://ai.google.dev/gemma?utm_campaign=deveco_gdemembers&utm_source=deveco), [Google Agent Development Kit (ADK)](https://google.github.io/adk-docs/?utm_campaign=deveco_gdemembers&utm_source=deveco) Function Calling, Deterministic Safety Interlocks, Streamlit SVG Telemetry, and [Google Cloud Run](https://cloud.google.com/run/docs?utm_campaign=deveco_gdemembers&utm_source=deveco).
@@ -104,53 +100,6 @@ flowchart TD
     UI --> CR_Container
     CR_Container --> CR
     CR --> CR_Scale
-    style UI fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Layer fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style UI_Head fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style Switcher fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style UI_KPI fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Strip fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style UI_Timeline fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style Timeline fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style UI_Sim fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Simulator fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style UI_Chat fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style Assistant fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style UI_Announce fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Board fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style UI_Map fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style Map fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style UI_Table fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Agent fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style Core fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style A_Agent fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style A_Chat fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Engine fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style A_Tools fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style A_T1 fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style get_live_train_telemetry fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style A_T2 fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style check_corridor_signals_and_wind fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style A_T3 fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style calculate_schedule_recovery fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Safety fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style Interlocks fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style S_Audit fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style S_Wind fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style S_Clamp fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style Clamping fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style S_Block fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style S_Divert fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style S_Schema fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style Enforcement fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style Cloud fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style CR fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Run fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style CR_Container fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
-    style App fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87
-    style CR_Scale fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#831843
-    style Zero fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
-    style CR_Auth fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
 ```
 
 ### 🧩 Architectural Subsystem Index
